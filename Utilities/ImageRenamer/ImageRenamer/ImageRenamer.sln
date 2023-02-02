@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRenamer", "ImageRenamer\ImageRenamer.csproj", "{403AA412-D3E7-44F6-B790-0D8FBAC17B84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageToXlsx", "ImageToXlsx\ImageToXlsx.csproj", "{65E0D3F3-4C1D-44AA-83EE-20FC1480A2DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorFixApp", "ErrorFixApp\ErrorFixApp.csproj", "{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{403AA412-D3E7-44F6-B790-0D8FBAC17B84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{403AA412-D3E7-44F6-B790-0D8FBAC17B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{403AA412-D3E7-44F6-B790-0D8FBAC17B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{403AA412-D3E7-44F6-B790-0D8FBAC17B84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65E0D3F3-4C1D-44AA-83EE-20FC1480A2DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65E0D3F3-4C1D-44AA-83EE-20FC1480A2DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65E0D3F3-4C1D-44AA-83EE-20FC1480A2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65E0D3F3-4C1D-44AA-83EE-20FC1480A2DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
