@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ErrorFixApp"
+        xmlns:properties="clr-namespace:ErrorFixApp.Properties"
         mc:Ignorable="d"
         Title="Error Recording App" Height="780" Width="820"
         WindowState="{Binding WState}">
@@ -33,10 +34,8 @@
                         AcceptsReturn="True"
                         VerticalScrollBarVisibility="Visible"
                         Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                    <Button Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
-                            HorizontalAlignment="Stretch" Command="{Binding Path=FixCommand}">
-                        Добавить ошибку в БД
-                    </Button>
+                    <Button Content="{x:Static properties:Resources.AddErrorToDb}"  Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
+                            HorizontalAlignment="Stretch" Command="{Binding Path=FixCommand}"/>
 
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch"
@@ -93,9 +92,9 @@
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Visibility="{Binding ImageVisibility}" HorizontalAlignment="Stretch"
+                <Image Grid.Column="0" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageV}" />
-                <Image Grid.Column="1" Visibility="{Binding ImageVisibility}" HorizontalAlignment="Stretch"
+                <Image Grid.Column="1" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageM}" />
             </Grid>
 
@@ -111,8 +110,8 @@
                 </Grid.ColumnDefinitions>
                
                 <StackPanel Grid.Column="0" >
-                    <Label Grid.Column="0">ID:</Label>
-                    <TextBox Grid.Column="0"
+                    <Label>ID:</Label>
+                    <TextBox 
                              SpellCheck.IsEnabled="True" Language="ru-ru"
                              MinHeight="200"
                              HorizontalAlignment="Stretch"

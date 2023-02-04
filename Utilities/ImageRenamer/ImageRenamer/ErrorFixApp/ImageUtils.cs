@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
@@ -8,9 +7,9 @@ using System.Windows.Media.Imaging;
 
 namespace ErrorFixApp
 {
-    public class ImageUtils
+    public static class ImageUtils
     {
-        public  static byte[] ImageToByte(Image image, System.Drawing.Imaging.ImageFormat format){
+        public  static byte[] ImageToByte(Image image, ImageFormat format){
             using (MemoryStream ms = new MemoryStream())
             {
                 // Convert Image to byte[]
@@ -31,8 +30,6 @@ namespace ErrorFixApp
 
         public static Bitmap ResizeImage(Image image, int size)
         {
-            int maxSize = Math.Max(image.Width, image.Height);
-            int delta = maxSize - size;
             int width = size;
             int height = (int)(((float)image.Height) / (((float)image.Width)/(float)size));
             var destRect = new Rectangle(0, 0, width, height);
@@ -58,18 +55,18 @@ namespace ErrorFixApp
             return destImage;
         }
         
-        public static BitmapImage BitmapToImageSource(System.Drawing.Bitmap bitmap)
+        public static BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
             using (MemoryStream memory = new MemoryStream())
             {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Jpeg);
+                bitmap.Save(memory, ImageFormat.Jpeg);
                 memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-                return bitmapimage;
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                return bitmapImage;
             }
         }
     }

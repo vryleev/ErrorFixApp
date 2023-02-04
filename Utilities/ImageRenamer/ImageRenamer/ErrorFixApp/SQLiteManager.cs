@@ -6,23 +6,23 @@ using System.Data.SQLite;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
 using System.Windows;
+using ErrorFixApp.Properties;
 
 namespace ErrorFixApp
 {
-    public class SQLiteManager
+    public class SqLiteManager
     {
-        readonly static string baseDir = $"{Directory.GetCurrentDirectory()}\\RouteErrors";    
+        static readonly string BaseDir = $"{Directory.GetCurrentDirectory()}\\RouteErrors";    
         
-        private string _baseName = $"{baseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
+        private readonly string _baseName = $"{BaseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
         
-        public SQLiteManager()
+        public SqLiteManager()
         {
             
-            if (!Directory.Exists(baseDir))
+            if (!Directory.Exists(BaseDir))
             {
-                Directory.CreateDirectory(baseDir);
+                Directory.CreateDirectory(BaseDir);
             }
 
             if (!File.Exists(_baseName))
@@ -31,12 +31,14 @@ namespace ErrorFixApp
                SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
                using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
                {
-                   connection.ConnectionString = "Data Source = " + _baseName;
-                   connection.Open();
-
-                   using (SQLiteCommand command = new SQLiteCommand(connection))
+                   if (connection != null)
                    {
-                       command.CommandText = @"CREATE TABLE [RouteErrors] (
+                       connection.ConnectionString = "Data Source = " + _baseName;
+                       connection.Open();
+
+                       using (SQLiteCommand command = new SQLiteCommand(connection))
+                       {
+                           command.CommandText = @"CREATE TABLE [RouteErrors] (
                     [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
                     [imagev] BLOB NOT NULL,
                     [imagem] BLOB NOT NULL,
@@ -45,46 +47,53 @@ namespace ErrorFixApp
                     [timestamp] TEXT NOT NULL,
                     [routeName] TEXT NOT NULL                    
                     );";
-                       command.CommandType = CommandType.Text;
-                       command.ExecuteNonQuery();
+                           command.CommandType = CommandType.Text;
+                           command.ExecuteNonQuery();
+                       }
                    }
                }
             }
         }
 
-        public void AddErrorToDB(ErrorDetail error)
+        public void AddErrorToDb(ErrorDetail error)
         {
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
             {
-                connection.ConnectionString = "Data Source = " + _baseName;
-                connection.Open();
-
-                using (SQLiteCommand command = new SQLiteCommand(connection))
+                if (connection != null)
                 {
-                    command.CommandText = $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}');";
-                    SQLiteParameter param0 = new SQLiteParameter("@0", System.Data.DbType.Binary);
-                    param0.Value = ImageUtils.ImageToByte(error.ImageV,ImageFormat.Jpeg);
-                    command.Parameters.Add(param0);
-                    
-                    SQLiteParameter param1 = new SQLiteParameter("@1", System.Data.DbType.Binary);
-                    param1.Value = ImageUtils.ImageToByte(error.ImageM,ImageFormat.Jpeg);
-                    command.Parameters.Add(param1);
-                    
-                    // SQLiteParameter param2 = new SQLiteParameter("@2", System.Data.DbType.);
-                    // param2.Value = Encoding.UTF8.GetBytes(error.Comment);
-                    // command.Parameters.Add(param2);
-                    
-                    command.CommandType = CommandType.Text;
-                    try{
-                        int res = command.ExecuteNonQuery();
-                        
-                        command.CommandText = "SELECT count(*) FROM [RouteErrors]";
-                        object count = command.ExecuteScalar();
-                        MessageBox.Show($"Добавлено ошибок: {res}, всего ошибок: {count}");
-                    }
-                    catch (Exception exc1){
-                        MessageBox.Show(exc1.Message);
+                    connection.ConnectionString = "Data Source = " + _baseName;
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText =
+                            $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}');";
+                        SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
+                        {
+                            Value = ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)
+                        };
+                        command.Parameters.Add(param0);
+
+                        SQLiteParameter param1 = new SQLiteParameter("@1", DbType.Binary)
+                        {
+                            Value = ImageUtils.ImageToByte(error.ImageM, ImageFormat.Jpeg)
+                        };
+                        command.Parameters.Add(param1);
+
+                        command.CommandType = CommandType.Text;
+                        try
+                        {
+                            int res = command.ExecuteNonQuery();
+
+                            command.CommandText = "SELECT count(*) FROM [RouteErrors]";
+                            object count = command.ExecuteScalar();
+                            MessageBox.Show($"{Resources.AddedErrors}: {res}, {Resources.TotalErrors}: {count}");
+                        }
+                        catch (Exception exc1)
+                        {
+                            MessageBox.Show(exc1.Message);
+                        }
                     }
                 }
             }
@@ -95,33 +104,43 @@ namespace ErrorFixApp
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
             {
-                connection.ConnectionString = "Data Source = " + baseName;
-                connection.Open();
-
-                using (SQLiteCommand command = new SQLiteCommand(connection))
+                if (connection != null)
                 {
-                    command.CommandText = $"Select imagev, imagem, comment, position, timestamp, routeName, id from RouteErrors where id = '{id}'";
-                    try
+                    connection.ConnectionString = "Data Source = " + baseName;
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        IDataReader rdr = command.ExecuteReader();
+                        command.CommandText =
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id from RouteErrors where id = '{id}'";
                         try
                         {
-                            while (rdr.Read())
+                            IDataReader rdr = command.ExecuteReader();
+                            try
                             {
-                                byte[] a = (System.Byte[])rdr[0];
-                                error.BImageV = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(a));
-                                byte[] b = (System.Byte[])rdr[1];
-                                error.BImageM = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(b));
-                                error.Comment = (String)rdr[2];
-                                error.Position = (String)rdr[3];
-                                error.TimeStamp = (String)rdr[4];
-                                error.RouteName = (String)rdr[5];
-                                error.Id = Convert.ToInt32(rdr[6]);
+                                while (rdr.Read())
+                                {
+                                    byte[] a = (Byte[])rdr[0];
+                                    error.BImageV = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(a));
+                                    byte[] b = (Byte[])rdr[1];
+                                    error.BImageM = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(b));
+                                    error.Comment = (String)rdr[2];
+                                    error.Position = (String)rdr[3];
+                                    error.TimeStamp = (String)rdr[4];
+                                    error.RouteName = (String)rdr[5];
+                                    error.Id = Convert.ToInt32(rdr[6]);
+                                }
+                            }
+                            catch (Exception exc)
+                            {
+                                MessageBox.Show(exc.Message);
                             }
                         }
-                        catch (Exception exc) { MessageBox.Show(exc.Message); }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
                 }
             }
             
@@ -134,37 +153,48 @@ namespace ErrorFixApp
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
             {
-                connection.ConnectionString = "Data Source = " + baseName;
-                connection.Open();
-
-                using (SQLiteCommand command = new SQLiteCommand(connection))
+                if (connection != null)
                 {
-                    command.CommandText = $"Select imagev, imagem, comment, position, timestamp, routeName, id from RouteErrors";
-                    try
+                    connection.ConnectionString = "Data Source = " + baseName;
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        IDataReader rdr = command.ExecuteReader();
+                        command.CommandText =
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id from RouteErrors";
                         try
                         {
-                            while (rdr.Read())
+                            IDataReader rdr = command.ExecuteReader();
+                            try
                             {
-                                ErrorDetail error = new ErrorDetail();
-                                byte[] a = (System.Byte[])rdr[0];
-                                error.ImageV = ImageUtils.ByteToImage(a);
-                                byte[] b = (System.Byte[])rdr[1];
-                                error.ImageM = ImageUtils.ByteToImage(b);
-                                error.Comment = (String)rdr[2];
-                                error.Position = (String)rdr[3];
-                                error.TimeStamp = (String)rdr[4];
-                                error.RouteName = (String)rdr[5];
-                                error.Id = Convert.ToInt32(rdr[6]);
-                                errors.Add(error);
+                                while (rdr.Read())
+                                {
+                                    ErrorDetail error = new ErrorDetail();
+                                    byte[] a = (Byte[])rdr[0];
+                                    error.ImageV = ImageUtils.ByteToImage(a);
+                                    byte[] b = (Byte[])rdr[1];
+                                    error.ImageM = ImageUtils.ByteToImage(b);
+                                    error.Comment = (String)rdr[2];
+                                    error.Position = (String)rdr[3];
+                                    error.TimeStamp = (String)rdr[4];
+                                    error.RouteName = (String)rdr[5];
+                                    error.Id = Convert.ToInt32(rdr[6]);
+                                    errors.Add(error);
+                                }
+                            }
+                            catch (Exception exc)
+                            {
+                                MessageBox.Show(exc.Message);
                             }
                         }
-                        catch (Exception exc) { MessageBox.Show(exc.Message); }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
+
+                    connection.Close();
                 }
-                connection.Close();
             }
 
             return errors;

@@ -3,15 +3,16 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ErrorFixApp.Properties;
 
 namespace ErrorFixApp
 {
     public class ErrorDetail: INotifyPropertyChanged
     {
-        private string _comment = "Добавь комментарий";
-        private string _position = "Позиция не задана";
-        private string _timestamp = "Время не задано";
-        private string _routeName = "Задайте маршрут";
+        private string _comment = Resources.AddComment;
+        private string _position = Resources.PositionNotSet;
+        private string _timestamp = Resources.TimeStampNotSet;
+        private string _routeName = Resources.SetupRoute;
         private int _id = -1;
         
         private BitmapImage _bitmapImageV = new BitmapImage();
@@ -25,7 +26,7 @@ namespace ErrorFixApp
             set
             {
                 _imageVisibility = value;
-                OnPropertyChanged("ImageVisibility");
+                OnPropertyChanged();
             }
         }
         
@@ -39,7 +40,7 @@ namespace ErrorFixApp
             set
             {
                 _bitmapImageV = value;
-                OnPropertyChanged("BImageV");
+                OnPropertyChanged();
             }
         }
         
@@ -49,7 +50,7 @@ namespace ErrorFixApp
             set
             {
                 _bitmapImageM = value;
-                OnPropertyChanged("BImageM");
+                OnPropertyChanged();
             }
         }
         
@@ -59,7 +60,7 @@ namespace ErrorFixApp
             set
             {
                 _id = value;
-                OnPropertyChanged("Id");
+                OnPropertyChanged();
             }
         }
        
@@ -70,7 +71,7 @@ namespace ErrorFixApp
             set
             {
                 _comment = value;
-                OnPropertyChanged("Comment");
+                OnPropertyChanged();
             }
         }
         
@@ -80,7 +81,7 @@ namespace ErrorFixApp
             set
             {
                 _position = value;
-                OnPropertyChanged("Position");
+                OnPropertyChanged();
             }
         }
         
@@ -90,7 +91,7 @@ namespace ErrorFixApp
             set
             {
                 _routeName = value;
-                OnPropertyChanged("RouteName");
+                OnPropertyChanged();
             }
         }
         
@@ -100,13 +101,14 @@ namespace ErrorFixApp
             set
             {
                 _timestamp = value;
-                OnPropertyChanged("TimeStamp");
+                OnPropertyChanged();
             }
         }
         
         
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
+
+        private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));

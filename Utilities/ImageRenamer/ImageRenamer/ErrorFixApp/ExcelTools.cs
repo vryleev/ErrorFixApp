@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using System.IO;
 using System.Drawing;
@@ -38,18 +37,25 @@ namespace ImageToXlsx
 
         public static WorksheetPart GetWorksheetPartByName(SpreadsheetDocument document, string sheetName)
         {
-            IEnumerable<Sheet> sheets =
-               document.WorkbookPart.Workbook.GetFirstChild<Sheets>().
-               Elements<Sheet>().Where(s => s.Name == sheetName);
-
-            if (sheets.Count() == 0)
+            if (document == null) return null;
+            if (document.WorkbookPart != null)
             {
-                // The specified worksheet does not exist
-                return null;
-            }
+                
+                    IEnumerable<Sheet> sheets =
+                        document.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>()
+                            .Where(s => s.Name == sheetName);
 
-            string relationshipId = sheets.First().Id.Value;
-            return (WorksheetPart)document.WorkbookPart.GetPartById(relationshipId);
+                    if (!sheets.Any())
+                    {
+                        // The specified worksheet does not exist
+                        return null;
+                    }
+
+                    string relationshipId = sheets.First().Id.Value;
+                    return (WorksheetPart)document.WorkbookPart.GetPartById(relationshipId);
+                
+            }
+            return null;
         }
 
         public static SpreadsheetDocument OpenDocument(string excelFile, string sheetName,  out WorkbookPart workBookPart, out WorksheetPart worksheetPart)

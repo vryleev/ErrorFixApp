@@ -8,10 +8,11 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml.Packaging;
+using ErrorFixApp.Properties;
 using ImageToXlsx;
 using Microsoft.Win32;
 
@@ -21,22 +22,26 @@ namespace ErrorFixApp
     {
         public MainWindowModel()
         {
-            _sqLiteManager = new SQLiteManager();
+            _sqLiteManager = new SqLiteManager();
           
         }
 
-        private SQLiteManager _sqLiteManager;
+        private readonly SqLiteManager _sqLiteManager;
 
         
         //private static string _trainerPath = "F:/Trainer3DMoscow";//ConfigurationSettings.AppSettings.Get("TrainerPath");
         //private static string _fileNamePos = "vehiclePosLog";     //ConfigurationSettings.AppSettings.Get("FileNamePos");
 
-        private static string _trainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
-        private static string _fileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
+        private static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
+        private static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
+
+        private static readonly string FileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
 
         
-        private string _positionFilePath = $"{_trainerPath}/{_fileNamePos}";
-        private string _positionFilePathSetup = $"{_trainerPath}/{_fileNamePos}_setup"; 
+        private readonly string _positionFilePath = $"{TrainerPath}/{FileNamePos}";
+        private readonly string _positionFilePathSetup = $"{TrainerPath}/{FileNamePos}_setup"; 
+        private readonly string _positionFilePathSgSetup = $"{SceneGeneratorPath}/{FileNamePos}_setup"; 
+
         
         private string _databaseToView = String.Empty;
         private string _databaseToShow = String.Empty;
@@ -52,44 +57,44 @@ namespace ErrorFixApp
         private Visibility _screenShotButtonVisibility = Visibility.Visible;
      
         private WindowState _wState = WindowState.Normal;
-        
-        public string DatabaseToView
+
+        private string DatabaseToView
         {
-            get { return _databaseToView; }
+            get => _databaseToView;
             set
             {
                 _databaseToView = value;
-                OnPropertyChanged("DatabaseToView");
+                OnPropertyChanged();
             }
         }
         
         public string DatabaseToShow
         {
-            get { return _databaseToShow; }
+            get => _databaseToShow;
             set
             {
                 _databaseToShow = value;
-                OnPropertyChanged("DatabaseToShow");
+                OnPropertyChanged();
             }
         }
-        
-        public string XlsToExport
+
+        private string XlsToExport
         {
-            get { return _xlsToExport; }
+            get => _xlsToExport;
             set
             {
                 _xlsToExport = value;
-                OnPropertyChanged("XlsToExport");
+                OnPropertyChanged();
             }
         }
         
         public string XlsToView
         {
-            get { return _xlsToView; }
+            get => _xlsToView;
             set
             {
                 _xlsToView = value;
-                OnPropertyChanged("XlsToView");
+                OnPropertyChanged();
             }
         }
         
@@ -99,46 +104,46 @@ namespace ErrorFixApp
             set
             {
                 _errorId = value;
-                OnPropertyChanged("ErrorId");
+                OnPropertyChanged();
             }
         }
         
         public Visibility AddButtonVisibility
         {
-            get { return _addButtonVisibility; }
+            get => _addButtonVisibility;
             set
             {
                 _addButtonVisibility = value;
-                OnPropertyChanged("AddButtonVisibility");
+                OnPropertyChanged();
             }
         }
         
         public Visibility ScreenShotButtonVisibility
         {
-            get { return _screenShotButtonVisibility; }
+            get => _screenShotButtonVisibility;
             set
             {
                 _screenShotButtonVisibility = value;
-                OnPropertyChanged("ScreenShotButtonVisibility");
+                OnPropertyChanged();
             }
         }
         
         public ErrorDetail Error
         {
-            get { return _errorDetail; }
+            get => _errorDetail;
             set
             {
                 _errorDetail = value;
-                OnPropertyChanged("Error");
+                OnPropertyChanged();
             }
         }
         public WindowState WState
         {
-            get { return _wState; }
+            get => _wState;
             set
             {
                 _wState = value;
-                OnPropertyChanged("WState");
+                OnPropertyChanged();
             }
         }
         
@@ -148,7 +153,8 @@ namespace ErrorFixApp
 
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
+
+        private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
@@ -161,14 +167,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_fixCommand == null)
-                {
-                    _fixCommand = new RelayCommand(
-                        param => this.FixObject(), 
-                        param => this.CanLoad()
-                    );
-                }
-                return _fixCommand;
+                return _fixCommand ?? (_fixCommand = new RelayCommand(
+                    param => this.FixObject(),
+                    param => this.CanLoad()
+                ));
             }
         }
         
@@ -178,14 +180,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_loadCommand == null)
-                {
-                    _loadCommand = new RelayCommand(
-                        param => this.LoadObject(), 
-                        param => this.CanLoad()
-                    );
-                }
-                return _loadCommand;
+                return _loadCommand ?? (_loadCommand = new RelayCommand(
+                    param => this.LoadObject(),
+                    param => this.CanLoad()
+                ));
             }
         }
         
@@ -195,14 +193,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_cancelCommand == null)
-                {
-                    _cancelCommand = new RelayCommand(
-                        param => this.CancelObject(), 
-                        param => this.CanLoad()
-                    );
-                }
-                return _cancelCommand;
+                return _cancelCommand ?? (_cancelCommand = new RelayCommand(
+                    param => this.CancelObject(),
+                    param => this.CanLoad()
+                ));
             }
         }
         
@@ -211,14 +205,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_saveCommand == null)
-                {
-                    _saveCommand = new RelayCommand(
-                        param => this.SaveObject(), 
-                        param => this.CanSave()
-                    );
-                }
-                return _saveCommand;
+                return _saveCommand ?? (_saveCommand = new RelayCommand(
+                    param => this.SaveObject(),
+                    param => this.CanSave()
+                ));
             }
         }
         
@@ -228,14 +218,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_changeDatabaseCommand == null)
-                {
-                    _changeDatabaseCommand = new RelayCommand(
-                        param => this.ChangeDBObject(), 
-                        param => this.CanSave()
-                    );
-                }
-                return _changeDatabaseCommand;
+                return _changeDatabaseCommand ?? (_changeDatabaseCommand = new RelayCommand(
+                    param => this.ChangeDbObject(),
+                    param => this.CanSave()
+                ));
             }
         }
         
@@ -244,14 +230,10 @@ namespace ErrorFixApp
         {
             get
             {
-                if (_selectXlsFileCommand == null)
-                {
-                    _selectXlsFileCommand = new RelayCommand(
-                        param => this.ExportToXlsxFile(), 
-                        param => this.CanSave()
-                    );
-                }
-                return _selectXlsFileCommand;
+                return _selectXlsFileCommand ?? (_selectXlsFileCommand = new RelayCommand(
+                    param => this.ExportToXlsxFileTask(),
+                    param => this.CanSave()
+                ));
             }
         }
 
@@ -268,14 +250,14 @@ namespace ErrorFixApp
 
         private void FixObject()
         {
-            if (Error.RouteName.Contains("Задайте маршрут"))
+            if (Error.RouteName.Contains(Resources.SetupRoute))
             {
-                MessageBox.Show("Необходимо задать маршрут");
+                MessageBox.Show(Resources.SetupRouteMessage);
                 return;
             }
 
             Error.Id = -1;
-            Error.Comment = "Добавь комментарий";
+            Error.Comment = Resources.AddComment;
             WState = WindowState.Minimized;
             Error.ImageVisibility = Visibility.Visible;
             Error.TimeStamp = DateTime.Now.ToString("ddMMyyyy-hhmmss", CultureInfo.InvariantCulture);
@@ -286,8 +268,8 @@ namespace ErrorFixApp
                 Error.Position = File.ReadAllText(_positionFilePath, Encoding.UTF8);
             }
 
-            String filename1 = "ScreenCapture1-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
-            String filename2 = "ScreenCapture2-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
+            //String filename1 = "ScreenCapture1-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
+            //String filename2 = "ScreenCapture2-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
 
             int screenLeft = (int) SystemParameters.VirtualScreenLeft ;
             int screenTop = (int) SystemParameters.VirtualScreenTop;
@@ -326,19 +308,19 @@ namespace ErrorFixApp
         
         private void SaveObject()
         {
-            if (Error.Comment.Contains("Добавь комментарий"))
+            if (Error.Comment.Contains(Resources.AddComment))
             {
-                MessageBox.Show("Необходимо заполнить комментарий");
+                MessageBox.Show(Resources.CommentMessage);
                 
             }
             else
             {
-                _sqLiteManager.AddErrorToDB(_errorDetail);
+                _sqLiteManager.AddErrorToDb(_errorDetail);
                 WState = WindowState.Normal;
                 AddButtonVisibility = Visibility.Hidden;
                 Error.ImageVisibility = Visibility.Hidden;
                 ScreenShotButtonVisibility = Visibility.Visible;
-                Error.Comment = "Добавь комментарий";
+                Error.Comment = Resources.AddComment;
             }
             
         }
@@ -348,11 +330,11 @@ namespace ErrorFixApp
         {
             if (ErrorId < 0)
             {
-                MessageBox.Show("Id должен быть больше -1");
+                MessageBox.Show(Resources.IdMessage);
             }
             if (DatabaseToView == String.Empty)
             {
-                ChangeDBObject();
+                ChangeDbObject();
             }
             if (DatabaseToView != String.Empty)
             {
@@ -363,31 +345,42 @@ namespace ErrorFixApp
                 _sqLiteManager.LoadError(Error, DatabaseToView, ErrorId);
                 //WState = WindowState.Maximized;
                 Error.ImageVisibility = Visibility.Visible;
-                if (Directory.Exists(_trainerPath))
+                if (Directory.Exists(TrainerPath))
                 {
                     File.WriteAllText(_positionFilePathSetup, Error.Position, Encoding.ASCII);
+                }
+                if (Directory.Exists(SceneGeneratorPath))
+                {
+                    File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
                 }
             }
         }
 
-        private void ChangeDBObject()
+        private void ChangeDbObject()
         {
-            string databaseName = String.Empty;
-            OpenFileDialog pfg = new OpenFileDialog();
             
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Multiselect = false;
-            openFileDialog.Filter = "SQLite files (*.db3)|*.db3";
-            openFileDialog.InitialDirectory = $"{Directory.GetCurrentDirectory()}\\RouteErrors";
-            if(openFileDialog.ShowDialog() == true)
+            OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                DatabaseToView = openFileDialog.FileName;
-                DatabaseToShow = Path.GetFileName(DatabaseToView);
-            }
+                Multiselect = false,
+                Filter = "SQLite files (*.db3)|*.db3",
+                InitialDirectory = $"{Directory.GetCurrentDirectory()}\\RouteErrors"
+            };
+
+            if (openFileDialog.ShowDialog() != true) return;
+            
+            DatabaseToView = openFileDialog.FileName;
+            DatabaseToShow = Path.GetFileName(DatabaseToView);
+        }
+
+        private void ExportToXlsxFileTask()
+        {
+            Task.Factory.StartNew(ExportToXlsxFile);
         }
         
+
         private void ExportToXlsxFile()
         {
+            
                 if (DatabaseToView != String.Empty)
                 {
                     XlsToExport = $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
@@ -396,6 +389,7 @@ namespace ErrorFixApp
                     uint i = 1;
                     foreach (var error in errors)
                     {
+                        
                         using (var imageStream =
                                new MemoryStream(ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)))
                         {
@@ -415,8 +409,11 @@ namespace ErrorFixApp
                         ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "E", i);
                         ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
                         ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
-                        XlsToView = $"Добавлено ошибок {i} из {errors.Count}";
-                            i++;
+                        
+                        
+                        XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
+                        
+                        i++;
                     }
                     errors.Clear();
                     ExcelTools.CloseDocument(document, worksheetPart);
@@ -430,7 +427,7 @@ namespace ErrorFixApp
             AddButtonVisibility = Visibility.Hidden;
             Error.ImageVisibility = Visibility.Hidden;
             ScreenShotButtonVisibility = Visibility.Visible;
-            Error.Comment = "Добавь комментарий";
+            Error.Comment = Resources.AddComment;
             Error.ImageM?.Dispose();
             Error.ImageV?.Dispose();
             Error.BImageM?.StreamSource.Dispose();

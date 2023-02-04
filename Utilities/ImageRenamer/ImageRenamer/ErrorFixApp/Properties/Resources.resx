@@ -114,4 +114,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddComment" xml:space="preserve">
+    <value>Добавь комментарий</value>
+  </data>
+  <data name="SetupRoute" xml:space="preserve">
+    <value>Задайте маршрут</value>
+  </data>
+  <data name="SetupRouteMessage" xml:space="preserve">
+    <value>Необходимо задать маршрут</value>
+  </data>
+  <data name="AddedErrors" xml:space="preserve">
+    <value>Добавлено ошибок</value>
+  </data>
+  <data name="TotalErrors" xml:space="preserve">
+    <value>Всего ошибок</value>
+  </data>
+  <data name="CommentMessage" xml:space="preserve">
+    <value>Необходимо добавить комментарий</value>
+  </data>
+  <data name="IdMessage" xml:space="preserve">
+    <value>Id должен быть больше -1</value>
+  </data>
+  <data name="PositionNotSet" xml:space="preserve">
+    <value>Позиция не задана</value>
+  </data>
+  <data name="TimeStampNotSet" xml:space="preserve">
+    <value>Время не задано</value>
+  </data>
+  <data name="AddErrorToDb" xml:space="preserve">
+    <value>Добавить ошибку в БД</value>
+  </data>
 </root>
