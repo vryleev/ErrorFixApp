@@ -99,6 +99,39 @@ namespace ErrorFixApp
             }
         }
         
+        public int GetErrorCount(string baseName)
+        {
+            int res = -1;
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    connection.ConnectionString = "Data Source = " + baseName;
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        
+                        try
+                        {
+                            command.CommandType = CommandType.Text;
+                            command.CommandText = "SELECT count(*) FROM [RouteErrors]";
+                            object count = command.ExecuteScalar();
+                            return Convert.ToInt32(count);
+
+                        }
+                        catch (Exception exc1)
+                        {
+                            MessageBox.Show(exc1.Message);
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+        
         public void LoadError(ErrorDetail error, string baseName, int id)
         {
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");

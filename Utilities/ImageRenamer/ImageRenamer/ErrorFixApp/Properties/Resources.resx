@@ -144,4 +144,34 @@
   <data name="AddErrorToDb" xml:space="preserve">
     <value>Добавить ошибку в БД</value>
   </data>
+  <data name="ChooseDb" xml:space="preserve">
+    <value>Выбрать БД</value>
+  </data>
+  <data name="ViewError" xml:space="preserve">
+    <value>Просмотр ошибки</value>
+  </data>
+  <data name="ExportToXlsx" xml:space="preserve">
+    <value>Экспорт в Xlsx</value>
+  </data>
+  <data name="IDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="CommentLabel" xml:space="preserve">
+    <value>Комментарий</value>
+  </data>
+  <data name="DateLabel" xml:space="preserve">
+    <value>Дата</value>
+  </data>
+  <data name="PositionLabel" xml:space="preserve">
+    <value>Позиция</value>
+  </data>
+  <data name="RouteLabel" xml:space="preserve">
+    <value>Номер маршрута</value>
+  </data>
+  <data name="SaveToDb" xml:space="preserve">
+    <value>Сохранить в БД</value>
+  </data>
+  <data name="CancelSave" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
 </root>

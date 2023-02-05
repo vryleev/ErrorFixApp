@@ -23,37 +23,27 @@ namespace ErrorFixApp
         public MainWindowModel()
         {
             _sqLiteManager = new SqLiteManager();
-          
         }
 
         private readonly SqLiteManager _sqLiteManager;
 
-        
-        //private static string _trainerPath = "F:/Trainer3DMoscow";//ConfigurationSettings.AppSettings.Get("TrainerPath");
-        //private static string _fileNamePos = "vehiclePosLog";     //ConfigurationSettings.AppSettings.Get("FileNamePos");
-
-        private static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
+        private static readonly string TrainerPath        = ConfigurationManager.AppSettings.Get("TrainerPath");
         private static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
-
-        private static readonly string FileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
-
+        private static readonly string FileNamePos        = ConfigurationManager.AppSettings.Get("FileNamePos");
         
-        private readonly string _positionFilePath = $"{TrainerPath}/{FileNamePos}";
-        private readonly string _positionFilePathSetup = $"{TrainerPath}/{FileNamePos}_setup"; 
+        private readonly string _positionFilePath        = $"{TrainerPath}/{FileNamePos}";
+        private readonly string _positionFilePathSetup   = $"{TrainerPath}/{FileNamePos}_setup"; 
         private readonly string _positionFilePathSgSetup = $"{SceneGeneratorPath}/{FileNamePos}_setup"; 
-
         
-        private string _databaseToView = String.Empty;
-        private string _databaseToShow = String.Empty;
-        
-        private string _xlsToExport = String.Empty;
-        private string _xlsToView = String.Empty;
+        private string _databaseToView = string.Empty;
+        private string _databaseToShow = string.Empty;
+        private string _xlsToExport    = string.Empty;
+        private string _xlsToView      = string.Empty;
 
         private int _errorId = -1;
         
-        private ErrorDetail _errorDetail = new ErrorDetail();
-
-        private Visibility _addButtonVisibility = Visibility.Hidden;
+        private ErrorDetail _errorDetail               = new ErrorDetail();
+        private Visibility _addButtonVisibility        = Visibility.Hidden;
         private Visibility _screenShotButtonVisibility = Visibility.Visible;
      
         private WindowState _wState = WindowState.Normal;
@@ -146,12 +136,6 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
-       
-        
- 
-
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName]string prop = "")
@@ -211,7 +195,6 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
         
         private ICommand _changeDatabaseCommand;
         public ICommand ChangeDatabaseCommand
@@ -325,7 +308,6 @@ namespace ErrorFixApp
             
         }
         
-        
         private void LoadObject()
         {
             if (ErrorId < 0)
@@ -343,7 +325,6 @@ namespace ErrorFixApp
                 Error.BImageM?.StreamSource?.Dispose();
                 Error.BImageV?.StreamSource?.Dispose();
                 _sqLiteManager.LoadError(Error, DatabaseToView, ErrorId);
-                //WState = WindowState.Maximized;
                 Error.ImageVisibility = Visibility.Visible;
                 if (Directory.Exists(TrainerPath))
                 {
@@ -357,8 +338,7 @@ namespace ErrorFixApp
         }
 
         private void ChangeDbObject()
-        {
-            
+        {   
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Multiselect = false,
@@ -370,6 +350,7 @@ namespace ErrorFixApp
             
             DatabaseToView = openFileDialog.FileName;
             DatabaseToShow = Path.GetFileName(DatabaseToView);
+            XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount(DatabaseToView)}";
         }
 
         private void ExportToXlsxFileTask()
@@ -377,48 +358,46 @@ namespace ErrorFixApp
             Task.Factory.StartNew(ExportToXlsxFile);
         }
         
-
         private void ExportToXlsxFile()
         {
-            
-                if (DatabaseToView != String.Empty)
+            if (DatabaseToView != String.Empty)
+            {
+                XlsToExport =
+                    $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
+                SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1", out var workbookPart,
+                    out var worksheetPart);
+                List<ErrorDetail> errors = _sqLiteManager.LoadErrors(DatabaseToView);
+                uint i = 1;
+                foreach (var error in errors)
                 {
-                    XlsToExport = $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
-                    SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",out var workbookPart, out var worksheetPart);
-                    List<ErrorDetail> errors = _sqLiteManager.LoadErrors(DatabaseToView);
-                    uint i = 1;
-                    foreach (var error in errors)
+                    using (var imageStream =
+                           new MemoryStream(ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)))
                     {
-                        
-                        using (var imageStream =
-                               new MemoryStream(ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)))
-                        {
-                            ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
-                            imageStream.Close();
-                        }
-
-                        using (var imageStream =
-                               new MemoryStream(ImageUtils.ImageToByte(error.ImageM, ImageFormat.Jpeg)))
-                        {
-                            ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
-                            imageStream.Close();
-                        }
-
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "E", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
-                        
-                        
-                        XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
-                        
-                        i++;
+                        ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
+                        imageStream.Close();
                     }
-                    errors.Clear();
-                    ExcelTools.CloseDocument(document, worksheetPart);
+
+                    using (var imageStream =
+                           new MemoryStream(ImageUtils.ImageToByte(error.ImageM, ImageFormat.Jpeg)))
+                    {
+                        ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
+                        imageStream.Close();
+                    }
+
+                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
+                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
+                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "E", i);
+                    ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
+                    ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
+
+                    XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
+
+                    i++;
                 }
-           
+
+                errors.Clear();
+                ExcelTools.CloseDocument(document, worksheetPart);
+            }
         }
         
         private void CancelObject()

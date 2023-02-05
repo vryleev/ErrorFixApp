@@ -87,11 +87,65 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Отмена.
+        /// </summary>
+        public static string CancelSave {
+            get {
+                return ResourceManager.GetString("CancelSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Выбрать БД.
+        /// </summary>
+        public static string ChooseDb {
+            get {
+                return ResourceManager.GetString("ChooseDb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Комментарий.
+        /// </summary>
+        public static string CommentLabel {
+            get {
+                return ResourceManager.GetString("CommentLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Необходимо добавить комментарий.
         /// </summary>
         public static string CommentMessage {
             get {
                 return ResourceManager.GetString("CommentMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Дата.
+        /// </summary>
+        public static string DateLabel {
+            get {
+                return ResourceManager.GetString("DateLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Экспорт в Xlsx.
+        /// </summary>
+        public static string ExportToXlsx {
+            get {
+                return ResourceManager.GetString("ExportToXlsx", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID.
+        /// </summary>
+        public static string IDLabel {
+            get {
+                return ResourceManager.GetString("IDLabel", resourceCulture);
             }
         }
         
@@ -105,11 +159,38 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Позиция.
+        /// </summary>
+        public static string PositionLabel {
+            get {
+                return ResourceManager.GetString("PositionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Позиция не задана.
         /// </summary>
         public static string PositionNotSet {
             get {
                 return ResourceManager.GetString("PositionNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Номер маршрута.
+        /// </summary>
+        public static string RouteLabel {
+            get {
+                return ResourceManager.GetString("RouteLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Сохранить в БД.
+        /// </summary>
+        public static string SaveToDb {
+            get {
+                return ResourceManager.GetString("SaveToDb", resourceCulture);
             }
         }
         
@@ -146,6 +227,15 @@ namespace ErrorFixApp.Properties {
         public static string TotalErrors {
             get {
                 return ResourceManager.GetString("TotalErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Просмотр ошибки.
+        /// </summary>
+        public static string ViewError {
+            get {
+                return ResourceManager.GetString("ViewError", resourceCulture);
             }
         }
     }

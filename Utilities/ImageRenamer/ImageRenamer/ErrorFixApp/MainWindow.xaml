@@ -36,7 +36,6 @@
                         Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                     <Button Content="{x:Static properties:Resources.AddErrorToDb}"  Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
                             HorizontalAlignment="Stretch" Command="{Binding Path=FixCommand}"/>
-
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch"
                             Visibility="{Binding ScreenShotButtonVisibility}">
@@ -47,25 +46,20 @@
                         AcceptsReturn="True"
                         VerticalScrollBarVisibility="Visible"
                         Text="{Binding DatabaseToShow, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                    <Button Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
-                            HorizontalAlignment="Stretch" Command="{Binding Path=ChangeDatabaseCommand}">
-                        Выбрать БД для просмотра
-                    </Button>
+                    <Button Content="{x:Static properties:Resources.ChooseDb}" Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
+                            HorizontalAlignment="Stretch" Command="{Binding Path=ChangeDatabaseCommand}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Stretch"
                             Visibility="{Binding ScreenShotButtonVisibility}">
                     <TextBox
                         SpellCheck.IsEnabled="True" Language="ru-ru"
-
                         Height="30"
                         TextWrapping="Wrap"
                         AcceptsReturn="True"
                         VerticalScrollBarVisibility="Visible"
                         Text="{Binding ErrorId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                    <Button Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
-                            HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}">
-                        Просмотр ошибки
-                    </Button>
+                    <Button Content="{x:Static properties:Resources.ViewError}" Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
+                            HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" HorizontalAlignment="Stretch">
                     <TextBox
@@ -77,15 +71,10 @@
                         VerticalScrollBarVisibility="Visible"
                         Text="{Binding XlsToView, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
 
-                    <Button Visibility="{Binding ScreenShotButtonVisibility}"
+                    <Button Content="{x:Static properties:Resources.ExportToXlsx}" Visibility="{Binding ScreenShotButtonVisibility}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="100"
-
-                            Command="{Binding Path=SelectXlsFileCommand}">
-                        Экспорт в XLSX
-                    </Button>
+                            Command="{Binding Path=SelectXlsFileCommand}"/>
                 </StackPanel>
-
-
             </Grid>
             <Grid Visibility="{Binding Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>
@@ -97,7 +86,6 @@
                 <Image Grid.Column="1" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageM}" />
             </Grid>
-
             <Grid Visibility="{Binding Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
@@ -108,9 +96,8 @@
                     <ColumnDefinition Width="10*"/>
                     <ColumnDefinition Width="10*"/>
                 </Grid.ColumnDefinitions>
-               
                 <StackPanel Grid.Column="0" >
-                    <Label>ID:</Label>
+                    <Label Content="{x:Static properties:Resources.IDLabel}" />
                     <TextBox 
                              SpellCheck.IsEnabled="True" Language="ru-ru"
                              MinHeight="200"
@@ -120,7 +107,7 @@
                              Text="{Binding Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <Label>Комментарий:</Label>
+                    <Label Content="{x:Static properties:Resources.CommentLabel}" />
                     <TextBox
                         SpellCheck.IsEnabled="True" Language="ru-ru"
                         TextWrapping="Wrap"
@@ -132,7 +119,7 @@
                         Text="{Binding Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" >
-                    <Label>Дата:</Label>
+                    <Label Content="{x:Static properties:Resources.DateLabel}" />
                     <TextBox
                         SpellCheck.IsEnabled="True" Language="ru-ru"
                         TextWrapping="Wrap"
@@ -144,7 +131,7 @@
                         Text="{Binding Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel Grid.Column="3" >
-                    <Label>Позиция:</Label>
+                    <Label Content="{x:Static properties:Resources.PositionLabel}" />
                     <TextBox
                         SpellCheck.IsEnabled="True" Language="ru-ru"
                         TextWrapping="Wrap"
@@ -156,7 +143,7 @@
                         Text="{Binding Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel Grid.Column="4" >
-                    <Label>Номер маршрута:</Label>
+                    <Label Content="{x:Static properties:Resources.RouteLabel}" />
                     <TextBox
                         SpellCheck.IsEnabled="True" Language="ru-ru"
                         TextWrapping="Wrap"
@@ -166,22 +153,14 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-
                 </StackPanel>
-                <Button Grid.Column="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <Button Grid.Column="5" Content="{x:Static properties:Resources.SaveToDb}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Visibility="{Binding  AddButtonVisibility}"
-                        Command="{Binding Path=SaveCommand}">
-                    Сохранить в БД
-                </Button>
-                <Button Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Command="{Binding Path=SaveCommand}"/>
+                <Button Grid.Column="6" Content="{x:Static properties:Resources.CancelSave}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Visibility="{Binding  Error.ImageVisibility}"
-                        Command="{Binding Path=CancelCommand}">
-                    Отмена
-                </Button>
-
+                        Command="{Binding Path=CancelCommand}"/>
             </Grid>
-
-
         </StackPanel>
     </Grid>
 </Window>
