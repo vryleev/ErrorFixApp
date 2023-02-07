@@ -251,32 +251,41 @@ namespace ErrorFixApp
                 Error.Position = File.ReadAllText(_positionFilePath, Encoding.UTF8);
             }
 
-            //String filename1 = "ScreenCapture1-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
-            //String filename2 = "ScreenCapture2-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
-
             int screenLeft = (int) SystemParameters.VirtualScreenLeft ;
             int screenTop = (int) SystemParameters.VirtualScreenTop;
             int screenWidth = (int)SystemParameters.VirtualScreenWidth;
             int screenHeight = (int) SystemParameters.VirtualScreenHeight;
 
-            //MessageBox.Show($"Height = {screenHeight} Width = {screenWidth}");
+            int visualLeft = screenLeft;
+            int visualTop = screenTop;
+            int visualWidth = screenWidth / 2;
+            int visualHeight = screenHeight;
+            
+            int mapLeft = screenWidth/2;
+            int mapTop = screenTop;
+            int mapWidth = screenWidth / 2;
+            int mapHeight = screenHeight;
 
-            Bitmap bitmapScreen1 = new Bitmap(screenWidth/2, screenHeight);
-            Bitmap bitmapScreen2 = new Bitmap(screenWidth/2, screenHeight);
+            string visualRect        = ConfigurationManager.AppSettings.Get("VisualRect");
+            ParseRectConfiguration(visualRect, screenLeft, screenTop, screenWidth, screenHeight, ref visualLeft, ref visualTop, ref visualWidth, ref visualHeight);
+            
+            string mapRect        = ConfigurationManager.AppSettings.Get("MapRect");
+            ParseRectConfiguration(mapRect, screenWidth/2, screenTop, screenWidth, screenHeight, ref mapLeft, ref mapTop, ref mapWidth, ref mapHeight);
+
+            Bitmap bitmapScreen1 = new Bitmap(visualWidth, visualHeight);
+            Bitmap bitmapScreen2 = new Bitmap(mapWidth, mapHeight);
 
             Graphics g1 = Graphics.FromImage(bitmapScreen1); 
             Graphics g2 = Graphics.FromImage(bitmapScreen2);    
 
-            g1.CopyFromScreen(screenLeft, screenTop, 0, 0, bitmapScreen1.Size);
+            g1.CopyFromScreen(visualLeft, visualTop, 0, 0, bitmapScreen1.Size);
             Error.BImageV = ImageUtils.BitmapToImageSource(bitmapScreen1);
             Error.ImageV = bitmapScreen1;
 
             Bitmap testV = ImageUtils.ResizeImage(Error.ImageV, 1024);
             Error.ImageV = testV;
-            //testV.Save("D:\\temp\\" + filename1);
             
-
-            g2.CopyFromScreen(screenWidth/2, 0, 0, 0, bitmapScreen2.Size);
+            g2.CopyFromScreen(mapLeft, mapTop, 0, 0, bitmapScreen2.Size);
             Error.BImageM = ImageUtils.BitmapToImageSource(bitmapScreen2);
             Error.ImageM = bitmapScreen2;
             
@@ -285,10 +294,35 @@ namespace ErrorFixApp
             
             WState = WindowState.Maximized;
             AddButtonVisibility = Visibility.Visible;
-
-
         }
-        
+
+        private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
+            int screenHeight, ref int visualLeft, ref int visualTop, ref int visualWidth, ref int visualHeight)
+        {
+            if (visualRect.Length > 0)
+            {
+                string[] visualParams = visualRect.Split(',');
+                if (visualParams.Length == 4)
+                {
+                    try
+                    {
+                        visualLeft = Int32.Parse(visualParams[0]);
+                        visualTop = Int32.Parse(visualParams[1]);
+                        visualWidth = Int32.Parse(visualParams[2]);
+                        visualHeight = Int32.Parse(visualParams[3]);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("Rect is not corrected");
+                        visualLeft = screenLeft;
+                        visualTop = screenTop;
+                        visualWidth = screenWidth / 2;
+                        visualHeight = screenHeight;
+                    }
+                }
+            }
+        }
+
         private void SaveObject()
         {
             if (Error.Comment.Contains(Resources.AddComment))
