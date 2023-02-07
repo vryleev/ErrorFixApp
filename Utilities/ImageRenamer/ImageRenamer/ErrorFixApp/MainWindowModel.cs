@@ -10,11 +10,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using DocumentFormat.OpenXml.Packaging;
 using ErrorFixApp.Properties;
 using ImageToXlsx;
-using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace ErrorFixApp
 {
@@ -250,11 +252,13 @@ namespace ErrorFixApp
             {
                 Error.Position = File.ReadAllText(_positionFilePath, Encoding.UTF8);
             }
+            
+            float scale = (float)Screen.PrimaryScreen.Bounds.Width / (float)SystemParameters.PrimaryScreenWidth;
 
             int screenLeft = (int) SystemParameters.VirtualScreenLeft ;
             int screenTop = (int) SystemParameters.VirtualScreenTop;
-            int screenWidth = (int)SystemParameters.VirtualScreenWidth;
-            int screenHeight = (int) SystemParameters.VirtualScreenHeight;
+            int screenWidth = (int)(SystemParameters.VirtualScreenWidth*scale);
+            int screenHeight = (int) (SystemParameters.VirtualScreenHeight*scale);
 
             int visualLeft = screenLeft;
             int visualTop = screenTop;
@@ -306,17 +310,17 @@ namespace ErrorFixApp
                 {
                     try
                     {
-                        visualLeft = Int32.Parse(visualParams[0]);
-                        visualTop = Int32.Parse(visualParams[1]);
-                        visualWidth = Int32.Parse(visualParams[2]);
+                        visualLeft   = Int32.Parse(visualParams[0]);
+                        visualTop    = Int32.Parse(visualParams[1]);
+                        visualWidth  = Int32.Parse(visualParams[2]);
                         visualHeight = Int32.Parse(visualParams[3]);
                     }
                     catch (Exception e)
                     {
                         MessageBox.Show("Rect is not corrected");
-                        visualLeft = screenLeft;
-                        visualTop = screenTop;
-                        visualWidth = screenWidth / 2;
+                        visualLeft   = screenLeft;
+                        visualTop    = screenTop;
+                        visualWidth  = screenWidth / 2;
                         visualHeight = screenHeight;
                     }
                 }
@@ -328,7 +332,6 @@ namespace ErrorFixApp
             if (Error.Comment.Contains(Resources.AddComment))
             {
                 MessageBox.Show(Resources.CommentMessage);
-                
             }
             else
             {
@@ -418,9 +421,18 @@ namespace ErrorFixApp
                         imageStream.Close();
                     }
 
+                    string[] positionParams = error.Position.Split(' ');
+
+                    string positionToXls = error.Position;
+
+                    if (positionParams.Length == 8)
+                    {
+                        positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
+                    }
+                    
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
-                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "E", i);
+                    ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
 
