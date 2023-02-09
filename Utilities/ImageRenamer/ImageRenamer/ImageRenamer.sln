@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageToXlsx", "ImageToXlsx\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorFixApp", "ErrorFixApp\ErrorFixApp.csproj", "{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorWebApplication", "ErrorWebApplication\ErrorWebApplication.csproj", "{558E173B-7109-4988-AF01-B7EA7713249F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64DF8A77-DE67-40B5-8096-1F98CCFD9B38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{558E173B-7109-4988-AF01-B7EA7713249F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{558E173B-7109-4988-AF01-B7EA7713249F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{558E173B-7109-4988-AF01-B7EA7713249F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{558E173B-7109-4988-AF01-B7EA7713249F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

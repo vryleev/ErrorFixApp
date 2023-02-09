@@ -6,6 +6,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -233,8 +236,9 @@ namespace ErrorFixApp
             return true;
         }
 
-        private void FixObject()
+        private async void FixObject()
         {
+            IEnumerable<WeatherForecast> wf = await GetRequestTask();
             if (Error.RouteName.Contains(Resources.SetupRoute))
             {
                 MessageBox.Show(Resources.SetupRouteMessage);
@@ -298,6 +302,29 @@ namespace ErrorFixApp
             
             WState = WindowState.Maximized;
             AddButtonVisibility = Visibility.Visible;
+        }
+
+        private async Task<IEnumerable<WeatherForecast>> GetRequestTask()
+        {
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5000/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+
+            IEnumerable<WeatherForecast> wF = null;
+            HttpResponseMessage response = await client.GetAsync(client.BaseAddress +"WeatherForecast");
+            if (response.IsSuccessStatusCode)
+            {
+                wF = await response.Content.ReadAsAsync<IEnumerable<WeatherForecast>>();
+            }
+
+            return wF;
+
+
+
         }
 
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
