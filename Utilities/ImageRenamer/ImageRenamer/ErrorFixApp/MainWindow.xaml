@@ -82,9 +82,17 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Image Grid.Column="0" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageV}" />
+                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageV}">
+                    <Image.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Visual" />
+                    </Image.InputBindings>
+                </Image>
                 <Image Grid.Column="1" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageM}" />
+                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageM}">
+                    <Image.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Map" />
+                    </Image.InputBindings>
+                </Image>
             </Grid>
             <Grid Visibility="{Binding Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>

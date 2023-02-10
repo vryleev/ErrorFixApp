@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0E88C4C4-5956-4402-97F5-6CF5BEC6FFF0}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <RootNamespace>UIElements</RootNamespace>
+    <AssemblyName>UIElements</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Buttons\AddLayer.xaml.cs">
+      <DependentUpon>AddLayer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\CancelForm.xaml.cs">
+      <DependentUpon>CancelForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\CloseButton.xaml.cs">
+      <DependentUpon>CloseButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\CloseButton_Black.xaml.cs">
+      <DependentUpon>CloseButton_Black.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ConfirmForm.xaml.cs">
+      <DependentUpon>ConfirmForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\CreateNewFileButton.xaml.cs">
+      <DependentUpon>CreateNewFileButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\DeleteLayer.xaml.cs">
+      <DependentUpon>DeleteLayer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\EffectsBox.xaml.cs">
+      <DependentUpon>EffectsBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\LayerDown.xaml.cs">
+      <DependentUpon>LayerDown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\LayerUp.xaml.cs">
+      <DependentUpon>LayerUp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\LayerVisibilityButtonOFF.xaml.cs">
+      <DependentUpon>LayerVisibilityButtonOFF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\LayerVisibilityButtonON.xaml.cs">
+      <DependentUpon>LayerVisibilityButtonON.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\MaximizeButtonOFF.xaml.cs">
+      <DependentUpon>MaximizeButtonOFF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\MaximizeButton_Black.xaml.cs">
+      <DependentUpon>MaximizeButton_Black.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\MinimizeButton_Black.xaml.cs">
+      <DependentUpon>MinimizeButton_Black.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\Navigation\AddPhotoButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\ArrowButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\BrushButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\ColorButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\Effects.xaml.cs">
+      <DependentUpon>Effects.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\Navigation\EraseButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\FillButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\ResizeButton.xaml.cs" />
+    <Compile Include="Buttons\Navigation\RotateButton.xaml.cs" />
+    <Compile Include="Feature1.xaml.cs">
+      <DependentUpon>Feature1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Feature2.xaml.cs">
+      <DependentUpon>Feature2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Feature3.xaml.cs">
+      <DependentUpon>Feature3.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Logo.xaml.cs">
+      <DependentUpon>Logo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\MaximizeButton.xaml.cs">
+      <DependentUpon>MaximizeButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\MinimizeButton.xaml.cs">
+      <DependentUpon>MinimizeButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\OpenFileButton.xaml.cs">
+      <DependentUpon>OpenFileButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\OpenPhotoButton.xaml.cs">
+      <DependentUpon>OpenPhotoButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="TextLogo.xaml.cs">
+      <DependentUpon>TextLogo.xaml</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Buttons\AddLayer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\CancelForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\CloseButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\CloseButton_Black.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ConfirmForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\CreateNewFileButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\DeleteLayer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\EffectsBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\LayerDown.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\LayerUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\LayerVisibilityButtonOFF.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\LayerVisibilityButtonON.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\MaximizeButtonOFF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\MaximizeButton_Black.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\MinimizeButton_Black.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\Navigation\AddPhotoButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\ArrowButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\BrushButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\ColorButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\Effects.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\Navigation\EraseButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\FillButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\ResizeButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Buttons\Navigation\RotateButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Feature1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Feature2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Feature3.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Logo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\MaximizeButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\MinimizeButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\OpenFileButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\OpenPhotoButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TextLogo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\ic_addPhoto.png" />
+    <Resource Include="icons\ic_arrow.png" />
+    <Resource Include="icons\ic_brush.png" />
+    <Resource Include="icons\ic_erase.png" />
+    <Resource Include="icons\ic_feature_draw.png" />
+    <Resource Include="icons\ic_feature_layer.png" />
+    <Resource Include="icons\ic_feature_png.png" />
+    <Resource Include="icons\ic_fill.png" />
+    <Resource Include="icons\ic_img.png" />
+    <Resource Include="icons\ic_resize.png" />
+    <Resource Include="icons\ic_rotate.png" />
+    <Resource Include="icons\logo.png" />
+    <Resource Include="icons\textlogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\ic_layerDown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\ic_layerUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\ic_addLayer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\ic_deleteLayer.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

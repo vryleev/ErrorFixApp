@@ -149,6 +149,12 @@
         <None Include="App.config" />
         <None Include="packages.config" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\PhotoEditor\PhotoEditor\PhotoEditor.csproj">
+        <Project>{43313fc3-8f0e-4472-8e68-9106b1a68203}</Project>
+        <Name>PhotoEditor</Name>
+      </ProjectReference>
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
       <PropertyGroup>

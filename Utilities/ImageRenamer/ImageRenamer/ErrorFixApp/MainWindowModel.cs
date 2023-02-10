@@ -12,9 +12,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml.Packaging;
 using ErrorFixApp.Properties;
 using ImageToXlsx;
+using PhotoEditor;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
@@ -41,6 +43,8 @@ namespace ErrorFixApp
         private string _databaseToShow = string.Empty;
         private string _xlsToExport    = string.Empty;
         private string _xlsToView      = string.Empty;
+
+        private RenderTargetBitmap rtb;
 
         private int _errorId = -1;
         
@@ -197,6 +201,19 @@ namespace ErrorFixApp
                 ));
             }
         }
+
+        private ICommand _editImageCommand;
+        
+        public ICommand EditImageCommand
+        {
+            get
+            {
+                return _editImageCommand ?? (_editImageCommand = new RelayCommand(
+                    param => this.EditImage(Convert.ToString(param)),
+                    param => this.CanSave()
+                ));
+            }
+        }
         
         private ICommand _changeDatabaseCommand;
         public ICommand ChangeDatabaseCommand
@@ -317,7 +334,7 @@ namespace ErrorFixApp
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show("Rect is not corrected");
+                        MessageBox.Show($"Rect is not corrected {e.Message}");
                         visualLeft   = screenLeft;
                         visualTop    = screenTop;
                         visualWidth  = screenWidth / 2;
@@ -371,6 +388,62 @@ namespace ErrorFixApp
                 {
                     File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
                 }
+            }
+        }
+
+        private void EditImage(string pictureType)
+        {
+            var editorWindow = new PhotoEditor.MainEditorWindow();
+            
+            editorWindow.Closing += EditorWindowOnClosing;
+
+            double LayerWidth = Error.ImageV.Width;
+            double LayerHeight = Error.ImageV.Height;
+
+            GlobalState.NewLayerHeight = LayerHeight;
+            GlobalState.NewLayerWidth = LayerWidth;
+            GlobalState.CurrentLayerIndex = 0;
+            GlobalState.LayersCount = 1;
+            GlobalState.CurrentTool = GlobalState.Instruments.Brush;
+
+            MainEditorWindow.WindowTrigger = 4;
+            MainEditorWindow.PictureType = pictureType;
+            if (pictureType == "Visual")
+            {
+                MainEditorWindow.Picture = Error.ImageV.ToStream(ImageFormat.Bmp);
+            }
+            else
+            {
+                MainEditorWindow.Picture = Error.ImageM.ToStream(ImageFormat.Bmp);
+            }
+           
+            MainEditorWindow.EnableBlur(editorWindow);
+            MainEditorWindow.ShowMainWindow();
+           
+        }
+
+        private void EditorWindowOnClosing(object sender, CancelEventArgs e)
+        {
+            rtb = MainEditorWindow.RTB;
+            
+            var enc = new PngBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(rtb));
+
+            using (MemoryStream stm = new MemoryStream())
+            {
+                enc.Save(stm);
+                Bitmap editedImage = new Bitmap(stm);
+                if (MainEditorWindow.PictureType == "Visual")
+                {
+                    Error.ImageV = editedImage;
+                    Error.BImageV = ImageUtils.BitmapToImageSource(editedImage);
+                }
+                else
+                {
+                    Error.ImageM = editedImage;
+                    Error.BImageM = ImageUtils.BitmapToImageSource(editedImage);
+                }
+
             }
         }
 
