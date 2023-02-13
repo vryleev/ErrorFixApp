@@ -6,6 +6,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +17,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml.Packaging;
+using ErrorDataLayer;
 using ErrorFixApp.Properties;
 using ImageToXlsx;
 using PhotoEditor;
@@ -49,6 +53,7 @@ namespace ErrorFixApp
         private int _errorId = -1;
         
         private ErrorDetail _errorDetail               = new ErrorDetail();
+        private ErrorEntity _errorEntity               = new ErrorEntity();
         private Visibility _addButtonVisibility        = Visibility.Hidden;
         private Visibility _screenShotButtonVisibility = Visibility.Visible;
      
@@ -250,8 +255,9 @@ namespace ErrorFixApp
             return true;
         }
 
-        private void FixObject()
+        private async void FixObject()
         {
+            //IEnumerable<WeatherForecast> wf = await GetRequestTask();
             if (Error.RouteName.Contains(Resources.SetupRoute))
             {
                 MessageBox.Show(Resources.SetupRouteMessage);
@@ -317,6 +323,29 @@ namespace ErrorFixApp
             AddButtonVisibility = Visibility.Visible;
         }
 
+        private async Task<List<ErrorEntity>> GetRequestTask()
+        {
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://100.100.101.164:7000/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+
+            List<ErrorEntity> wF = null;
+            HttpResponseMessage response = await client.GetAsync(client.BaseAddress +"Error");
+            if (response.IsSuccessStatusCode)
+            {
+                wF = await response.Content.ReadAsAsync<List<ErrorEntity>>();
+            }
+
+            return wF;
+
+
+
+        }
+
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
             int screenHeight, ref int visualLeft, ref int visualTop, ref int visualWidth, ref int visualHeight)
         {
@@ -352,16 +381,38 @@ namespace ErrorFixApp
             }
             else
             {
-                _sqLiteManager.AddErrorToDb(_errorDetail);
+                if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                {
+                    UpdateErrorEntity();
+                    _sqLiteManager.AddErrorToDb(_errorEntity);
+                }
+                else
+                {
+                    //Todo add remote
+                }
+
                 WState = WindowState.Normal;
                 AddButtonVisibility = Visibility.Hidden;
                 Error.ImageVisibility = Visibility.Hidden;
                 ScreenShotButtonVisibility = Visibility.Visible;
                 Error.Comment = Resources.AddComment;
+                
             }
             
         }
-        
+
+        private void UpdateErrorEntity()
+        {
+            _errorEntity.Comment = Error.Comment;
+            _errorEntity.Position = Error.Position;
+            _errorEntity.RouteName = Error.RouteName;
+            _errorEntity.Id = Error.Id;
+            _errorEntity.TimeStamp = Error.TimeStamp;
+
+            _errorEntity.ImageV = ImageUtils.ImageToByte(Error.ImageV, ImageFormat.Jpeg);
+            _errorEntity.ImageM = ImageUtils.ImageToByte(Error.ImageM, ImageFormat.Jpeg);
+        }
+
         private void LoadObject()
         {
             if (ErrorId < 0)
@@ -378,7 +429,18 @@ namespace ErrorFixApp
                 Error.ImageV?.Dispose();
                 Error.BImageM?.StreamSource?.Dispose();
                 Error.BImageV?.StreamSource?.Dispose();
-                _sqLiteManager.LoadError(Error, DatabaseToView, ErrorId);
+
+                if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                {
+                    _sqLiteManager.LoadError(_errorEntity, DatabaseToView, ErrorId);
+                    UpdateErrorDetails();
+                }
+                else
+                {
+                    //Todo add remote
+                }
+                
+
                 Error.ImageVisibility = Visibility.Visible;
                 if (Directory.Exists(TrainerPath))
                 {
@@ -389,6 +451,21 @@ namespace ErrorFixApp
                     File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
                 }
             }
+        }
+
+        private void UpdateErrorDetails()
+        {
+            Error.Position = _errorEntity.Position;
+            Error.Comment = _errorEntity.Comment;
+            Error.Id = _errorEntity.Id;
+            Error.RouteName = _errorEntity.RouteName;
+            Error.TimeStamp = _errorEntity.TimeStamp;
+            Error.ImageV = ImageUtils.ByteToImage(_errorEntity.ImageV);
+            Error.ImageM = ImageUtils.ByteToImage(_errorEntity.ImageM);
+            Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
+            Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
+
+
         }
 
         private void EditImage(string pictureType)
@@ -448,19 +525,26 @@ namespace ErrorFixApp
         }
 
         private void ChangeDbObject()
-        {   
-            OpenFileDialog openFileDialog = new OpenFileDialog
+        {
+            if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
             {
-                Multiselect = false,
-                Filter = "SQLite files (*.db3)|*.db3",
-                InitialDirectory = $"{Directory.GetCurrentDirectory()}\\RouteErrors"
-            };
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Multiselect = false,
+                    Filter = "SQLite files (*.db3)|*.db3",
+                    InitialDirectory = $"{Directory.GetCurrentDirectory()}\\RouteErrors"
+                };
 
-            if (openFileDialog.ShowDialog() != true) return;
-            
-            DatabaseToView = openFileDialog.FileName;
-            DatabaseToShow = Path.GetFileName(DatabaseToView);
-            XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount(DatabaseToView)}";
+                if (openFileDialog.ShowDialog() != true) return;
+
+                DatabaseToView = openFileDialog.FileName;
+                DatabaseToShow = Path.GetFileName(DatabaseToView);
+                XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount(DatabaseToView)}";
+            }
+            else
+            {
+                //Todo add remote
+            }
         }
 
         private void ExportToXlsxFileTask()
@@ -476,19 +560,29 @@ namespace ErrorFixApp
                     $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
                 SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1", out var workbookPart,
                     out var worksheetPart);
-                List<ErrorDetail> errors = _sqLiteManager.LoadErrors(DatabaseToView);
+                List<ErrorEntity> errors = new List<ErrorEntity>();
+                if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                {
+                    errors = _sqLiteManager.LoadErrors(DatabaseToView);
+                }
+                else
+                {
+                    //Todo add remote
+                }
+
+
                 uint i = 1;
                 foreach (var error in errors)
                 {
                     using (var imageStream =
-                           new MemoryStream(ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)))
+                           new MemoryStream(error.ImageV))
                     {
                         ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
                         imageStream.Close();
                     }
 
                     using (var imageStream =
-                           new MemoryStream(ImageUtils.ImageToByte(error.ImageM, ImageFormat.Jpeg)))
+                           new MemoryStream(error.ImageM))
                     {
                         ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
                         imageStream.Close();
@@ -502,7 +596,7 @@ namespace ErrorFixApp
                     {
                         positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
                     }
-                    
+
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
                     ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
                     ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);

@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Windows;
-using ErrorFixApp.Properties;
 
-namespace ErrorFixApp
+namespace ErrorDataLayer
 {
     public class SqLiteManager
     {
@@ -19,6 +15,7 @@ namespace ErrorFixApp
         
         public SqLiteManager()
         {
+            //DbProviderFactories.RegisterFactory("System.Data.SQLite", typeof(System.Data.SQLite));
             
             if (!Directory.Exists(BaseDir))
             {
@@ -55,7 +52,7 @@ namespace ErrorFixApp
             }
         }
 
-        public void AddErrorToDb(ErrorDetail error)
+        public void AddErrorToDb(ErrorEntity error)
         {
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
@@ -71,13 +68,13 @@ namespace ErrorFixApp
                             $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
-                            Value = ImageUtils.ImageToByte(error.ImageV, ImageFormat.Jpeg)
+                            Value = error.ImageV
                         };
                         command.Parameters.Add(param0);
 
                         SQLiteParameter param1 = new SQLiteParameter("@1", DbType.Binary)
                         {
-                            Value = ImageUtils.ImageToByte(error.ImageM, ImageFormat.Jpeg)
+                            Value = error.ImageM
                         };
                         command.Parameters.Add(param1);
 
@@ -88,11 +85,10 @@ namespace ErrorFixApp
 
                             command.CommandText = "SELECT count(*) FROM [RouteErrors]";
                             object count = command.ExecuteScalar();
-                            MessageBox.Show($"{Resources.AddedErrors}: {res}, {Resources.TotalErrors}: {count}");
                         }
                         catch (Exception exc1)
                         {
-                            MessageBox.Show(exc1.Message);
+                            //MessageBox.Show(exc1.Message);
                         }
                     }
                 }
@@ -123,7 +119,7 @@ namespace ErrorFixApp
                         }
                         catch (Exception exc1)
                         {
-                            MessageBox.Show(exc1.Message);
+                            //MessageBox.Show(exc1.Message);
                         }
                     }
                 }
@@ -132,7 +128,7 @@ namespace ErrorFixApp
             return res;
         }
         
-        public void LoadError(ErrorDetail error, string baseName, int id)
+        public void LoadError(ErrorEntity error, string baseName, int id)
         {
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
@@ -153,10 +149,8 @@ namespace ErrorFixApp
                             {
                                 while (rdr.Read())
                                 {
-                                    byte[] a = (Byte[])rdr[0];
-                                    error.BImageV = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(a));
-                                    byte[] b = (Byte[])rdr[1];
-                                    error.BImageM = ImageUtils.BitmapToImageSource((Bitmap)ImageUtils.ByteToImage(b));
+                                    error.ImageV = (Byte[])rdr[0];
+                                    error.ImageM = (Byte[])rdr[1];
                                     error.Comment = (String)rdr[2];
                                     error.Position = (String)rdr[3];
                                     error.TimeStamp = (String)rdr[4];
@@ -166,12 +160,12 @@ namespace ErrorFixApp
                             }
                             catch (Exception exc)
                             {
-                                MessageBox.Show(exc.Message);
+                                //MessageBox.Show(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
                         }
                     }
                 }
@@ -180,9 +174,9 @@ namespace ErrorFixApp
             
         }   
         
-        public List<ErrorDetail> LoadErrors(string baseName)
+        public List<ErrorEntity> LoadErrors(string baseName)
         {
-            List<ErrorDetail> errors = new List<ErrorDetail>();
+            List<ErrorEntity> errors = new List<ErrorEntity>();
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
             {
@@ -202,11 +196,9 @@ namespace ErrorFixApp
                             {
                                 while (rdr.Read())
                                 {
-                                    ErrorDetail error = new ErrorDetail();
-                                    byte[] a = (Byte[])rdr[0];
-                                    error.ImageV = ImageUtils.ByteToImage(a);
-                                    byte[] b = (Byte[])rdr[1];
-                                    error.ImageM = ImageUtils.ByteToImage(b);
+                                    ErrorEntity error = new ErrorEntity();
+                                    error.ImageV = (Byte[])rdr[0];
+                                    error.ImageM = (Byte[])rdr[1];
                                     error.Comment = (String)rdr[2];
                                     error.Position = (String)rdr[3];
                                     error.TimeStamp = (String)rdr[4];
@@ -217,12 +209,12 @@ namespace ErrorFixApp
                             }
                             catch (Exception exc)
                             {
-                                MessageBox.Show(exc.Message);
+                                //MessageBox.Show(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(ex.Message);
+                            //MessageBox.Show(ex.Message);
                         }
                     }
 
