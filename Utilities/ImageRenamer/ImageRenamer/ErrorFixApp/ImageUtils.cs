@@ -21,6 +21,7 @@ namespace ErrorFixApp
         //public Image Base64ToImage(string base64String)
         public static Image ByteToImage(byte[] imageBytes)
         {
+            if (imageBytes == null) return null;
             // Convert byte[] to Image
             MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
             ms.Write(imageBytes, 0, imageBytes.Length);

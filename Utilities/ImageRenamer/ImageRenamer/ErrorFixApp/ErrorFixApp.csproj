@@ -122,6 +122,7 @@
         <Compile Include="ExcelTools.cs" />
         <Compile Include="ImageUtils.cs" />
         <Compile Include="RelayCommand.cs" />
+        <Compile Include="WebApiManager.cs" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>

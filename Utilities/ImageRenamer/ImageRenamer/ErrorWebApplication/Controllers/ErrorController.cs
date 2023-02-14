@@ -21,11 +21,45 @@ namespace ErrorWebApplication.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public List<ErrorEntity> Get()
+        [HttpGet("AvailableDb")]
+        public List<string> Get()
         {
-            return _sqLiteManager.LoadErrors(
-                "D:/Yandex.Repository/GitRepository/Utilities/ImageRenamer/ImageRenamer/ErrorWebApplication/bin/Debug/net5.0/RouteErrors/26_01_23_RouteErrors.db3");
+            return _sqLiteManager.GetAvailableDb();
+        
+        }
+        
+        [HttpGet("GetDbToAdd/{param:bool}")]
+        public string Get(bool param)
+        {
+            return _sqLiteManager.GetDbToAdd();
+        
+        }
+        
+        [HttpGet("ErrorCount/{baseName}")]
+        public int Get(string baseName)
+        {
+            return _sqLiteManager.GetErrorCount(baseName);
+        
+        }
+        
+        [HttpGet("OneError/{id:int}/{baseName}")]
+        public ErrorEntity Get(int id, string baseName)
+        {
+            return _sqLiteManager.LoadError(id, baseName);
+        
+        }
+        
+        [HttpGet("AllErrors/{fullLoad}/{basename}")]
+        public List<ErrorEntity> Get(string basename, string fullLoad = "True")
+        {
+            return _sqLiteManager.LoadErrors(basename);
+
+        }
+        
+        [HttpPost]
+        public void Post([FromBody]ErrorEntity error)
+        {
+           _sqLiteManager.AddErrorToDb(error);
 
         }
     }

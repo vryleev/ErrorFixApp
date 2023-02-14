@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -20,43 +23,75 @@ using DocumentFormat.OpenXml.Packaging;
 using ErrorDataLayer;
 using ErrorFixApp.Properties;
 using ImageToXlsx;
+using Newtonsoft.Json;
 using PhotoEditor;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace ErrorFixApp
 {
-    public class MainWindowModel: INotifyPropertyChanged
+    public class MainWindowModel : INotifyPropertyChanged
     {
         public MainWindowModel()
         {
             _sqLiteManager = new SqLiteManager();
+            _webApiManager = new WebApiManager();
+            GetDbList();
+            //DbList  = new ObservableCollection<string>(_dbList);
+            //SelectedDb = DbList.First();
+
+
+
+        }
+
+        private async void GetDbList()
+        {
+            List<string> _dbList = new List<string> {"Список пуст"};
+            if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
+            {
+                _dbList = _sqLiteManager.GetAvailableDb();
+            }
+            else
+            {
+
+                _dbList = await _webApiManager.GetAvailableDb();
+            }
+
+            DbList = new ObservableCollection<string>(_dbList);
+            SelectedDb = DbList.First();
+
         }
 
         private readonly SqLiteManager _sqLiteManager;
+        private readonly WebApiManager _webApiManager;
 
-        private static readonly string TrainerPath        = ConfigurationManager.AppSettings.Get("TrainerPath");
+
+
+        private static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
         private static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
-        private static readonly string FileNamePos        = ConfigurationManager.AppSettings.Get("FileNamePos");
-        
-        private readonly string _positionFilePath        = $"{TrainerPath}/{FileNamePos}";
-        private readonly string _positionFilePathSetup   = $"{TrainerPath}/{FileNamePos}_setup"; 
-        private readonly string _positionFilePathSgSetup = $"{SceneGeneratorPath}/{FileNamePos}_setup"; 
-        
+        private static readonly string FileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
+
+        private readonly string _positionFilePath = $"{TrainerPath}/{FileNamePos}";
+        private readonly string _positionFilePathSetup = $"{TrainerPath}/{FileNamePos}_setup";
+        private readonly string _positionFilePathSgSetup = $"{SceneGeneratorPath}/{FileNamePos}_setup";
+
+        private string _selectedDbName;
+        private ObservableCollection<string> _dbList = new ObservableCollection<string>();
+
         private string _databaseToView = string.Empty;
         private string _databaseToShow = string.Empty;
-        private string _xlsToExport    = string.Empty;
-        private string _xlsToView      = string.Empty;
+        private string _xlsToExport = string.Empty;
+        private string _xlsToView = string.Empty;
 
         private RenderTargetBitmap rtb;
 
         private int _errorId = -1;
-        
-        private ErrorDetail _errorDetail               = new ErrorDetail();
-        private ErrorEntity _errorEntity               = new ErrorEntity();
-        private Visibility _addButtonVisibility        = Visibility.Hidden;
+
+        private ErrorDetail _errorDetail = new ErrorDetail();
+        private ErrorEntity _errorEntity = new ErrorEntity();
+        private Visibility _addButtonVisibility = Visibility.Hidden;
         private Visibility _screenShotButtonVisibility = Visibility.Visible;
-     
+
         private WindowState _wState = WindowState.Normal;
 
         private string DatabaseToView
@@ -65,21 +100,65 @@ namespace ErrorFixApp
             set
             {
                 _databaseToView = value;
-                OnPropertyChanged();
-            }
-        }
-        
-        public string DatabaseToShow
-        {
-            get => _databaseToShow;
-            set
-            {
-                _databaseToShow = value;
+                if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
+                {
+                    _sqLiteManager.SetBaseName(_databaseToView);
+                    XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}";
+                }
+                else
+                {
+                    UpdateErrorCount();
+                }
+
                 OnPropertyChanged();
             }
         }
 
-        private string XlsToExport
+        private async void UpdateErrorCount()
+        {
+            int errorCount = await _webApiManager.GetErrorCount(SelectedDb);
+            XlsToView = $"{Resources.TotalErrors}: {errorCount}";
+        }
+
+        public string SelectedDb
+        {
+            get => _selectedDbName;
+            set
+            {
+                _selectedDbName = value;
+                DatabaseToView = _selectedDbName;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<string> DbList
+        {
+            get => _dbList;
+            set
+            {
+                _dbList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string ApplicationName {
+            get
+            {
+                if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
+                {
+                    return $"Logos Error Fix App/ Пользователь: {ConfigurationManager.AppSettings["User"]}/ Режим работы: {ConfigurationManager.AppSettings["WorkingType"]}";
+                }
+                else
+                {
+                    return $"Logos Error Fix App/ Пользователь: {ConfigurationManager.AppSettings["User"]}/ Режим работы: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                }
+                     
+                
+            }
+    }
+
+
+    private string XlsToExport
         {
             get => _xlsToExport;
             set
@@ -220,17 +299,17 @@ namespace ErrorFixApp
             }
         }
         
-        private ICommand _changeDatabaseCommand;
-        public ICommand ChangeDatabaseCommand
-        {
-            get
-            {
-                return _changeDatabaseCommand ?? (_changeDatabaseCommand = new RelayCommand(
-                    param => this.ChangeDbObject(),
-                    param => this.CanSave()
-                ));
-            }
-        }
+        //private ICommand _changeDatabaseCommand;
+        // public ICommand ChangeDatabaseCommand
+        // {
+        //     get
+        //     {
+        //         return _changeDatabaseCommand ?? (_changeDatabaseCommand = new RelayCommand(
+        //             param => this.ChangeDbObject(),
+        //             param => this.CanSave()
+        //         ));
+        //     }
+        // }
         
         private ICommand _selectXlsFileCommand;
         public ICommand SelectXlsFileCommand
@@ -257,7 +336,6 @@ namespace ErrorFixApp
 
         private async void FixObject()
         {
-            //IEnumerable<WeatherForecast> wf = await GetRequestTask();
             if (Error.RouteName.Contains(Resources.SetupRoute))
             {
                 MessageBox.Show(Resources.SetupRouteMessage);
@@ -266,6 +344,7 @@ namespace ErrorFixApp
 
             Error.Id = -1;
             Error.Comment = Resources.AddComment;
+            Error.Position = Resources.PositionNotSet;
             WState = WindowState.Minimized;
             Error.ImageVisibility = Visibility.Visible;
             Error.TimeStamp = DateTime.Now.ToString("ddMMyyyy-hhmmss", CultureInfo.InvariantCulture);
@@ -321,30 +400,11 @@ namespace ErrorFixApp
             
             WState = WindowState.Maximized;
             AddButtonVisibility = Visibility.Visible;
+
+            
         }
 
-        private async Task<List<ErrorEntity>> GetRequestTask()
-        {
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("http://100.100.101.164:7000/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-
-            List<ErrorEntity> wF = null;
-            HttpResponseMessage response = await client.GetAsync(client.BaseAddress +"Error");
-            if (response.IsSuccessStatusCode)
-            {
-                wF = await response.Content.ReadAsAsync<List<ErrorEntity>>();
-            }
-
-            return wF;
-
-
-
-        }
+        
 
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
             int screenHeight, ref int visualLeft, ref int visualTop, ref int visualWidth, ref int visualHeight)
@@ -373,7 +433,7 @@ namespace ErrorFixApp
             }
         }
 
-        private void SaveObject()
+        private async void SaveObject()
         {
             if (Error.Comment.Contains(Resources.AddComment))
             {
@@ -381,14 +441,16 @@ namespace ErrorFixApp
             }
             else
             {
+                UpdateErrorEntity();
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
-                    UpdateErrorEntity();
                     _sqLiteManager.AddErrorToDb(_errorEntity);
+                    SelectedDb = _sqLiteManager.GetDbToAdd();
                 }
                 else
                 {
-                    //Todo add remote
+                    string res = await _webApiManager.AddError(_errorEntity);
+                    SelectedDb = await _webApiManager.GetDbToAdd();
                 }
 
                 WState = WindowState.Normal;
@@ -408,21 +470,19 @@ namespace ErrorFixApp
             _errorEntity.RouteName = Error.RouteName;
             _errorEntity.Id = Error.Id;
             _errorEntity.TimeStamp = Error.TimeStamp;
+            _errorEntity.User = ConfigurationManager.AppSettings["User"];
 
             _errorEntity.ImageV = ImageUtils.ImageToByte(Error.ImageV, ImageFormat.Jpeg);
             _errorEntity.ImageM = ImageUtils.ImageToByte(Error.ImageM, ImageFormat.Jpeg);
         }
 
-        private void LoadObject()
+        private async void LoadObject()
         {
             if (ErrorId < 0)
             {
                 MessageBox.Show(Resources.IdMessage);
             }
-            if (DatabaseToView == String.Empty)
-            {
-                ChangeDbObject();
-            }
+          
             if (DatabaseToView != String.Empty)
             {
                 Error.ImageM?.Dispose();
@@ -432,16 +492,15 @@ namespace ErrorFixApp
 
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
-                    _sqLiteManager.LoadError(_errorEntity, DatabaseToView, ErrorId);
-                    UpdateErrorDetails();
+                    _errorEntity = _sqLiteManager.LoadError(ErrorId);
+                    
                 }
                 else
                 {
-                    //Todo add remote
+                    _errorEntity = await _webApiManager.GetError(ErrorId, SelectedDb);
                 }
+                UpdateErrorDetails();
                 
-
-                Error.ImageVisibility = Visibility.Visible;
                 if (Directory.Exists(TrainerPath))
                 {
                     File.WriteAllText(_positionFilePathSetup, Error.Position, Encoding.ASCII);
@@ -455,15 +514,25 @@ namespace ErrorFixApp
 
         private void UpdateErrorDetails()
         {
-            Error.Position = _errorEntity.Position;
-            Error.Comment = _errorEntity.Comment;
-            Error.Id = _errorEntity.Id;
-            Error.RouteName = _errorEntity.RouteName;
-            Error.TimeStamp = _errorEntity.TimeStamp;
-            Error.ImageV = ImageUtils.ByteToImage(_errorEntity.ImageV);
-            Error.ImageM = ImageUtils.ByteToImage(_errorEntity.ImageM);
-            Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
-            Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
+            if (_errorEntity != null && _errorEntity.Id > 0)
+            {
+                Error.Position = _errorEntity.Position;
+                Error.User = _errorEntity.User;
+                Error.Comment = _errorEntity.Comment;
+                Error.Id = _errorEntity.Id;
+                Error.RouteName = _errorEntity.RouteName;
+                Error.TimeStamp = _errorEntity.TimeStamp;
+                Error.ImageV = ImageUtils.ByteToImage(_errorEntity.ImageV);
+                Error.ImageM = ImageUtils.ByteToImage(_errorEntity.ImageM);
+                Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
+                Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
+                
+                Error.ImageVisibility = Visibility.Visible;
+            }
+            else
+            {
+                Error.ImageVisibility = Visibility.Collapsed;
+            }
 
 
         }
@@ -524,35 +593,13 @@ namespace ErrorFixApp
             }
         }
 
-        private void ChangeDbObject()
-        {
-            if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
-            {
-                OpenFileDialog openFileDialog = new OpenFileDialog
-                {
-                    Multiselect = false,
-                    Filter = "SQLite files (*.db3)|*.db3",
-                    InitialDirectory = $"{Directory.GetCurrentDirectory()}\\RouteErrors"
-                };
-
-                if (openFileDialog.ShowDialog() != true) return;
-
-                DatabaseToView = openFileDialog.FileName;
-                DatabaseToShow = Path.GetFileName(DatabaseToView);
-                XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount(DatabaseToView)}";
-            }
-            else
-            {
-                //Todo add remote
-            }
-        }
-
+        
         private void ExportToXlsxFileTask()
         {
             Task.Factory.StartNew(ExportToXlsxFile);
         }
         
-        private void ExportToXlsxFile()
+        private async void ExportToXlsxFile()
         {
             if (DatabaseToView != String.Empty)
             {
@@ -563,53 +610,61 @@ namespace ErrorFixApp
                 List<ErrorEntity> errors = new List<ErrorEntity>();
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
-                    errors = _sqLiteManager.LoadErrors(DatabaseToView);
+                    errors = _sqLiteManager.LoadErrors();
                 }
                 else
                 {
-                    //Todo add remote
+                    errors = await _webApiManager.GetAllErrors(SelectedDb);
                 }
 
 
                 uint i = 1;
-                foreach (var error in errors)
+                if (errors != null)
                 {
-                    using (var imageStream =
-                           new MemoryStream(error.ImageV))
+                    foreach (var error in errors)
                     {
-                        ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
-                        imageStream.Close();
+                        using (var imageStream =
+                               new MemoryStream(error.ImageV))
+                        {
+                            ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int) i);
+                            imageStream.Close();
+                        }
+
+                        using (var imageStream =
+                               new MemoryStream(error.ImageM))
+                        {
+                            ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int) i);
+                            imageStream.Close();
+                        }
+
+                        string[] positionParams = error.Position.Split(' ');
+
+                        string positionToXls = error.Position;
+
+                        if (positionParams.Length == 8)
+                        {
+                            positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
+                        }
+
+                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
+                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
+                        ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
+                        ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
+                        ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
+                        ExcelTools.InsertText(workbookPart, worksheetPart, error.User, "H", i);
+
+                        XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
+
+                        i++;
                     }
+                    errors.Clear();
+                    string argument = $"/select, \"{SqLiteManager.BaseDir}\\{SelectedDb}.xlsx";
 
-                    using (var imageStream =
-                           new MemoryStream(error.ImageM))
-                    {
-                        ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
-                        imageStream.Close();
-                    }
-
-                    string[] positionParams = error.Position.Split(' ');
-
-                    string positionToXls = error.Position;
-
-                    if (positionParams.Length == 8)
-                    {
-                        positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
-                    }
-
-                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
-                    ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
-                    ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
-                    ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
-                    ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
-
-                    XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
-
-                    i++;
+                    System.Diagnostics.Process.Start("explorer.exe", argument);
                 }
-
-                errors.Clear();
                 ExcelTools.CloseDocument(document, worksheetPart);
+                
+               
             }
         }
         

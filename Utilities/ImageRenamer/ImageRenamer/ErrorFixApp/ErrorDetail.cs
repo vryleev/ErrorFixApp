@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -11,6 +12,7 @@ namespace ErrorFixApp
     {
         private string _comment = Resources.AddComment;
         private string _position = Resources.PositionNotSet;
+        private string _user = String.Empty;
         private string _timestamp = Resources.TimeStampNotSet;
         private string _routeName = Resources.SetupRoute;
         private int _id = -1;
@@ -85,6 +87,16 @@ namespace ErrorFixApp
             }
         }
         
+        public string User
+        {
+            get => _user;
+            set
+            {
+                _user = value;
+                OnPropertyChanged();
+            }
+        }
+        
         public string RouteName
         {
             get => _routeName;
@@ -97,7 +109,7 @@ namespace ErrorFixApp
         
         public string TimeStamp
         {
-            get => _timestamp;
+            get =>  _timestamp;
             set
             {
                 _timestamp = value;
