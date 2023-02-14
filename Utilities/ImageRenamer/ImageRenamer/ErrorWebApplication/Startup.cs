@@ -28,6 +28,8 @@ namespace ErrorWebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSingleton<SqliteService>();
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "ErrorWebApplication", Version = "v1"});

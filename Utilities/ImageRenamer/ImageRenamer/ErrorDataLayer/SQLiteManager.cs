@@ -4,8 +4,14 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Serilog;
+using Serilog.Core;
+
 
 namespace ErrorDataLayer
 {
@@ -17,8 +23,16 @@ namespace ErrorDataLayer
 
         static readonly string BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
 
+        public Queue<ErrorEntity> _queueToAdd = new Queue<ErrorEntity>();
+
+         private Logger log =
+             new LoggerConfiguration().
+                 MinimumLevel.Debug().
+                 WriteTo.Console().
+                 WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day).CreateLogger();  
         public SqLiteManager()
         {
+            Log.Information("SqLiteManage constructor");
             if (!Directory.Exists(BaseDir))
             {
                 Directory.CreateDirectory(BaseDir);
@@ -53,6 +67,8 @@ namespace ErrorDataLayer
                     }
                 }
             }
+
+            Task.Factory.StartNew(CheckQueue);
         }
 
         public string GetDbToAdd()
@@ -78,6 +94,29 @@ namespace ErrorDataLayer
         }
 
         public void AddErrorToDb(ErrorEntity error)
+        {
+            _queueToAdd.Enqueue(error);
+            //SaveToDb(error);
+        }
+
+        private async void CheckQueue()
+        {
+            while (true)
+            {
+                if (_queueToAdd.Any())
+                {
+                    log.Debug($"Queue count = {_queueToAdd.Count}");
+                    ErrorEntity error = _queueToAdd.Dequeue();
+                    SaveToDb(error);
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        private void SaveToDb(ErrorEntity error)
         {
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
