@@ -46,7 +46,7 @@ namespace ErrorFixApp
 
         private async void GetDbList()
         {
-            List<string> _dbList = new List<string> {"Список пуст"};
+            List<string> _dbList = new List<string>();
             if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
             {
                 _dbList = _sqLiteManager.GetAvailableDb();
@@ -55,6 +55,11 @@ namespace ErrorFixApp
             {
 
                 _dbList = await _webApiManager.GetAvailableDb();
+            }
+
+            if (_dbList.Count == 0)
+            {
+                _dbList.Add("Доступные БД отсутствуют");
             }
 
             DbList = new ObservableCollection<string>(_dbList);

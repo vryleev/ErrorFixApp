@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -23,7 +24,7 @@ namespace ErrorDataLayer
 
         static readonly string BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
 
-        public Queue<ErrorEntity> _queueToAdd = new Queue<ErrorEntity>();
+        public ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
 
          private Logger log =
              new LoggerConfiguration().
@@ -103,16 +104,14 @@ namespace ErrorDataLayer
         {
             while (true)
             {
-                if (_queueToAdd.Any())
+                ErrorEntity error = new ErrorEntity();
+                while (_queueToAdd.TryDequeue(out error))
                 {
                     log.Debug($"Queue count = {_queueToAdd.Count}");
-                    ErrorEntity error = _queueToAdd.Dequeue();
                     SaveToDb(error);
                 }
-                else
-                {
-                    Thread.Sleep(1000);
-                }
+                Thread.Sleep(1000);
+                
             }
         }
 

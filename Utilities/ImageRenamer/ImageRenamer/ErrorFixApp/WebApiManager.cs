@@ -96,7 +96,7 @@ namespace ErrorFixApp
         
         public async Task<List<string>> GetAvailableDb()
         {
-            List<string> dbList = new List<string> {"Список БД пуст"};
+            List<string> dbList = new List<string>();
 
             try
             {
