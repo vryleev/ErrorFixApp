@@ -174,4 +174,19 @@
   <data name="CancelSave" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>Соединение не установлено</value>
+  </data>
+  <data name="NameNotSet" xml:space="preserve">
+    <value>Имя не задано</value>
+  </data>
+  <data name="NoDb" xml:space="preserve">
+    <value>Доступные БД отсутствуют</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Пользователь</value>
+  </data>
+  <data name="WorkingType" xml:space="preserve">
+    <value>Режим работы</value>
+  </data>
 </root>

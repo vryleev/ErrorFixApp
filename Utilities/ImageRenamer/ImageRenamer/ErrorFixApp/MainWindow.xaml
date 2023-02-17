@@ -7,10 +7,12 @@
         xmlns:properties="clr-namespace:ErrorFixApp.Properties"
         mc:Ignorable="d"
         Title="{Binding ApplicationName}" Height="780" Width="820"
-        WindowState="{Binding WState}">
+        WindowState="{Binding WState}"
+        Closing="MainWindow_OnClosing">
     <Window.DataContext>
         <local:MainWindowModel />
     </Window.DataContext>
+ 
     <Window.InputBindings>
         <KeyBinding Modifiers="Control"
                     Key="N"

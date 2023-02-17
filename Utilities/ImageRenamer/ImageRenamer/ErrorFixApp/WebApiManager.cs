@@ -1,33 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ErrorDataLayer;
+using ErrorFixApp.Properties;
 using Newtonsoft.Json;
+using Serilog;
+using Serilog.Core;
 
 namespace ErrorFixApp
 {
     public class WebApiManager
     {
-        private HttpClient client;
+        private readonly HttpClient _client;
+        
+        private readonly Logger _log =
+            new LoggerConfiguration().
+                MinimumLevel.Debug().
+                WriteTo.Console().
+                WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day).CreateLogger();  
 
         public  WebApiManager()
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
-            client = new HttpClient();
+            _client = new HttpClient();
 
-            client.Timeout = TimeSpan.FromSeconds(3);
-            client.BaseAddress = new Uri("http://localhost:7000/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
+            _client.Timeout = TimeSpan.FromSeconds(3);
+            _client.BaseAddress = new Uri(ConfigurationManager.AppSettings["RemoteUrl"]);
+            _client.DefaultRequestHeaders.Accept.Clear();
+            _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
         }
@@ -36,11 +43,11 @@ namespace ErrorFixApp
         {
             string resultContent = String.Empty;
             var json = JsonConvert.SerializeObject(ee);
-            var content = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
-                HttpResponseMessage resp = await client.PostAsync($"{client.BaseAddress}Error", content);
+                HttpResponseMessage resp = await _client.PostAsync($"{_client.BaseAddress}Error", content);
                 if (resp.IsSuccessStatusCode)
                 {
                     resultContent = await resp.Content.ReadAsStringAsync();
@@ -48,7 +55,9 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                MessageBox.Show($"Соединение с {ConfigurationManager.AppSettings["RemoteUrl"]} не установлено");
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
             }
 
             return resultContent;
@@ -60,7 +69,7 @@ namespace ErrorFixApp
             try
             {
                 HttpResponseMessage resp =
-                    await client.GetAsync($"{client.BaseAddress}Error/OneError/{errorId}/{baseName}");
+                    await _client.GetAsync($"{_client.BaseAddress}Error/OneError/{errorId}/{baseName}");
                 if (resp.IsSuccessStatusCode)
                 {
                     error = await resp.Content.ReadAsAsync<ErrorEntity>();
@@ -68,7 +77,9 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                MessageBox.Show($"Соединение с {ConfigurationManager.AppSettings["RemoteUrl"]} не установлено");
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
             }
 
             return error;
@@ -80,7 +91,7 @@ namespace ErrorFixApp
             try
             {
                 HttpResponseMessage resp =
-                    await client.GetAsync($"{client.BaseAddress}Error/AllErrors/{Boolean.TrueString}/{baseName}");
+                    await _client.GetAsync($"{_client.BaseAddress}Error/AllErrors/{Boolean.TrueString}/{baseName}");
                 if (resp.IsSuccessStatusCode)
                 {
                     errorList = await resp.Content.ReadAsAsync<List<ErrorEntity>>();
@@ -88,7 +99,9 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                MessageBox.Show($"Соединение с {ConfigurationManager.AppSettings["RemoteUrl"]} не установлено");
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
             }
 
             return errorList;
@@ -100,7 +113,7 @@ namespace ErrorFixApp
 
             try
             {
-                HttpResponseMessage resp = await client.GetAsync($"{client.BaseAddress}Error/AvailableDb");
+                HttpResponseMessage resp = await _client.GetAsync($"{_client.BaseAddress}Error/AvailableDb");
                 if (resp.IsSuccessStatusCode)
                 {
                     dbList = await resp.Content.ReadAsAsync<List<string>>();
@@ -108,7 +121,9 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                MessageBox.Show($"Соединение с {ConfigurationManager.AppSettings["RemoteUrl"]} не установлено");
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
             }
 
             
@@ -117,11 +132,11 @@ namespace ErrorFixApp
         
         public async Task<string> GetDbToAdd()
         {
-            string dbName = "Имя не задано";
+            string dbName = Resources.NameNotSet;
 
             try
             {
-                HttpResponseMessage resp = await client.GetAsync($"{client.BaseAddress}Error/GetDbToAdd/{true}");
+                HttpResponseMessage resp = await _client.GetAsync($"{_client.BaseAddress}Error/GetDbToAdd/{true}");
                 if (resp.IsSuccessStatusCode)
                 {
                     dbName = await resp.Content.ReadAsAsync<string>();
@@ -129,7 +144,9 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                MessageBox.Show($"Соединение с {ConfigurationManager.AppSettings["RemoteUrl"]} не установлено");
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
             }
             
             return dbName;
@@ -141,7 +158,7 @@ namespace ErrorFixApp
 
             try
             {
-                HttpResponseMessage resp = await client.GetAsync($"{client.BaseAddress}Error/ErrorCount/{baseName}");
+                HttpResponseMessage resp = await _client.GetAsync($"{_client.BaseAddress}Error/ErrorCount/{baseName}");
                 if (resp.IsSuccessStatusCode)
                 {
                     errorCount = await resp.Content.ReadAsAsync<int>();
@@ -149,7 +166,7 @@ namespace ErrorFixApp
             }
             catch (TaskCanceledException e)
             {
-                Console.WriteLine(e);
+                _log.Error(e.Message);
             }
 
             

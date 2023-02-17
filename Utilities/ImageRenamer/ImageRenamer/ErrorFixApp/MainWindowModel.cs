@@ -8,12 +8,8 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -23,10 +19,9 @@ using DocumentFormat.OpenXml.Packaging;
 using ErrorDataLayer;
 using ErrorFixApp.Properties;
 using ImageToXlsx;
-using Newtonsoft.Json;
 using PhotoEditor;
 using MessageBox = System.Windows.MessageBox;
-using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+
 
 namespace ErrorFixApp
 {
@@ -37,40 +32,33 @@ namespace ErrorFixApp
             _sqLiteManager = new SqLiteManager();
             _webApiManager = new WebApiManager();
             GetDbList();
-            //DbList  = new ObservableCollection<string>(_dbList);
-            //SelectedDb = DbList.First();
-
-
-
         }
 
         private async void GetDbList()
         {
-            List<string> _dbList = new List<string>();
+            List<string> dbList;
             if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
             {
-                _dbList = _sqLiteManager.GetAvailableDb();
+                dbList = _sqLiteManager.GetAvailableDb();
             }
             else
             {
 
-                _dbList = await _webApiManager.GetAvailableDb();
+                dbList = await _webApiManager.GetAvailableDb();
             }
 
-            if (_dbList.Count == 0)
+            if (dbList.Count == 0)
             {
-                _dbList.Add("Доступные БД отсутствуют");
+                dbList.Add(Resources.NoDb);
             }
 
-            DbList = new ObservableCollection<string>(_dbList);
+            DbList = new ObservableCollection<string>(dbList);
             SelectedDb = DbList.First();
 
         }
 
         private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
-
-
 
         private static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
         private static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
@@ -84,11 +72,10 @@ namespace ErrorFixApp
         private ObservableCollection<string> _dbList = new ObservableCollection<string>();
 
         private string _databaseToView = string.Empty;
-        private string _databaseToShow = string.Empty;
         private string _xlsToExport = string.Empty;
         private string _xlsToView = string.Empty;
 
-        private RenderTargetBitmap rtb;
+        private RenderTargetBitmap _rtb;
 
         private int _errorId = -1;
 
@@ -139,7 +126,7 @@ namespace ErrorFixApp
         public ObservableCollection<string> DbList
         {
             get => _dbList;
-            set
+            private set
             {
                 _dbList = value;
                 OnPropertyChanged();
@@ -151,11 +138,11 @@ namespace ErrorFixApp
             {
                 if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
                 {
-                    return $"Logos Error Fix App/ Пользователь: {ConfigurationManager.AppSettings["User"]}/ Режим работы: {ConfigurationManager.AppSettings["WorkingType"]}";
+                    return $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}";
                 }
                 else
                 {
-                    return $"Logos Error Fix App/ Пользователь: {ConfigurationManager.AppSettings["User"]}/ Режим работы: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                    return $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
                 }
                      
                 
@@ -253,6 +240,19 @@ namespace ErrorFixApp
             }
         }
         
+        private ICommand _closingCommand;
+
+        public ICommand ClosingCommand
+        {
+            get
+            {
+                return _closingCommand ?? (_closingCommand = new RelayCommand(
+                    param => this.ClosingDb(),
+                    param => this.CanLoad()
+                ));
+            }
+        }
+        
         private ICommand _loadCommand;
 
         public ICommand LoadCommand
@@ -304,18 +304,6 @@ namespace ErrorFixApp
             }
         }
         
-        //private ICommand _changeDatabaseCommand;
-        // public ICommand ChangeDatabaseCommand
-        // {
-        //     get
-        //     {
-        //         return _changeDatabaseCommand ?? (_changeDatabaseCommand = new RelayCommand(
-        //             param => this.ChangeDbObject(),
-        //             param => this.CanSave()
-        //         ));
-        //     }
-        // }
-        
         private ICommand _selectXlsFileCommand;
         public ICommand SelectXlsFileCommand
         {
@@ -328,7 +316,7 @@ namespace ErrorFixApp
             }
         }
 
-        private bool CanLoad()
+        public bool CanLoad()
         {
             return true;
         }
@@ -339,7 +327,12 @@ namespace ErrorFixApp
             return true;
         }
 
-        private async void FixObject()
+        public void ClosingDb()
+        {
+            SqLiteManager.IsCheckQueue = false;
+        }
+        
+        private void FixObject()
         {
             if (Error.RouteName.Contains(Resources.SetupRoute))
             {
@@ -360,7 +353,7 @@ namespace ErrorFixApp
                 Error.Position = File.ReadAllText(_positionFilePath, Encoding.UTF8);
             }
             
-            float scale = (float)Screen.PrimaryScreen.Bounds.Width / (float)SystemParameters.PrimaryScreenWidth;
+            float scale = Screen.PrimaryScreen.Bounds.Width / (float)SystemParameters.PrimaryScreenWidth;
 
             int screenLeft = (int) SystemParameters.VirtualScreenLeft ;
             int screenTop = (int) SystemParameters.VirtualScreenTop;
@@ -409,8 +402,6 @@ namespace ErrorFixApp
             
         }
 
-        
-
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
             int screenHeight, ref int visualLeft, ref int visualTop, ref int visualWidth, ref int visualHeight)
         {
@@ -454,7 +445,7 @@ namespace ErrorFixApp
                 }
                 else
                 {
-                    string res = await _webApiManager.AddError(_errorEntity);
+                    await _webApiManager.AddError(_errorEntity);
                     SelectedDb = await _webApiManager.GetDbToAdd();
                 }
 
@@ -544,29 +535,22 @@ namespace ErrorFixApp
 
         private void EditImage(string pictureType)
         {
-            var editorWindow = new PhotoEditor.MainEditorWindow();
+            var editorWindow = new MainEditorWindow();
             
             editorWindow.Closing += EditorWindowOnClosing;
 
-            double LayerWidth = Error.ImageV.Width;
-            double LayerHeight = Error.ImageV.Height;
+            double layerWidth = Error.ImageV.Width;
+            double layerHeight = Error.ImageV.Height;
 
-            GlobalState.NewLayerHeight = LayerHeight;
-            GlobalState.NewLayerWidth = LayerWidth;
+            GlobalState.NewLayerHeight = layerHeight;
+            GlobalState.NewLayerWidth = layerWidth;
             GlobalState.CurrentLayerIndex = 0;
             GlobalState.LayersCount = 1;
             GlobalState.CurrentTool = GlobalState.Instruments.Brush;
 
             MainEditorWindow.WindowTrigger = 4;
             MainEditorWindow.PictureType = pictureType;
-            if (pictureType == "Visual")
-            {
-                MainEditorWindow.Picture = Error.ImageV.ToStream(ImageFormat.Bmp);
-            }
-            else
-            {
-                MainEditorWindow.Picture = Error.ImageM.ToStream(ImageFormat.Bmp);
-            }
+            MainEditorWindow.Picture = pictureType == "Visual" ? Error.ImageV.ToStream(ImageFormat.Bmp) : Error.ImageM.ToStream(ImageFormat.Bmp);
            
             MainEditorWindow.EnableBlur(editorWindow);
             MainEditorWindow.ShowMainWindow();
@@ -575,10 +559,10 @@ namespace ErrorFixApp
 
         private void EditorWindowOnClosing(object sender, CancelEventArgs e)
         {
-            rtb = MainEditorWindow.RTB;
+            _rtb = MainEditorWindow.RTB;
             
             var enc = new PngBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(rtb));
+            enc.Frames.Add(BitmapFrame.Create(_rtb));
 
             using (MemoryStream stm = new MemoryStream())
             {
@@ -612,7 +596,7 @@ namespace ErrorFixApp
                     $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
                 SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1", out var workbookPart,
                     out var worksheetPart);
-                List<ErrorEntity> errors = new List<ErrorEntity>();
+                List<ErrorEntity> errors;
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
                     errors = _sqLiteManager.LoadErrors();
@@ -685,6 +669,8 @@ namespace ErrorFixApp
             Error.BImageM?.StreamSource.Dispose();
             Error.BImageV?.StreamSource.Dispose();
         }
+        
+        
         
     }
 }

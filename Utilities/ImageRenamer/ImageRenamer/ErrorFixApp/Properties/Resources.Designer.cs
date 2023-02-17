@@ -123,6 +123,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Соединение не установлено.
+        /// </summary>
+        public static string ConnectionError {
+            get {
+                return ResourceManager.GetString("ConnectionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Дата.
         /// </summary>
         public static string DateLabel {
@@ -155,6 +164,24 @@ namespace ErrorFixApp.Properties {
         public static string IdMessage {
             get {
                 return ResourceManager.GetString("IdMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Имя не задано.
+        /// </summary>
+        public static string NameNotSet {
+            get {
+                return ResourceManager.GetString("NameNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Доступные БД отсутствуют.
+        /// </summary>
+        public static string NoDb {
+            get {
+                return ResourceManager.GetString("NoDb", resourceCulture);
             }
         }
         
@@ -231,11 +258,29 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Пользователь.
+        /// </summary>
+        public static string User {
+            get {
+                return ResourceManager.GetString("User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Просмотр ошибки.
         /// </summary>
         public static string ViewError {
             get {
                 return ResourceManager.GetString("ViewError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Режим работы.
+        /// </summary>
+        public static string WorkingType {
+            get {
+                return ResourceManager.GetString("WorkingType", resourceCulture);
             }
         }
     }

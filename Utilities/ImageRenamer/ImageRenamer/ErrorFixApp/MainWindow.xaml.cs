@@ -1,4 +1,7 @@
-﻿namespace ErrorFixApp
+﻿using System.ComponentModel;
+using System.Windows.Input;
+
+namespace ErrorFixApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -9,6 +12,11 @@
         {
             InitializeComponent();
             
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            ((MainWindowModel)this.DataContext).ClosingDb();
         }
     }
 }

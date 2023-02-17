@@ -5,28 +5,26 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
-using System.Net.Mime;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 using Serilog.Core;
 
-
 namespace ErrorDataLayer
 {
     public class SqLiteManager
     {
         public static readonly string BaseDir = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\RouteErrors";
+        public static bool IsCheckQueue = true;
 
-        private string _baseName = $"{BaseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
+        private string _baseName = $"{BaseDir}\\{DateTime.Today.Date:dd_MM_yy}_RouteErrors.db3";
 
-        static readonly string BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors.db3";
+        static readonly string BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:dd_MM_yy}_RouteErrors.db3";
 
-        public ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
+        private readonly ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
 
-         private Logger log =
+        private readonly Logger _log =
              new LoggerConfiguration().
                  MinimumLevel.Debug().
                  WriteTo.Console().
@@ -53,15 +51,15 @@ namespace ErrorDataLayer
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
                             command.CommandText = @"CREATE TABLE [RouteErrors] (
-                    [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    [imagev] BLOB NOT NULL,
-                    [imagem] BLOB NOT NULL,
-                    [comment] TEXT NOT NULL,
-                    [position] TEXT NOT NULL,
-                    [timestamp] TEXT NOT NULL,
-                    [routeName] TEXT NOT NULL,
-                    [username]  TEXT NULL                  
-                    );";
+                            [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            [imagev] BLOB NOT NULL,
+                            [imagem] BLOB NOT NULL,
+                            [comment] TEXT NOT NULL,
+                            [position] TEXT NOT NULL,
+                            [timestamp] TEXT NOT NULL,
+                            [routeName] TEXT NOT NULL,
+                            [username]  TEXT NULL                  
+                            );";
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
                         }
@@ -74,14 +72,13 @@ namespace ErrorDataLayer
 
         public string GetDbToAdd()
         {
-            return $"{DateTime.Today.Date.ToString("dd_MM_yy")}_RouteErrors";
+            return $"{DateTime.Today.Date:dd_MM_yy}_RouteErrors";
         }
 
         public void SetBaseName(string baseName)
         {
             _baseName = $"{BaseDir}\\{baseName}.db3";
         }
-
 
         public List<String> GetAvailableDb()
         {
@@ -97,20 +94,18 @@ namespace ErrorDataLayer
         public void AddErrorToDb(ErrorEntity error)
         {
             _queueToAdd.Enqueue(error);
-            //SaveToDb(error);
         }
 
-        private async void CheckQueue()
+        private void CheckQueue()
         {
-            while (true)
+            while (IsCheckQueue)
             {
-                ErrorEntity error = new ErrorEntity();
-                while (_queueToAdd.TryDequeue(out error))
+                while (_queueToAdd.TryDequeue(out var error))
                 {
-                    log.Debug($"Queue count = {_queueToAdd.Count}");
+                    _log.Debug($"Queue count = {_queueToAdd.Count}");
                     SaveToDb(error);
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
                 
             }
         }
@@ -144,11 +139,11 @@ namespace ErrorDataLayer
                         command.CommandType = CommandType.Text;
                         try
                         {
-                            int res = command.ExecuteNonQuery();
+                           command.ExecuteNonQuery();
                         }
                         catch (Exception ex)
                         {
-                            UpdateDBStructure(ex.Message, Path.GetFileNameWithoutExtension(BaseNameToAdd));
+                            UpdateDbStructure(ex.Message, Path.GetFileNameWithoutExtension(BaseNameToAdd));
                         }
                     }
                 }
@@ -178,7 +173,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception exc1)
                         {
-                            //MessageBox.Show(exc1.Message);
+                            _log.Error(exc1.Message);
                         }
                     }
                 }
@@ -216,7 +211,7 @@ namespace ErrorDataLayer
                                     error.TimeStamp = (String) rdr[4];
                                     error.RouteName = (String) rdr[5];
                                     error.Id = Convert.ToInt32(rdr[6]);
-                                    if (rdr[7].GetType() == typeof(System.DBNull))
+                                    if (rdr[7] is DBNull)
                                     {
                                         error.User = string.Empty;
                                     }
@@ -230,12 +225,13 @@ namespace ErrorDataLayer
                             }
                             catch (Exception exc)
                             {
-                                //MessageBox.Show(exc.Message);
+                                _log.Error(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            UpdateDBStructure(ex.Message, baseName);
+                            _log.Error(ex.Message);
+                            UpdateDbStructure(ex.Message, baseName);
                         }
                     }
                 }
@@ -244,7 +240,7 @@ namespace ErrorDataLayer
             return error;
         }
 
-        private void UpdateDBStructure(string exMessage, string baseName)
+        private void UpdateDbStructure(string exMessage, string baseName)
         {
             if (exMessage.Contains("username"))
             {
@@ -289,15 +285,17 @@ namespace ErrorDataLayer
                             {
                                 while (rdr.Read())
                                 {
-                                    ErrorEntity error = new ErrorEntity();
-                                    error.ImageV = (Byte[]) rdr[0];
-                                    error.ImageM = (Byte[]) rdr[1];
-                                    error.Comment = (String) rdr[2];
-                                    error.Position = (String) rdr[3];
-                                    error.TimeStamp = (String) rdr[4];
-                                    error.RouteName = (String) rdr[5];
-                                    error.Id = Convert.ToInt32(rdr[6]);
-                                    if (rdr[7].GetType() == typeof(System.DBNull))
+                                    ErrorEntity error = new ErrorEntity
+                                    {
+                                        ImageV = (Byte[]) rdr[0],
+                                        ImageM = (Byte[]) rdr[1],
+                                        Comment = (String) rdr[2],
+                                        Position = (String) rdr[3],
+                                        TimeStamp = (String) rdr[4],
+                                        RouteName = (String) rdr[5],
+                                        Id = Convert.ToInt32(rdr[6])
+                                    };
+                                    if (rdr[7] is DBNull)
                                     {
                                         error.User = string.Empty;
                                     }
@@ -310,12 +308,12 @@ namespace ErrorDataLayer
                             }
                             catch (Exception exc)
                             {
-                                //MessageBox.Show(exc.Message);
+                                _log.Error(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            //MessageBox.Show(ex.Message);
+                            _log.Error(ex.Message);
                         }
                     }
 
