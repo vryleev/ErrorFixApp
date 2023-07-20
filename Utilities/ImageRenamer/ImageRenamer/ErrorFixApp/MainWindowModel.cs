@@ -441,6 +441,7 @@ namespace ErrorFixApp
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
                     _sqLiteManager.AddErrorToDb(_errorEntity);
+                    GetDbList();
                     SelectedDb = _sqLiteManager.GetDbToAdd();
                 }
                 else

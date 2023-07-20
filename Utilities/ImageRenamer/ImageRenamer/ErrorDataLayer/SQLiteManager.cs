@@ -37,11 +37,18 @@ namespace ErrorDataLayer
                 Directory.CreateDirectory(BaseDir);
             }
 
+            //CreateDb();
+
+            Task.Factory.StartNew(CheckQueue);
+        }
+
+        private static void CreateDb()
+        {
             if (!File.Exists(BaseNameToAdd))
             {
                 SQLiteConnection.CreateFile(BaseNameToAdd);
-                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
-                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+                SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+                using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
                 {
                     if (connection != null)
                     {
@@ -66,8 +73,6 @@ namespace ErrorDataLayer
                     }
                 }
             }
-
-            Task.Factory.StartNew(CheckQueue);
         }
 
         public string GetDbToAdd()
@@ -93,6 +98,7 @@ namespace ErrorDataLayer
 
         public void AddErrorToDb(ErrorEntity error)
         {
+            CreateDb();
             _queueToAdd.Enqueue(error);
         }
 
