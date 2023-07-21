@@ -43,7 +43,6 @@ namespace ErrorFixApp
             }
             else
             {
-
                 dbList = await _webApiManager.GetAvailableDb();
             }
 
@@ -54,7 +53,6 @@ namespace ErrorFixApp
 
             DbList = new ObservableCollection<string>(dbList);
             SelectedDb = DbList.First();
-
         }
 
         private readonly SqLiteManager _sqLiteManager;
@@ -133,24 +131,25 @@ namespace ErrorFixApp
             }
         }
 
-        public string ApplicationName {
+        public string ApplicationName
+        {
             get
             {
                 if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
                 {
-                    return $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}";
+                    return
+                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}";
                 }
                 else
                 {
-                    return $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                    return
+                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
                 }
-                     
-                
             }
-    }
+        }
 
 
-    private string XlsToExport
+        private string XlsToExport
         {
             get => _xlsToExport;
             set
@@ -159,7 +158,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public string XlsToView
         {
             get => _xlsToView;
@@ -169,7 +168,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public int ErrorId
         {
             get => _errorId;
@@ -179,7 +178,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public Visibility AddButtonVisibility
         {
             get => _addButtonVisibility;
@@ -189,7 +188,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public Visibility ScreenShotButtonVisibility
         {
             get => _screenShotButtonVisibility;
@@ -199,7 +198,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public ErrorDetail Error
         {
             get => _errorDetail;
@@ -209,6 +208,7 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+
         public WindowState WState
         {
             get => _wState;
@@ -218,15 +218,16 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName]string prop = "")
+        private void OnPropertyChanged([CallerMemberName] string prop = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
-        
-        
+
+
         private ICommand _fixCommand;
 
         public ICommand FixCommand
@@ -239,7 +240,7 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _closingCommand;
 
         public ICommand ClosingCommand
@@ -252,7 +253,7 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _loadCommand;
 
         public ICommand LoadCommand
@@ -265,7 +266,7 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _cancelCommand;
 
         public ICommand CancelCommand
@@ -278,8 +279,9 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _saveCommand;
+
         public ICommand SaveCommand
         {
             get
@@ -292,7 +294,7 @@ namespace ErrorFixApp
         }
 
         private ICommand _editImageCommand;
-        
+
         public ICommand EditImageCommand
         {
             get
@@ -303,8 +305,9 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _selectXlsFileCommand;
+
         public ICommand SelectXlsFileCommand
         {
             get
@@ -320,10 +323,9 @@ namespace ErrorFixApp
         {
             return true;
         }
-        
+
         private bool CanSave()
         {
-           
             return true;
         }
 
@@ -331,12 +333,17 @@ namespace ErrorFixApp
         {
             SqLiteManager.IsCheckQueue = false;
         }
-        
+
         private void FixObject()
         {
             if (Error.RouteName.Contains(Resources.SetupRoute))
             {
                 MessageBox.Show(Resources.SetupRouteMessage);
+                return;
+            }
+            if (Error.RouteName.Contains(' ') || Error.RouteName.Contains('.'))
+            {
+                MessageBox.Show(Resources.IncorrectName);
                 return;
             }
 
@@ -352,35 +359,37 @@ namespace ErrorFixApp
             {
                 Error.Position = File.ReadAllText(_positionFilePath, Encoding.UTF8);
             }
-            
+
             float scale = Screen.PrimaryScreen.Bounds.Width / (float)SystemParameters.PrimaryScreenWidth;
 
-            int screenLeft = (int) SystemParameters.VirtualScreenLeft ;
-            int screenTop = (int) SystemParameters.VirtualScreenTop;
-            int screenWidth = (int)(SystemParameters.VirtualScreenWidth*scale);
-            int screenHeight = (int) (SystemParameters.VirtualScreenHeight*scale);
+            int screenLeft = (int)SystemParameters.VirtualScreenLeft;
+            int screenTop = (int)SystemParameters.VirtualScreenTop;
+            int screenWidth = (int)(SystemParameters.VirtualScreenWidth * scale);
+            int screenHeight = (int)(SystemParameters.VirtualScreenHeight * scale);
 
             int visualLeft = screenLeft;
             int visualTop = screenTop;
             int visualWidth = screenWidth / 2;
             int visualHeight = screenHeight;
-            
-            int mapLeft = screenWidth/2;
+
+            int mapLeft = screenWidth / 2;
             int mapTop = screenTop;
             int mapWidth = screenWidth / 2;
             int mapHeight = screenHeight;
 
-            string visualRect        = ConfigurationManager.AppSettings.Get("VisualRect");
-            ParseRectConfiguration(visualRect, screenLeft, screenTop, screenWidth, screenHeight, ref visualLeft, ref visualTop, ref visualWidth, ref visualHeight);
-            
-            string mapRect        = ConfigurationManager.AppSettings.Get("MapRect");
-            ParseRectConfiguration(mapRect, screenWidth/2, screenTop, screenWidth, screenHeight, ref mapLeft, ref mapTop, ref mapWidth, ref mapHeight);
+            string visualRect = ConfigurationManager.AppSettings.Get("VisualRect");
+            ParseRectConfiguration(visualRect, screenLeft, screenTop, screenWidth, screenHeight, ref visualLeft,
+                ref visualTop, ref visualWidth, ref visualHeight);
+
+            string mapRect = ConfigurationManager.AppSettings.Get("MapRect");
+            ParseRectConfiguration(mapRect, screenWidth / 2, screenTop, screenWidth, screenHeight, ref mapLeft,
+                ref mapTop, ref mapWidth, ref mapHeight);
 
             Bitmap bitmapScreen1 = new Bitmap(visualWidth, visualHeight);
             Bitmap bitmapScreen2 = new Bitmap(mapWidth, mapHeight);
 
-            Graphics g1 = Graphics.FromImage(bitmapScreen1); 
-            Graphics g2 = Graphics.FromImage(bitmapScreen2);    
+            Graphics g1 = Graphics.FromImage(bitmapScreen1);
+            Graphics g2 = Graphics.FromImage(bitmapScreen2);
 
             g1.CopyFromScreen(visualLeft, visualTop, 0, 0, bitmapScreen1.Size);
             Error.BImageV = ImageUtils.BitmapToImageSource(bitmapScreen1);
@@ -388,18 +397,16 @@ namespace ErrorFixApp
 
             Bitmap testV = ImageUtils.ResizeImage(Error.ImageV, 1024);
             Error.ImageV = testV;
-            
+
             g2.CopyFromScreen(mapLeft, mapTop, 0, 0, bitmapScreen2.Size);
             Error.BImageM = ImageUtils.BitmapToImageSource(bitmapScreen2);
             Error.ImageM = bitmapScreen2;
-            
+
             Bitmap testM = ImageUtils.ResizeImage(Error.ImageM, 1024);
             Error.ImageM = testM;
-            
+
             WState = WindowState.Maximized;
             AddButtonVisibility = Visibility.Visible;
-
-            
         }
 
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
@@ -412,17 +419,17 @@ namespace ErrorFixApp
                 {
                     try
                     {
-                        visualLeft   = Int32.Parse(visualParams[0]);
-                        visualTop    = Int32.Parse(visualParams[1]);
-                        visualWidth  = Int32.Parse(visualParams[2]);
+                        visualLeft = Int32.Parse(visualParams[0]);
+                        visualTop = Int32.Parse(visualParams[1]);
+                        visualWidth = Int32.Parse(visualParams[2]);
                         visualHeight = Int32.Parse(visualParams[3]);
                     }
                     catch (Exception e)
                     {
                         MessageBox.Show($"Rect is not corrected {e.Message}");
-                        visualLeft   = screenLeft;
-                        visualTop    = screenTop;
-                        visualWidth  = screenWidth / 2;
+                        visualLeft = screenLeft;
+                        visualTop = screenTop;
+                        visualWidth = screenWidth / 2;
                         visualHeight = screenHeight;
                     }
                 }
@@ -455,9 +462,7 @@ namespace ErrorFixApp
                 Error.ImageVisibility = Visibility.Hidden;
                 ScreenShotButtonVisibility = Visibility.Visible;
                 Error.Comment = Resources.AddComment;
-                
             }
-            
         }
 
         private void UpdateErrorEntity()
@@ -479,7 +484,7 @@ namespace ErrorFixApp
             {
                 MessageBox.Show(Resources.IdMessage);
             }
-          
+
             if (DatabaseToView != String.Empty)
             {
                 Error.ImageM?.Dispose();
@@ -490,18 +495,19 @@ namespace ErrorFixApp
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
                     _errorEntity = _sqLiteManager.LoadError(ErrorId);
-                    
                 }
                 else
                 {
                     _errorEntity = await _webApiManager.GetError(ErrorId, SelectedDb);
                 }
+
                 UpdateErrorDetails();
-                
+
                 if (Directory.Exists(TrainerPath))
                 {
                     File.WriteAllText(_positionFilePathSetup, Error.Position, Encoding.ASCII);
                 }
+
                 if (Directory.Exists(SceneGeneratorPath))
                 {
                     File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
@@ -523,21 +529,19 @@ namespace ErrorFixApp
                 Error.ImageM = ImageUtils.ByteToImage(_errorEntity.ImageM);
                 Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
                 Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
-                
+
                 Error.ImageVisibility = Visibility.Visible;
             }
             else
             {
                 Error.ImageVisibility = Visibility.Collapsed;
             }
-
-
         }
 
         private void EditImage(string pictureType)
         {
             var editorWindow = new MainEditorWindow();
-            
+
             editorWindow.Closing += EditorWindowOnClosing;
 
             double layerWidth = Error.ImageV.Width;
@@ -551,17 +555,18 @@ namespace ErrorFixApp
 
             MainEditorWindow.WindowTrigger = 4;
             MainEditorWindow.PictureType = pictureType;
-            MainEditorWindow.Picture = pictureType == "Visual" ? Error.ImageV.ToStream(ImageFormat.Bmp) : Error.ImageM.ToStream(ImageFormat.Bmp);
-           
+            MainEditorWindow.Picture = pictureType == "Visual"
+                ? Error.ImageV.ToStream(ImageFormat.Bmp)
+                : Error.ImageM.ToStream(ImageFormat.Bmp);
+
             MainEditorWindow.EnableBlur(editorWindow);
             MainEditorWindow.ShowMainWindow();
-           
         }
 
         private void EditorWindowOnClosing(object sender, CancelEventArgs e)
         {
             _rtb = MainEditorWindow.RTB;
-            
+
             var enc = new PngBitmapEncoder();
             enc.Frames.Add(BitmapFrame.Create(_rtb));
 
@@ -579,85 +584,119 @@ namespace ErrorFixApp
                     Error.ImageM = editedImage;
                     Error.BImageM = ImageUtils.BitmapToImageSource(editedImage);
                 }
-
             }
         }
 
-        
+
         private void ExportToXlsxFileTask()
         {
             Task.Factory.StartNew(ExportToXlsxFile);
         }
-        
+
         private async void ExportToXlsxFile()
         {
-            if (DatabaseToView != String.Empty)
+            try
             {
-                XlsToExport =
-                    $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
-                SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1", out var workbookPart,
-                    out var worksheetPart);
-                List<ErrorEntity> errors;
-                if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                if (DatabaseToView != String.Empty)
                 {
-                    errors = _sqLiteManager.LoadErrors();
-                }
-                else
-                {
-                    errors = await _webApiManager.GetAllErrors(SelectedDb);
-                }
-
-
-                uint i = 1;
-                if (errors != null)
-                {
-                    foreach (var error in errors)
+                    List<ErrorEntity> errors;
+                    if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                     {
-                        using (var imageStream =
-                               new MemoryStream(error.ImageV))
-                        {
-                            ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int) i);
-                            imageStream.Close();
-                        }
-
-                        using (var imageStream =
-                               new MemoryStream(error.ImageM))
-                        {
-                            ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int) i);
-                            imageStream.Close();
-                        }
-
-                        string[] positionParams = error.Position.Split(' ');
-
-                        string positionToXls = error.Position;
-
-                        if (positionParams.Length == 8)
-                        {
-                            positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
-                        }
-
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
-                        ExcelTools.InsertText(workbookPart, worksheetPart, error.User, "H", i);
-
-                        XlsToView = $"{Resources.AddedErrors} {i} из {errors.Count}";
-
-                        i++;
+                        errors = _sqLiteManager.LoadErrors();
                     }
+                    else
+                    {
+                        errors = await _webApiManager.GetAllErrors(SelectedDb);
+                    }
+
+                    List<string> routeList = new List<string>();
+
+                    foreach (var er in errors)
+                    {
+                        if (!routeList.Contains(er.RouteName))
+                        {
+                            routeList.Add(er.RouteName);
+                        }
+                    }
+
+                    foreach (var route in routeList)
+                    {
+                        XlsToExport =
+                            $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{route}_{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
+                        SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",
+                            out var workbookPart,
+                            out var worksheetPart);
+                        uint i = 1;
+
+                        if (errors.Count > 0)
+                        {
+                            var routeErrors = errors.Where(e => e.RouteName == route).ToList();
+                            foreach (var error in routeErrors)
+                            {
+                                using (var imageStream =
+                                       new MemoryStream(error.ImageV))
+                                {
+                                    ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
+                                    imageStream.Close();
+                                }
+
+                                using (var imageStream =
+                                       new MemoryStream(error.ImageM))
+                                {
+                                    ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
+                                    imageStream.Close();
+                                }
+
+                                string[] positionParams = error.Position.Split(' ');
+
+                                string positionToXls = error.Position;
+
+                                if (positionParams.Length == 8)
+                                {
+                                    //positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
+                                    positionToXls = $"{positionParams[3]};{positionParams[4]};20";
+                                }
+
+                                MPoint pos = new MPoint();
+                                double x = 0.0;
+                                double y = 0.0;
+
+                                if (Double.TryParse(positionParams[3], out x) &&
+                                     Double.TryParse(positionParams[4], out y))
+                                {
+                                    pos = SphericalMercator.FromUnigineToLonLat(x, y);
+                                }
+
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.User, "H", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "I", i);
+                                ExcelTools.InsertText(workbookPart, worksheetPart, $"{pos.Y},{pos.X}" , "J", i);
+
+                                XlsToView = $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}";
+
+                                i++;
+                            }
+                        }
+
+                        ExcelTools.CloseDocument(document, worksheetPart);
+                    }
+
                     errors.Clear();
-                    string argument = $"/select, \"{SqLiteManager.BaseDir}\\{SelectedDb}.xlsx";
+                    string argument = $"/select, \"{SqLiteManager.BaseDir}\\{SelectedDb}.db3";
 
                     System.Diagnostics.Process.Start("explorer.exe", argument);
                 }
-                ExcelTools.CloseDocument(document, worksheetPart);
-                
-               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
-        
+
         private void CancelObject()
         {
             WState = WindowState.Normal;
@@ -670,8 +709,5 @@ namespace ErrorFixApp
             Error.BImageM?.StreamSource.Dispose();
             Error.BImageV?.StreamSource.Dispose();
         }
-        
-        
-        
     }
 }

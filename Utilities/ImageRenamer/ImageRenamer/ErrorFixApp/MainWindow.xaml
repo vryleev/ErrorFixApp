@@ -20,7 +20,7 @@
     </Window.InputBindings>
     <Grid>
         <StackPanel>
-            <Grid>
+            <Grid MaxHeight="130">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />

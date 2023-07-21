@@ -189,4 +189,7 @@
   <data name="WorkingType" xml:space="preserve">
     <value>Режим работы</value>
   </data>
+  <data name="IncorrectName" xml:space="preserve">
+    <value>Имя маршрута не может содержать пробелы и другие специальные симводы (только буквы и цифры) </value>
+  </data>
 </root>

@@ -168,6 +168,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Имя маршрута не может содержать пробелы и другие специальные симводы (только буквы и цифры) .
+        /// </summary>
+        public static string IncorrectName {
+            get {
+                return ResourceManager.GetString("IncorrectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Имя не задано.
         /// </summary>
         public static string NameNotSet {

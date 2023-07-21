@@ -320,6 +320,7 @@ namespace ErrorDataLayer
                         catch (Exception ex)
                         {
                             _log.Error(ex.Message);
+                            UpdateDbStructure(ex.Message, baseName);
                         }
                     }
 
