@@ -192,4 +192,7 @@
   <data name="IncorrectName" xml:space="preserve">
     <value>Имя маршрута не может содержать пробелы и другие специальные симводы (только буквы и цифры) </value>
   </data>
+  <data name="ErrorType" xml:space="preserve">
+    <value>Тип ошибки</value>
+  </data>
 </root>

@@ -18,5 +18,7 @@
         public string TimeStamp { get; set; }
         
         public string User { get; set; }
+        
+        public string ErrorType { get; set; }
     }
 }

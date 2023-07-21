@@ -65,7 +65,8 @@ namespace ErrorDataLayer
                             [position] TEXT NOT NULL,
                             [timestamp] TEXT NOT NULL,
                             [routeName] TEXT NOT NULL,
-                            [username]  TEXT NULL                  
+                            [username]  TEXT NULL,
+                            [errortype] TEXT NULL
                             );";
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
@@ -95,7 +96,7 @@ namespace ErrorDataLayer
             }
             return dbList;
         }
-
+        
         public void AddErrorToDb(ErrorEntity error)
         {
             CreateDb();
@@ -129,7 +130,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName, username) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}','{error.User}');";
+                            $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName, username, errorType) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}','{error.User}', '{error.ErrorType}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
                             Value = error.ImageV
@@ -202,7 +203,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username from RouteErrors where id = '{id}'";
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from RouteErrors where id = '{id}'";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();
@@ -224,6 +225,14 @@ namespace ErrorDataLayer
                                     else
                                     {
                                         error.User = (String) rdr[7];
+                                    }
+                                    if (rdr[8] is DBNull)
+                                    {
+                                        error.ErrorType = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        error.ErrorType = (String) rdr[8];
                                     }
                                     
                                     
@@ -248,7 +257,7 @@ namespace ErrorDataLayer
 
         private void UpdateDbStructure(string exMessage, string baseName)
         {
-            if (exMessage.Contains("username"))
+            if (exMessage.ToLower().Contains("username"))
             {
                 SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
                 using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
@@ -261,6 +270,25 @@ namespace ErrorDataLayer
                         using (SQLiteCommand command = new SQLiteCommand(connection))
                         {
                             command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [username]  TEXT NULL;";
+                            command.CommandType = CommandType.Text;
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            if (exMessage.ToLower().Contains("errortype"))
+            {
+                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+                {
+                    if (connection != null)
+                    {
+                        SetConnectionString(baseName, connection);
+                        connection.Open();
+
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [errortype]  TEXT NULL;";
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
                         }
@@ -283,7 +311,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username from RouteErrors";
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from RouteErrors";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();
@@ -308,6 +336,14 @@ namespace ErrorDataLayer
                                     else
                                     {
                                         error.User = (String) rdr[7];
+                                    }
+                                    if (rdr[8] is DBNull)
+                                    {
+                                        error.ErrorType = "base";
+                                    }
+                                    else
+                                    {
+                                        error.ErrorType = (String) rdr[8];
                                     }
                                     errors.Add(error);
                                 }

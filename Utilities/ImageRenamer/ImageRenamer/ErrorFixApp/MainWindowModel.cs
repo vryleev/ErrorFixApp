@@ -32,6 +32,7 @@ namespace ErrorFixApp
             _sqLiteManager = new SqLiteManager();
             _webApiManager = new WebApiManager();
             GetDbList();
+            GetErrorTypeList();
         }
 
         private async void GetDbList()
@@ -54,6 +55,19 @@ namespace ErrorFixApp
             DbList = new ObservableCollection<string>(dbList);
             SelectedDb = DbList.First();
         }
+        
+        private async void GetErrorTypeList()
+        {
+            var errorTypeList = ConfigurationManager.AppSettings.Get("ErrorTypes").Split(',').ToList();
+
+            if (errorTypeList.Count == 0)
+            {
+                errorTypeList.Add(Resources.NoDb);
+            }
+
+            ErrorTypeList = new ObservableCollection<string>(errorTypeList);
+            SelectedErrorType = ErrorTypeList.First();
+        }
 
         private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
@@ -67,7 +81,9 @@ namespace ErrorFixApp
         private readonly string _positionFilePathSgSetup = $"{SceneGeneratorPath}/{FileNamePos}_setup";
 
         private string _selectedDbName;
+        private string _selectedErrorType;
         private ObservableCollection<string> _dbList = new ObservableCollection<string>();
+        private ObservableCollection<string> _errorTypeList = new ObservableCollection<string>();
 
         private string _databaseToView = string.Empty;
         private string _xlsToExport = string.Empty;
@@ -120,6 +136,17 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+        
+        public string SelectedErrorType
+        {
+            get => _selectedErrorType;
+            set
+            {
+                _selectedErrorType = value;
+                
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<string> DbList
         {
@@ -127,6 +154,16 @@ namespace ErrorFixApp
             private set
             {
                 _dbList = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public ObservableCollection<string> ErrorTypeList
+        {
+            get => _errorTypeList;
+            private set
+            {
+                _errorTypeList = value;
                 OnPropertyChanged();
             }
         }
@@ -449,6 +486,7 @@ namespace ErrorFixApp
                 {
                     _sqLiteManager.AddErrorToDb(_errorEntity);
                     GetDbList();
+                    
                     SelectedDb = _sqLiteManager.GetDbToAdd();
                 }
                 else
@@ -462,6 +500,7 @@ namespace ErrorFixApp
                 Error.ImageVisibility = Visibility.Hidden;
                 ScreenShotButtonVisibility = Visibility.Visible;
                 Error.Comment = Resources.AddComment;
+                GetErrorTypeList();
             }
         }
 
@@ -473,6 +512,7 @@ namespace ErrorFixApp
             _errorEntity.Id = Error.Id;
             _errorEntity.TimeStamp = Error.TimeStamp;
             _errorEntity.User = ConfigurationManager.AppSettings["User"];
+            _errorEntity.ErrorType = SelectedErrorType;
 
             _errorEntity.ImageV = ImageUtils.ImageToByte(Error.ImageV, ImageFormat.Jpeg);
             _errorEntity.ImageM = ImageUtils.ImageToByte(Error.ImageM, ImageFormat.Jpeg);
@@ -521,6 +561,7 @@ namespace ErrorFixApp
             {
                 Error.Position = _errorEntity.Position;
                 Error.User = _errorEntity.User;
+                SelectedErrorType = _errorEntity.ErrorType;;
                 Error.Comment = _errorEntity.Comment;
                 Error.Id = _errorEntity.Id;
                 Error.RouteName = _errorEntity.RouteName;
@@ -626,60 +667,40 @@ namespace ErrorFixApp
                         SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",
                             out var workbookPart,
                             out var worksheetPart);
-                        uint i = 1;
+                       
 
                         if (errors.Count > 0)
                         {
-                            var routeErrors = errors.Where(e => e.RouteName == route).ToList();
-                            foreach (var error in routeErrors)
-                            {
-                                using (var imageStream =
-                                       new MemoryStream(error.ImageV))
-                                {
-                                    ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
-                                    imageStream.Close();
-                                }
+                            var routeErrors = errors.Where(e => e.RouteName == route && e.ErrorType == "base").ToList();
+                            AddErrorsToXls(routeErrors, worksheetPart, workbookPart, route);
+                        }
 
-                                using (var imageStream =
-                                       new MemoryStream(error.ImageM))
-                                {
-                                    ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
-                                    imageStream.Close();
-                                }
+                        ExcelTools.CloseDocument(document, worksheetPart);
+                    }
+                    
+                    List<string> errorTypeList = new List<string>();
 
-                                string[] positionParams = error.Position.Split(' ');
+                    foreach (var er in errors)
+                    {
+                        if (!errorTypeList.Contains(er.ErrorType) && er.ErrorType != "base")
+                        {
+                            errorTypeList.Add(er.ErrorType);
+                        }
+                    }
 
-                                string positionToXls = error.Position;
+                    foreach (var errorType in errorTypeList)
+                    {
+                        XlsToExport =
+                            $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{errorType}_{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
+                        SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",
+                            out var workbookPart,
+                            out var worksheetPart);
+                       
 
-                                if (positionParams.Length == 8)
-                                {
-                                    //positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
-                                    positionToXls = $"{positionParams[3]};{positionParams[4]};20";
-                                }
-
-                                MPoint pos = new MPoint();
-                                double x = 0.0;
-                                double y = 0.0;
-
-                                if (Double.TryParse(positionParams[3], out x) &&
-                                     Double.TryParse(positionParams[4], out y))
-                                {
-                                    pos = SphericalMercator.FromUnigineToLonLat(x, y);
-                                }
-
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.User, "H", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "I", i);
-                                ExcelTools.InsertText(workbookPart, worksheetPart, $"{pos.Y},{pos.X}" , "J", i);
-
-                                XlsToView = $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}";
-
-                                i++;
-                            }
+                        if (errors.Count > 0)
+                        {
+                            var errorWithType = errors.Where(e => e.ErrorType == errorType).ToList();
+                            AddErrorsToXls(errorWithType, worksheetPart, workbookPart, errorType);
                         }
 
                         ExcelTools.CloseDocument(document, worksheetPart);
@@ -697,6 +718,60 @@ namespace ErrorFixApp
             }
         }
 
+        private void AddErrorsToXls(List<ErrorEntity> routeErrors, WorksheetPart worksheetPart, WorkbookPart workbookPart, string route)
+        {
+            uint i = 1;
+            foreach (var error in routeErrors)
+            {
+                using (var imageStream =
+                       new MemoryStream(error.ImageV))
+                {
+                    ExcelTools.AddImage(worksheetPart, imageStream, "", 1, (int)i);
+                    imageStream.Close();
+                }
+
+                using (var imageStream =
+                       new MemoryStream(error.ImageM))
+                {
+                    ExcelTools.AddImage(worksheetPart, imageStream, "", 2, (int)i);
+                    imageStream.Close();
+                }
+
+                string[] positionParams = error.Position.Split(' ');
+
+                string positionToXls = error.Position;
+
+                MPoint pos = new MPoint();
+                double x = 0.0;
+                double y = 0.0;
+                
+                if (positionParams.Length == 8)
+                {
+                    //positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
+                    positionToXls = $"{positionParams[3]};{positionParams[4]};20";
+                    if (Double.TryParse(positionParams[3], out x) &&
+                        Double.TryParse(positionParams[4], out y))
+                    {
+                        pos = SphericalMercator.FromUnigineToLonLat(x, y);
+                    }
+                }
+
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.Id.ToString(), "C", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.Comment, "D", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, positionToXls, "E", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.RouteName, "F", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.TimeStamp, "G", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.User, "H", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "I", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, $"{pos.Y},{pos.X}", "J", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.ErrorType, "K", i);
+
+                XlsToView = $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}";
+
+                i++;
+            }
+        }
+
         private void CancelObject()
         {
             WState = WindowState.Normal;
@@ -708,6 +783,7 @@ namespace ErrorFixApp
             Error.ImageV?.Dispose();
             Error.BImageM?.StreamSource.Dispose();
             Error.BImageV?.StreamSource.Dispose();
+            GetErrorTypeList();
         }
     }
 }

@@ -141,6 +141,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Тип ошибки.
+        /// </summary>
+        public static string ErrorType {
+            get {
+                return ResourceManager.GetString("ErrorType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Экспорт в Xlsx.
         /// </summary>
         public static string ExportToXlsx {
