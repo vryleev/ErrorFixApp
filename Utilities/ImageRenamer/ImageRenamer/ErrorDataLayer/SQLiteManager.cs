@@ -130,7 +130,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"INSERT INTO RouteErrors (imagev, imagem, comment, position, timestamp, routeName, username, errorType) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}','{error.User}', '{error.ErrorType}');";
+                            $"INSERT INTO [RouteErrors] (imagev, imagem, comment, position, timestamp, routeName, username, errorType) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}','{error.User}', '{error.ErrorType}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
                             Value = error.ImageV
@@ -155,6 +155,37 @@ namespace ErrorDataLayer
                     }
                 }
             }
+        }
+
+        public int DeleteErrorFromDb(int id, string baseName = null)
+        {
+            SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText =
+                            $"delete from [RouteErrors] where id = '{id}'";
+                        
+                        command.CommandType = CommandType.Text;
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            return 0;
+                        }
+                    }
+                }
+            }
+
+            return 1;
         }
 
         public int GetErrorCount(string baseName = null)
@@ -185,7 +216,37 @@ namespace ErrorDataLayer
                     }
                 }
             }
+            return res;
+        }
+        
+        public int GetMaxId(string baseName = null)
+        {
+            int res = -1;
+            SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
 
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        try
+                        {
+                            command.CommandType = CommandType.Text;
+                            command.CommandText = "SELECT * FROM [RouteErrors] ORDER BY id DESC LIMIT 1";
+                            object count = command.ExecuteScalar();
+                            return Convert.ToInt32(count);
+                        }
+                        catch (Exception exc1)
+                        {
+                            _log.Error(exc1.Message);
+                        }
+                    }
+                }
+            }
             return res;
         }
 
@@ -203,7 +264,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from RouteErrors where id = '{id}'";
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from [RouteErrors] where id = '{id}'";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();

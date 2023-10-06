@@ -195,4 +195,16 @@
   <data name="ErrorType" xml:space="preserve">
     <value>Тип ошибки</value>
   </data>
+  <data name="DeleteMessage" xml:space="preserve">
+    <value>Текущая ошибка будет удалена. Вы уверены?</value>
+  </data>
+  <data name="DeleteCaption" xml:space="preserve">
+    <value>Операция удаления</value>
+  </data>
+  <data name="DeleteNotPossible" xml:space="preserve">
+    <value>Операция удаления невозможна.</value>
+  </data>
+  <data name="MaxId" xml:space="preserve">
+    <value>MaxID</value>
+  </data>
 </root>

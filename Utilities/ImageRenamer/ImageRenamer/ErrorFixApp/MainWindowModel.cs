@@ -109,7 +109,7 @@ namespace ErrorFixApp
                 if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
                 {
                     _sqLiteManager.SetBaseName(_databaseToView);
-                    XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}";
+                    XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}, {Resources.MaxId}: {_sqLiteManager.GetMaxId()}";
                 }
                 else
                 {
@@ -277,6 +277,19 @@ namespace ErrorFixApp
                 ));
             }
         }
+        
+        private ICommand _deleteCommand;
+        
+        public ICommand DeleteCommand
+        {
+            get
+            {
+                return _deleteCommand ?? (_deleteCommand = new RelayCommand(
+                    param => this.DeleteObject(),
+                    param => this.CanLoad()
+                ));
+            }
+        }
 
         private ICommand _closingCommand;
 
@@ -369,6 +382,37 @@ namespace ErrorFixApp
         public void ClosingDb()
         {
             SqLiteManager.IsCheckQueue = false;
+        }
+
+        private async void DeleteObject()
+        {
+            if (Error.Id > 0)
+            {
+                MessageBoxResult dialogResult = MessageBox.Show(Resources.DeleteMessage, Resources.DeleteCaption, MessageBoxButton.YesNo);
+                if(dialogResult == MessageBoxResult.Yes)
+                {
+                    if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                    {
+                        _sqLiteManager.DeleteErrorFromDb(Error.Id);
+                    }
+                    else
+                    {
+                        await _webApiManager.DeleteFromDb(Error.Id, SelectedDb);
+                    }
+                    WState = WindowState.Normal;
+                    AddButtonVisibility = Visibility.Hidden;
+                    Error.Id = 0;
+                    Error.ImageVisibility = Visibility.Hidden;
+                    ScreenShotButtonVisibility = Visibility.Visible;
+                    Error.Comment = Resources.AddComment;
+                    GetErrorTypeList();
+                }
+                
+            }
+            else
+            {
+                MessageBox.Show(Resources.DeleteNotPossible, Resources.DeleteCaption, MessageBoxButton.OK);
+            }
         }
 
         private void FixObject()
@@ -541,22 +585,25 @@ namespace ErrorFixApp
                     _errorEntity = await _webApiManager.GetError(ErrorId, SelectedDb);
                 }
 
-                UpdateErrorDetails();
-
-                if (Directory.Exists(TrainerPath))
+                if (UpdateErrorDetails())
                 {
-                    File.WriteAllText(_positionFilePathSetup, Error.Position, Encoding.ASCII);
-                }
 
-                if (Directory.Exists(SceneGeneratorPath))
-                {
-                    File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
+                    if (Directory.Exists(TrainerPath))
+                    {
+                        File.WriteAllText(_positionFilePathSetup, Error.Position, Encoding.ASCII);
+                    }
+
+                    if (Directory.Exists(SceneGeneratorPath))
+                    {
+                        File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
+                    }
                 }
             }
         }
 
-        private void UpdateErrorDetails()
+        private bool UpdateErrorDetails()
         {
+            bool res = false;
             if (_errorEntity != null && _errorEntity.Id > 0)
             {
                 Error.Position = _errorEntity.Position;
@@ -570,13 +617,15 @@ namespace ErrorFixApp
                 Error.ImageM = ImageUtils.ByteToImage(_errorEntity.ImageM);
                 Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
                 Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
-
                 Error.ImageVisibility = Visibility.Visible;
+                res = true;
             }
             else
             {
+                Error.Id = 0;
                 Error.ImageVisibility = Visibility.Collapsed;
             }
+            return res;
         }
 
         private void EditImage(string pictureType)

@@ -141,6 +141,33 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Операция удаления.
+        /// </summary>
+        public static string DeleteCaption {
+            get {
+                return ResourceManager.GetString("DeleteCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Текущая ошибка будет удалена. Вы уверены?.
+        /// </summary>
+        public static string DeleteMessage {
+            get {
+                return ResourceManager.GetString("DeleteMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Операция удаления невозможна..
+        /// </summary>
+        public static string DeleteNotPossible {
+            get {
+                return ResourceManager.GetString("DeleteNotPossible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Тип ошибки.
         /// </summary>
         public static string ErrorType {
@@ -182,6 +209,15 @@ namespace ErrorFixApp.Properties {
         public static string IncorrectName {
             get {
                 return ResourceManager.GetString("IncorrectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MaxID.
+        /// </summary>
+        public static string MaxId {
+            get {
+                return ResourceManager.GetString("MaxId", resourceCulture);
             }
         }
         

@@ -63,5 +63,11 @@ namespace ErrorWebApplication.Controllers
             _sqLiteMsService.DbManager.AddErrorToDb(error);
 
         }
+
+        [HttpPut]
+        public void Put([FromBody] int id, string baseName)
+        {
+            _sqLiteMsService.DbManager.DeleteErrorFromDb(id, baseName);
+        }
     }
 }

@@ -152,6 +152,31 @@ namespace ErrorFixApp
             return dbName;
         }
         
+        public async Task<string> DeleteFromDb(int id, string baseName = null)
+        {
+            string resultContent = String.Empty;
+            var json = JsonConvert.SerializeObject($"{id},{baseName}");
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            
+
+            try
+            {
+                HttpResponseMessage resp = await _client.PutAsync($"{_client.BaseAddress}", content);
+                if (resp.IsSuccessStatusCode)
+                {
+                    resultContent = await resp.Content.ReadAsStringAsync();
+                }
+            }
+            catch (TaskCanceledException e)
+            {
+                _log.Error(e.Message);
+                var message = $"{Resources.ConnectionError}: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                MessageBox.Show(message);
+            }
+
+            return resultContent;
+        }
+        
         public async Task<int> GetErrorCount(string baseName)
         {
             int errorCount = -1;

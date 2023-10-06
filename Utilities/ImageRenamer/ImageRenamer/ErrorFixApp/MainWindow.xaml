@@ -17,6 +17,9 @@
         <KeyBinding Modifiers="Control"
                     Key="N"
                     Command="{Binding FixCommand}" />
+        <KeyBinding Modifiers="Control"
+                    Key="D"
+                    Command="{Binding DeleteCommand}" />
     </Window.InputBindings>
     <Grid>
         <StackPanel>
