@@ -177,6 +177,7 @@
                         <RowDefinition Height="20*" />
                         <RowDefinition Height="30*" />
                         <RowDefinition Height="30*" />
+                        
                     </Grid.RowDefinitions>
                   
                     <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" ItemsSource="{ Binding ErrorTypeList}" 
@@ -197,6 +198,7 @@
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                             Visibility="{Binding  Error.ImageVisibility}"
                             Command="{Binding Path=CancelCommand}" />
+                   
                 </Grid>
             </Grid>
         </StackPanel>

@@ -33,6 +33,7 @@ namespace ErrorFixApp
             _webApiManager = new WebApiManager();
             GetDbList();
             GetErrorTypeList();
+            UserControlVM = new MainPanelControlModel();
         }
 
         private async void GetDbList()
@@ -96,6 +97,7 @@ namespace ErrorFixApp
         private string _xlsToView = string.Empty;
 
         private RenderTargetBitmap _rtb;
+        private bool _isEditorOpened = false;
 
         private int _errorId = -1;
 
@@ -293,6 +295,17 @@ namespace ErrorFixApp
             set
             {
                 _wState = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        private MainPanelControlModel _userControlVM;
+        public MainPanelControlModel UserControlVM
+        {
+            get => _userControlVM;
+            set
+            {
+                _userControlVM = value;
                 OnPropertyChanged();
             }
         }
@@ -681,31 +694,36 @@ namespace ErrorFixApp
 
         private void EditImage(string pictureType)
         {
-            var editorWindow = new MainEditorWindow();
+            if (!_isEditorOpened)
+            {
+                _isEditorOpened = true;
+                var editorWindow = new MainEditorWindow();
 
-            editorWindow.Closing += EditorWindowOnClosing;
+                editorWindow.Closing += EditorWindowOnClosing;
 
-            double layerWidth = Error.ImageV.Width;
-            double layerHeight = Error.ImageV.Height;
+                double layerWidth = Error.ImageV.Width;
+                double layerHeight = Error.ImageV.Height;
 
-            GlobalState.NewLayerHeight = layerHeight;
-            GlobalState.NewLayerWidth = layerWidth;
-            GlobalState.CurrentLayerIndex = 0;
-            GlobalState.LayersCount = 1;
-            GlobalState.CurrentTool = GlobalState.Instruments.Brush;
+                GlobalState.NewLayerHeight = layerHeight;
+                GlobalState.NewLayerWidth = layerWidth;
+                GlobalState.CurrentLayerIndex = 0;
+                GlobalState.LayersCount = 1;
+                GlobalState.CurrentTool = GlobalState.Instruments.Brush;
 
-            MainEditorWindow.WindowTrigger = 4;
-            MainEditorWindow.PictureType = pictureType;
-            MainEditorWindow.Picture = pictureType == "Visual"
-                ? Error.ImageV.ToStream(ImageFormat.Bmp)
-                : Error.ImageM.ToStream(ImageFormat.Bmp);
+                MainEditorWindow.WindowTrigger = 4;
+                MainEditorWindow.PictureType = pictureType;
+                MainEditorWindow.Picture = pictureType == "Visual"
+                    ? Error.ImageV.ToStream(ImageFormat.Bmp)
+                    : Error.ImageM.ToStream(ImageFormat.Bmp);
 
-            MainEditorWindow.EnableBlur(editorWindow);
-            MainEditorWindow.ShowMainWindow();
+                MainEditorWindow.EnableBlur(editorWindow);
+                MainEditorWindow.ShowMainWindow();
+            }
         }
 
         private void EditorWindowOnClosing(object sender, CancelEventArgs e)
         {
+            _isEditorOpened = false;
             _rtb = MainEditorWindow.RTB;
 
             var enc = new PngBitmapEncoder();
