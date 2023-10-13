@@ -55,18 +55,22 @@ namespace ErrorFixApp
             DbList = new ObservableCollection<string>(dbList);
             SelectedDb = DbList.First();
         }
-        
+
         private async void GetErrorTypeList()
         {
             var errorTypeList = ConfigurationManager.AppSettings.Get("ErrorTypes").Split(',').ToList();
+            var priorityList = ConfigurationManager.AppSettings.Get("Priority").Split(',').ToList();
 
             if (errorTypeList.Count == 0)
             {
                 errorTypeList.Add(Resources.NoDb);
             }
-
+          
             ErrorTypeList = new ObservableCollection<string>(errorTypeList);
             SelectedErrorType = ErrorTypeList.First();
+            
+            PriorityList = new ObservableCollection<string>(priorityList);
+            SelectedPriority = PriorityList.First();
         }
 
         private readonly SqLiteManager _sqLiteManager;
@@ -82,8 +86,10 @@ namespace ErrorFixApp
 
         private string _selectedDbName;
         private string _selectedErrorType;
+        private string _selectedPriority;
         private ObservableCollection<string> _dbList = new ObservableCollection<string>();
         private ObservableCollection<string> _errorTypeList = new ObservableCollection<string>();
+        private ObservableCollection<string> _priorityList = new ObservableCollection<string>();
 
         private string _databaseToView = string.Empty;
         private string _xlsToExport = string.Empty;
@@ -95,6 +101,7 @@ namespace ErrorFixApp
 
         private ErrorDetail _errorDetail = new ErrorDetail();
         private ErrorEntity _errorEntity = new ErrorEntity();
+        private bool _isComboEnabled = true;
         private Visibility _addButtonVisibility = Visibility.Hidden;
         private Visibility _screenShotButtonVisibility = Visibility.Visible;
 
@@ -109,7 +116,8 @@ namespace ErrorFixApp
                 if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
                 {
                     _sqLiteManager.SetBaseName(_databaseToView);
-                    XlsToView = $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}, {Resources.MaxId}: {_sqLiteManager.GetMaxId()}";
+                    XlsToView =
+                        $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}, {Resources.MaxId}: {_sqLiteManager.GetMaxId()}";
                 }
                 else
                 {
@@ -136,17 +144,30 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public string SelectedErrorType
         {
             get => _selectedErrorType;
             set
             {
                 _selectedErrorType = value;
-                
+
                 OnPropertyChanged();
             }
         }
+        
+        public string SelectedPriority
+        {
+            get => _selectedPriority;
+            set
+            {
+                _selectedPriority = value;
+
+                OnPropertyChanged();
+            }
+        }
+        
+        
 
         public ObservableCollection<string> DbList
         {
@@ -157,13 +178,23 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
         public ObservableCollection<string> ErrorTypeList
         {
             get => _errorTypeList;
             private set
             {
                 _errorTypeList = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public ObservableCollection<string> PriorityList
+        {
+            get => _priorityList;
+            private set
+            {
+                _priorityList = value;
                 OnPropertyChanged();
             }
         }
@@ -225,6 +256,16 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+        
+        public bool IsComboEnabled
+        {
+            get => _isComboEnabled;
+            set
+            {
+                _isComboEnabled = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Visibility ScreenShotButtonVisibility
         {
@@ -277,9 +318,9 @@ namespace ErrorFixApp
                 ));
             }
         }
-        
+
         private ICommand _deleteCommand;
-        
+
         public ICommand DeleteCommand
         {
             get
@@ -388,8 +429,9 @@ namespace ErrorFixApp
         {
             if (Error.Id > 0)
             {
-                MessageBoxResult dialogResult = MessageBox.Show(Resources.DeleteMessage, Resources.DeleteCaption, MessageBoxButton.YesNo);
-                if(dialogResult == MessageBoxResult.Yes)
+                MessageBoxResult dialogResult = MessageBox.Show(Resources.DeleteMessage, Resources.DeleteCaption,
+                    MessageBoxButton.YesNo);
+                if (dialogResult == MessageBoxResult.Yes)
                 {
                     if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                     {
@@ -399,6 +441,7 @@ namespace ErrorFixApp
                     {
                         await _webApiManager.DeleteFromDb(Error.Id, SelectedDb);
                     }
+
                     WState = WindowState.Normal;
                     AddButtonVisibility = Visibility.Hidden;
                     Error.Id = 0;
@@ -407,7 +450,7 @@ namespace ErrorFixApp
                     Error.Comment = Resources.AddComment;
                     GetErrorTypeList();
                 }
-                
+
             }
             else
             {
@@ -422,6 +465,7 @@ namespace ErrorFixApp
                 MessageBox.Show(Resources.SetupRouteMessage);
                 return;
             }
+
             if (Error.RouteName.Contains(' ') || Error.RouteName.Contains('.'))
             {
                 MessageBox.Show(Resources.IncorrectName);
@@ -488,6 +532,7 @@ namespace ErrorFixApp
 
             WState = WindowState.Maximized;
             AddButtonVisibility = Visibility.Visible;
+            IsComboEnabled = true;
         }
 
         private static void ParseRectConfiguration(string visualRect, int screenLeft, int screenTop, int screenWidth,
@@ -530,7 +575,7 @@ namespace ErrorFixApp
                 {
                     _sqLiteManager.AddErrorToDb(_errorEntity);
                     GetDbList();
-                    
+
                     SelectedDb = _sqLiteManager.GetDbToAdd();
                 }
                 else
@@ -557,6 +602,7 @@ namespace ErrorFixApp
             _errorEntity.TimeStamp = Error.TimeStamp;
             _errorEntity.User = ConfigurationManager.AppSettings["User"];
             _errorEntity.ErrorType = SelectedErrorType;
+            _errorEntity.Priority = SelectedPriority;
 
             _errorEntity.ImageV = ImageUtils.ImageToByte(Error.ImageV, ImageFormat.Jpeg);
             _errorEntity.ImageM = ImageUtils.ImageToByte(Error.ImageM, ImageFormat.Jpeg);
@@ -598,6 +644,8 @@ namespace ErrorFixApp
                         File.WriteAllText(_positionFilePathSgSetup, Error.Position, Encoding.ASCII);
                     }
                 }
+
+                IsComboEnabled = false;
             }
         }
 
@@ -608,7 +656,8 @@ namespace ErrorFixApp
             {
                 Error.Position = _errorEntity.Position;
                 Error.User = _errorEntity.User;
-                SelectedErrorType = _errorEntity.ErrorType;;
+                SelectedErrorType = _errorEntity.ErrorType;
+                SelectedPriority = _errorEntity.Priority;
                 Error.Comment = _errorEntity.Comment;
                 Error.Id = _errorEntity.Id;
                 Error.RouteName = _errorEntity.RouteName;
@@ -618,6 +667,7 @@ namespace ErrorFixApp
                 Error.BImageV = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageV));
                 Error.BImageM = ImageUtils.BitmapToImageSource(new Bitmap(Error.ImageM));
                 Error.ImageVisibility = Visibility.Visible;
+                
                 res = true;
             }
             else
@@ -625,6 +675,7 @@ namespace ErrorFixApp
                 Error.Id = 0;
                 Error.ImageVisibility = Visibility.Collapsed;
             }
+
             return res;
         }
 
@@ -709,50 +760,45 @@ namespace ErrorFixApp
                         }
                     }
 
-                    foreach (var route in routeList)
-                    {
-                        XlsToExport =
-                            $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{route}_{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
-                        SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",
-                            out var workbookPart,
-                            out var worksheetPart);
-                       
 
-                        if (errors.Count > 0)
-                        {
-                            var routeErrors = errors.Where(e => e.RouteName == route && e.ErrorType == "base").ToList();
-                            AddErrorsToXls(routeErrors, worksheetPart, workbookPart, route);
-                        }
 
-                        ExcelTools.CloseDocument(document, worksheetPart);
-                    }
-                    
                     List<string> errorTypeList = new List<string>();
 
                     foreach (var er in errors)
                     {
-                        if (!errorTypeList.Contains(er.ErrorType) && er.ErrorType != "base")
+                        if (!errorTypeList.Contains(er.ErrorType))
                         {
                             errorTypeList.Add(er.ErrorType);
                         }
                     }
 
+                    var databaseDate = Path.GetFileNameWithoutExtension(DatabaseToView);
+                    var dirToExport = $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{databaseDate}";
+                    CheckDirectoryToExport(dirToExport);
+
+
                     foreach (var errorType in errorTypeList)
                     {
-                        XlsToExport =
-                            $"{Directory.GetCurrentDirectory()}\\RouteErrors\\{errorType}_{Path.GetFileNameWithoutExtension(DatabaseToView)}.xlsx";
-                        SpreadsheetDocument document = ExcelTools.OpenDocument(XlsToExport, "Sheet1",
-                            out var workbookPart,
-                            out var worksheetPart);
-                       
+                        var errorTypeToSeparateList = ConfigurationManager.AppSettings.Get("ErrorTypesSeparateByRoutes")
+                            .Split(',').ToList();
 
-                        if (errors.Count > 0)
+                        if (errorTypeToSeparateList.Contains(errorType))
                         {
-                            var errorWithType = errors.Where(e => e.ErrorType == errorType).ToList();
-                            AddErrorsToXls(errorWithType, worksheetPart, workbookPart, errorType);
-                        }
+                            foreach (var route in routeList)
+                            {
+                                XlsToExport =
+                                    $"{dirToExport}\\{route}_{errorType}_{databaseDate}.xlsx";
 
-                        ExcelTools.CloseDocument(document, worksheetPart);
+                                ExportToXlsSeparatedRoutes(route, errors, errorType, XlsToExport);
+                            }
+                        }
+                        else
+                        {
+                            XlsToExport =
+                                $"{dirToExport}\\{errorType}_{databaseDate}.xlsx";
+
+                            ExportToXlsNotSeparatedRoutes(errorType, errors, XlsToExport);
+                        }
                     }
 
                     errors.Clear();
@@ -766,6 +812,66 @@ namespace ErrorFixApp
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void ExportToXlsNotSeparatedRoutes(string errorType, List<ErrorEntity> errors, string xlsToExport)
+        {
+            if (errors.Count > 0)
+            {
+                var errorWithType = errors.Where(e => e.ErrorType == errorType).ToList();
+                if (errorWithType.Count > 0)
+                {
+                    SpreadsheetDocument document = ExcelTools.OpenDocument(xlsToExport, "Sheet1",
+                        out var workbookPart,
+                        out var worksheetPart);
+                    AddErrorsToXls(errorWithType, worksheetPart, workbookPart, errorType);
+                    ExcelTools.CloseDocument(document, worksheetPart);
+                }
+            }
+        }
+
+        private void CheckDirectoryToExport(string dirToExport)
+        {
+            try
+            {
+                if (!Directory.Exists(dirToExport))
+                {
+                    Directory.CreateDirectory(dirToExport);
+                }
+                else
+                {
+
+                    Directory.Delete(dirToExport,true);
+                    Directory.CreateDirectory(dirToExport);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void ExportToXlsSeparatedRoutes(string route, List<ErrorEntity> errors, string errorType,
+            string xlsToExport)
+        {
+            if (errors.Count > 0)
+            {
+                var routeErrors = errors.Where(e => e.RouteName == route && e.ErrorType == errorType).ToList();
+
+                if (routeErrors.Count > 0)
+                {
+
+                    SpreadsheetDocument document = ExcelTools.OpenDocument(xlsToExport, "Sheet1",
+                        out var workbookPart,
+                        out var worksheetPart);
+                    AddErrorsToXls(routeErrors, worksheetPart, workbookPart, route);
+                    ExcelTools.CloseDocument(document, worksheetPart);
+                }
+            }
+
+           
+        }
+
+    
 
         private void AddErrorsToXls(List<ErrorEntity> routeErrors, WorksheetPart worksheetPart, WorkbookPart workbookPart, string route)
         {
@@ -814,6 +920,7 @@ namespace ErrorFixApp
                 ExcelTools.InsertText(workbookPart, worksheetPart, error.Position, "I", i);
                 ExcelTools.InsertText(workbookPart, worksheetPart, $"{pos.Y},{pos.X}", "J", i);
                 ExcelTools.InsertText(workbookPart, worksheetPart, error.ErrorType, "K", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.Priority, "L", i);
 
                 XlsToView = $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}";
 

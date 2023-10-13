@@ -66,7 +66,8 @@ namespace ErrorDataLayer
                             [timestamp] TEXT NOT NULL,
                             [routeName] TEXT NOT NULL,
                             [username]  TEXT NULL,
-                            [errortype] TEXT NULL
+                            [errortype] TEXT NULL,
+                            [priority] TEXT NULL
                             );";
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
@@ -130,7 +131,10 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"INSERT INTO [RouteErrors] (imagev, imagem, comment, position, timestamp, routeName, username, errorType) VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}','{error.User}', '{error.ErrorType}');";
+                            $"INSERT INTO [RouteErrors] " +
+                            $"(imagev, imagem, comment, position, timestamp, routeName, username, errorType, priority) " +
+                            $"VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}'," +
+                            $"'{error.User}', '{error.ErrorType}', '{error.Priority}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
                             Value = error.ImageV
@@ -264,7 +268,8 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from [RouteErrors] where id = '{id}'";
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority " +
+                            $"from [RouteErrors] where id = '{id}'";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();
@@ -294,6 +299,14 @@ namespace ErrorDataLayer
                                     else
                                     {
                                         error.ErrorType = (String) rdr[8];
+                                    }
+                                    if (rdr[9] is DBNull)
+                                    {
+                                        error.Priority = "Normal";
+                                    }
+                                    else
+                                    {
+                                        error.Priority = (String) rdr[9];
                                     }
                                     
                                     
@@ -356,6 +369,25 @@ namespace ErrorDataLayer
                     }
                 }
             }
+            if (exMessage.ToLower().Contains("priority"))
+            {
+                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+                {
+                    if (connection != null)
+                    {
+                        SetConnectionString(baseName, connection);
+                        connection.Open();
+
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [priority]  TEXT NULL;";
+                            command.CommandType = CommandType.Text;
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
         }
 
         public List<ErrorEntity> LoadErrors(string baseName = null)
@@ -372,7 +404,8 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype from RouteErrors";
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority " +
+                            $"from RouteErrors";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();
@@ -406,6 +439,15 @@ namespace ErrorDataLayer
                                     {
                                         error.ErrorType = (String) rdr[8];
                                     }
+                                    if (rdr[9] is DBNull)
+                                    {
+                                        error.Priority = "Normal";
+                                    }
+                                    else
+                                    {
+                                        error.Priority = (String) rdr[9];
+                                    }
+                                    
                                     errors.Add(error);
                                 }
                             }

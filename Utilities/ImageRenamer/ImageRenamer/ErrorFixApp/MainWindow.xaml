@@ -174,28 +174,30 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="20*" />
-                        <RowDefinition Height="40*" />
-                        <RowDefinition Height="40*" />
+                        <RowDefinition Height="20*" />
+                        <RowDefinition Height="30*" />
+                        <RowDefinition Height="30*" />
                     </Grid.RowDefinitions>
                   
                     <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" ItemsSource="{ Binding ErrorTypeList}" 
-                              SelectedItem="{Binding SelectedErrorType, Mode=TwoWay}" IsEnabled="{Binding  AddButtonVisibility}">
-                        
+                              SelectedItem="{Binding SelectedErrorType, Mode=TwoWay}" IsEnabled="{Binding  IsComboEnabled}">
                     </ComboBox>
-                    <Button Grid.Row="1" Grid.Column="0"
+                    
+                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" ItemsSource="{ Binding PriorityList}" 
+                              SelectedItem="{Binding SelectedPriority, Mode=TwoWay}" IsEnabled="{Binding  IsComboEnabled}">
+                    </ComboBox>
+
+                    <Button Grid.Row="2" Grid.Column="0"
                             Content="{x:Static properties:Resources.SaveToDb}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             Visibility="{Binding  AddButtonVisibility}"
                             Command="{Binding Path=SaveCommand}" />
-                    <Button Grid.Row="2" Grid.Column="0" Content="{x:Static properties:Resources.CancelSave}"
+                    <Button Grid.Row="3" Grid.Column="0" Content="{x:Static properties:Resources.CancelSave}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                             Visibility="{Binding  Error.ImageVisibility}"
                             Command="{Binding Path=CancelCommand}" />
                 </Grid>
-               
-            
-               
             </Grid>
         </StackPanel>
     </Grid>
