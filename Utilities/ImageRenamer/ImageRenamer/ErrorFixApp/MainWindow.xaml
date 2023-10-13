@@ -7,97 +7,37 @@
         xmlns:properties="clr-namespace:ErrorFixApp.Properties"
         mc:Ignorable="d"
         Title="{Binding ApplicationName}" Height="780" Width="820"
-        WindowState="{Binding WState}"
+        WindowState="{Binding MainPanelControlVm.WState}"
         Closing="MainWindow_OnClosing">
     <Window.DataContext>
         <local:MainWindowModel />
     </Window.DataContext>
  
-    <Window.InputBindings>
-        <KeyBinding Modifiers="Control"
-                    Key="N"
-                    Command="{Binding FixCommand}" />
-        <KeyBinding Modifiers="Control"
-                    Key="D"
-                    Command="{Binding DeleteCommand}" />
-    </Window.InputBindings>
+   
     <Grid>
         <StackPanel>
-            <Grid MaxHeight="130">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <ListBox Grid.Column="0" 
-                         ItemsSource="{Binding DbList}" 
-                         HorizontalAlignment="Stretch" 
-                         VerticalAlignment="Stretch" 
-                         SelectedItem="{Binding SelectedDb, Mode=TwoWay}"
-                         ScrollViewer.VerticalScrollBarVisibility="Visible"
-                         Visibility="{Binding ScreenShotButtonVisibility}"></ListBox>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Stretch"
-                            Visibility="{Binding ScreenShotButtonVisibility}">
-                    <TextBox
-                        SpellCheck.IsEnabled="True" Language="ru-ru"
-                        Height="30"
-                        TextWrapping="Wrap"
-                        AcceptsReturn="True"
-                        VerticalScrollBarVisibility="Visible"
-                        Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                    <Button Content="{x:Static properties:Resources.AddErrorToDb}"  Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
-                            HorizontalAlignment="Stretch" Command="{Binding Path=FixCommand}"/>
-                </StackPanel>
-                
-               
-                <StackPanel Grid.Column="2" HorizontalAlignment="Stretch"
-                            Visibility="{Binding ScreenShotButtonVisibility}">
-                    <TextBox
-                        SpellCheck.IsEnabled="True" Language="ru-ru"
-                        Height="30"
-                        TextWrapping="Wrap"
-                        AcceptsReturn="True"
-                        VerticalScrollBarVisibility="Visible"
-                        Text="{Binding ErrorId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                    <Button Content="{x:Static properties:Resources.ViewError}" Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
-                            HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="3" HorizontalAlignment="Stretch">
-                    <TextBox
-                        SpellCheck.IsEnabled="True" Language="ru-ru"
-
-                        Height="30"
-                        TextWrapping="Wrap"
-                        AcceptsReturn="True"
-                        VerticalScrollBarVisibility="Visible"
-                        Text="{Binding XlsToView, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                        Visibility="{Binding ScreenShotButtonVisibility}"/>
-
-                    <Button Content="{x:Static properties:Resources.ExportToXlsx}" Visibility="{Binding ScreenShotButtonVisibility}"
-                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="100"
-                            Command="{Binding Path=SelectXlsFileCommand}"/>
-                </StackPanel>
+            <Grid>
+               <local:MainPanelControl DataContext="{Binding MainPanelControlVm}"/> 
             </Grid>
-            <Grid Visibility="{Binding Error.ImageVisibility}">
+            <Grid Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageV}">
+                <Image Grid.Column="0" Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}" HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding MainPanelControlVm.Error.BImageV}">
                     <Image.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Visual" />
                     </Image.InputBindings>
                 </Image>
-                <Image Grid.Column="1" Visibility="{Binding Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding Error.BImageM}">
+                <Image Grid.Column="1" Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}" HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding MainPanelControlVm.Error.BImageM}">
                     <Image.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Map" />
                     </Image.InputBindings>
                 </Image>
             </Grid>
-            <Grid Visibility="{Binding Error.ImageVisibility}">
+            <Grid Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="30*"/>
@@ -117,7 +57,7 @@
                          HorizontalAlignment="Stretch"
                          VerticalContentAlignment="Stretch"
                          VerticalAlignment="Stretch"
-                         Text="{Binding Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                         Text="{Binding MainPanelControlVm.Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 
                     <Label Grid.Column="1" Grid.Row="0" Content="{x:Static properties:Resources.CommentLabel}" />
                     <TextBox Grid.Column="1" Grid.Row="1"
@@ -128,7 +68,7 @@
                              VerticalScrollBarVisibility="Visible"
                              VerticalAlignment="Stretch"
                              HorizontalAlignment="Stretch"
-                             Text="{Binding Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                             Text="{Binding MainPanelControlVm.Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
 
 
                 <Label Grid.Column="2" Grid.Row="0" Content="{x:Static properties:Resources.DateLabel}" />
@@ -140,7 +80,7 @@
                          VerticalScrollBarVisibility="Visible"
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
-                         Text="{Binding Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                         Text="{Binding MainPanelControlVm.Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
                
                     <Label Grid.Column="3" Grid.Row="0" Content="{x:Static properties:Resources.PositionLabel}" />
@@ -152,7 +92,7 @@
                              VerticalScrollBarVisibility="Visible"
                              VerticalAlignment="Stretch"
                              HorizontalAlignment="Stretch"
-                             Text="{Binding Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                             Text="{Binding MainPanelControlVm.Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
                
                     <Label Grid.Column="4" Grid.Row="0" Content="{x:Static properties:Resources.RouteLabel}" />
@@ -164,7 +104,7 @@
                              VerticalScrollBarVisibility="Visible"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"
-                             Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                             Text="{Binding MainPanelControlVm.Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
                 <Label Grid.Column="5" Grid.Row="0" Content="{x:Static properties:Resources.ErrorType}" />
 
@@ -180,24 +120,24 @@
                         
                     </Grid.RowDefinitions>
                   
-                    <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" ItemsSource="{ Binding ErrorTypeList}" 
-                              SelectedItem="{Binding SelectedErrorType, Mode=TwoWay}" IsEnabled="{Binding  IsComboEnabled}">
+                    <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" ItemsSource="{ Binding MainPanelControlVm.ErrorTypeList}" 
+                              SelectedItem="{Binding MainPanelControlVm.SelectedErrorType, Mode=TwoWay}" IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}">
                     </ComboBox>
                     
-                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" ItemsSource="{ Binding PriorityList}" 
-                              SelectedItem="{Binding SelectedPriority, Mode=TwoWay}" IsEnabled="{Binding  IsComboEnabled}">
+                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" ItemsSource="{ Binding MainPanelControlVm.PriorityList}" 
+                              SelectedItem="{Binding MainPanelControlVm.SelectedPriority, Mode=TwoWay}" IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}">
                     </ComboBox>
 
                     <Button Grid.Row="2" Grid.Column="0"
                             Content="{x:Static properties:Resources.SaveToDb}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Visibility="{Binding  AddButtonVisibility}"
-                            Command="{Binding Path=SaveCommand}" />
+                            Visibility="{Binding  MainPanelControlVm.AddButtonVisibility}"
+                            Command="{Binding Path=MainPanelControlVm.SaveCommand}" />
                     <Button Grid.Row="3" Grid.Column="0" Content="{x:Static properties:Resources.CancelSave}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                            Visibility="{Binding  Error.ImageVisibility}"
-                            Command="{Binding Path=CancelCommand}" />
+                            Visibility="{Binding  MainPanelControlVm.Error.ImageVisibility}"
+                            Command="{Binding Path=MainPanelControlVm.CancelCommand}" />
                    
                 </Grid>
             </Grid>

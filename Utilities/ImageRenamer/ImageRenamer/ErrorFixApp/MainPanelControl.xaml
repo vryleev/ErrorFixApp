@@ -4,17 +4,75 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:ErrorFixApp"
+             xmlns:properties="clr-namespace:ErrorFixApp.Properties"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.DataContext>
         <local:MainPanelControlModel/>
     </UserControl.DataContext>
-    <Grid>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="{Binding TestContent}"></Button>
-            <Button Content="{Binding TestContent}"></Button>
-        </StackPanel>
-       
-      
-    </Grid>
+   
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Control"
+                    Key="N"
+                    Command="{Binding FixCommand}" />
+        <KeyBinding Modifiers="Control"
+                    Key="D"
+                    Command="{Binding DeleteCommand}" />
+    </UserControl.InputBindings>
+    <Grid MaxHeight="130">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <ListBox Grid.Column="0" 
+                         ItemsSource="{Binding DbList}" 
+                         HorizontalAlignment="Stretch" 
+                         VerticalAlignment="Stretch" 
+                         SelectedItem="{Binding SelectedDb, Mode=TwoWay}"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible"
+                         Visibility="{Binding ScreenShotButtonVisibility}"></ListBox>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Stretch"
+                            Visibility="{Binding ScreenShotButtonVisibility}">
+                    <TextBox
+                        SpellCheck.IsEnabled="True" Language="ru-ru"
+                        Height="30"
+                        TextWrapping="Wrap"
+                        AcceptsReturn="True"
+                        VerticalScrollBarVisibility="Visible"
+                        Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                    <Button Content="{x:Static properties:Resources.AddErrorToDb}"  Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
+                            HorizontalAlignment="Stretch" Command="{Binding Path=FixCommand}"/>
+                </StackPanel>
+                
+               
+                <StackPanel Grid.Column="2" HorizontalAlignment="Stretch"
+                            Visibility="{Binding ScreenShotButtonVisibility}">
+                    <TextBox
+                        SpellCheck.IsEnabled="True" Language="ru-ru"
+                        Height="30"
+                        TextWrapping="Wrap"
+                        AcceptsReturn="True"
+                        VerticalScrollBarVisibility="Visible"
+                        Text="{Binding ErrorId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                    <Button Content="{x:Static properties:Resources.ViewError}" Visibility="{Binding ScreenShotButtonVisibility}" Height="100"
+                            HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" HorizontalAlignment="Stretch">
+                    <TextBox
+                        SpellCheck.IsEnabled="True" Language="ru-ru"
+
+                        Height="30"
+                        TextWrapping="Wrap"
+                        AcceptsReturn="True"
+                        VerticalScrollBarVisibility="Visible"
+                        Text="{Binding XlsToView, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                        Visibility="{Binding ScreenShotButtonVisibility}"/>
+
+                    <Button Content="{x:Static properties:Resources.ExportToXlsx}" Visibility="{Binding ScreenShotButtonVisibility}"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="100"
+                            Command="{Binding Path= SelectXlsFileCommand}"/>
+                </StackPanel>
+            </Grid>
 </UserControl>
