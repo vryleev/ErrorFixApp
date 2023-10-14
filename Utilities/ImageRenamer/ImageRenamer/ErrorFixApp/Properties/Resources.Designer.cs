@@ -141,6 +141,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Список БД.
+        /// </summary>
+        public static string DbListLabel {
+            get {
+                return ResourceManager.GetString("DbListLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Операция удаления.
         /// </summary>
         public static string DeleteCaption {
@@ -164,6 +173,15 @@ namespace ErrorFixApp.Properties {
         public static string DeleteNotPossible {
             get {
                 return ResourceManager.GetString("DeleteNotPossible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Номер ошибки.
+        /// </summary>
+        public static string ErrorNumber {
+            get {
+                return ResourceManager.GetString("ErrorNumber", resourceCulture);
             }
         }
         
@@ -213,6 +231,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Состояние.
+        /// </summary>
+        public static string Information {
+            get {
+                return ResourceManager.GetString("Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MaxID.
         /// </summary>
         public static string MaxId {
@@ -254,6 +281,15 @@ namespace ErrorFixApp.Properties {
         public static string PositionNotSet {
             get {
                 return ResourceManager.GetString("PositionNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Приоритет.
+        /// </summary>
+        public static string PriorityLabel {
+            get {
+                return ResourceManager.GetString("PriorityLabel", resourceCulture);
             }
         }
         

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:ErrorFixApp"
         xmlns:properties="clr-namespace:ErrorFixApp.Properties"
         mc:Ignorable="d"
@@ -12,12 +13,34 @@
     <Window.DataContext>
         <local:MainWindowModel />
     </Window.DataContext>
- 
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PasswordBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+            <Style TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+            <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
    
     <Grid>
         <StackPanel>
             <Grid>
-               <local:MainPanelControl DataContext="{Binding MainPanelControlVm}"/> 
+               <local:MainPanelControl DataContext="{Binding MainPanelControlVm}" Visibility="{Binding ScreenShotButtonVisibility}"/> 
             </Grid>
             <Grid Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}">
                 <Grid.ColumnDefinitions>
@@ -46,21 +69,17 @@
                     <ColumnDefinition Width="7*"/>
                     <ColumnDefinition Width="20*"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="10*" />
-                    <RowDefinition Height="90*" />
-                </Grid.RowDefinitions>
-                <Label Grid.Column="0" Grid.Row="0"  Content="{x:Static properties:Resources.IDLabel}" />
-                <TextBox Grid.Column="0" Grid.Row="1"
+                
+                <TextBox Grid.Column="0" Grid.Row="0"
                          SpellCheck.IsEnabled="True" Language="ru-ru"
                          MinHeight="200"
                          HorizontalAlignment="Stretch"
                          VerticalContentAlignment="Stretch"
                          VerticalAlignment="Stretch"
+                         materialDesign:HintAssist.Hint="{x:Static properties:Resources.IDLabel}"
                          Text="{Binding MainPanelControlVm.Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                 
-                    <Label Grid.Column="1" Grid.Row="0" Content="{x:Static properties:Resources.CommentLabel}" />
-                    <TextBox Grid.Column="1" Grid.Row="1"
+                    <TextBox Grid.Column="1" Grid.Row="0"
                              SpellCheck.IsEnabled="True" Language="ru-ru"
                              TextWrapping="Wrap"
                              MinHeight="200"
@@ -68,23 +87,21 @@
                              VerticalScrollBarVisibility="Visible"
                              VerticalAlignment="Stretch"
                              HorizontalAlignment="Stretch"
+                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.CommentLabel}"
                              Text="{Binding MainPanelControlVm.Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
 
-
-                <Label Grid.Column="2" Grid.Row="0" Content="{x:Static properties:Resources.DateLabel}" />
-                <TextBox Grid.Column="2" Grid.Row="1"
+                <TextBox Grid.Column="2" Grid.Row="0"
                          SpellCheck.IsEnabled="True" Language="ru-ru"
                          TextWrapping="Wrap"
                          MinHeight="200"
                          AcceptsReturn="True"
                          VerticalScrollBarVisibility="Visible"
-                         HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
+                         HorizontalAlignment="Stretch"
+                         materialDesign:HintAssist.Hint="{x:Static properties:Resources.DateLabel}"
                          Text="{Binding MainPanelControlVm.Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
-               
-                    <Label Grid.Column="3" Grid.Row="0" Content="{x:Static properties:Resources.PositionLabel}" />
-                    <TextBox Grid.Column="3" Grid.Row="1"
+                    <TextBox Grid.Column="3" Grid.Row="0"
                              SpellCheck.IsEnabled="True" Language="ru-ru"
                              TextWrapping="Wrap"
                              MinHeight="200"
@@ -92,11 +109,10 @@
                              VerticalScrollBarVisibility="Visible"
                              VerticalAlignment="Stretch"
                              HorizontalAlignment="Stretch"
+                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.PositionLabel}"
                              Text="{Binding MainPanelControlVm.Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
-               
-                    <Label Grid.Column="4" Grid.Row="0" Content="{x:Static properties:Resources.RouteLabel}" />
-                    <TextBox Grid.Column="4" Grid.Row="1"
+                <TextBox Grid.Column="4" Grid.Row="0"
                              SpellCheck.IsEnabled="True" Language="ru-ru"
                              TextWrapping="Wrap"
                              MinHeight="200"
@@ -104,11 +120,10 @@
                              VerticalScrollBarVisibility="Visible"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"
+                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteLabel}"
                              Text="{Binding MainPanelControlVm.Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                
-                <Label Grid.Column="5" Grid.Row="0" Content="{x:Static properties:Resources.ErrorType}" />
-
-                <Grid Grid.Row="1" Grid.Column="5" VerticalAlignment="Stretch">
+                <Grid Grid.Row="0" Grid.Column="5" VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100*" />
                     </Grid.ColumnDefinitions>
@@ -120,12 +135,18 @@
                         
                     </Grid.RowDefinitions>
                   
-                    <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" ItemsSource="{ Binding MainPanelControlVm.ErrorTypeList}" 
-                              SelectedItem="{Binding MainPanelControlVm.SelectedErrorType, Mode=TwoWay}" IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}">
+                    <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" 
+                              ItemsSource="{ Binding MainPanelControlVm.ErrorTypeList}" 
+                              SelectedItem="{Binding MainPanelControlVm.SelectedErrorType, Mode=TwoWay}" 
+                              IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}" 
+                              materialDesign:HintAssist.Hint="{x:Static properties:Resources.ErrorType}">
                     </ComboBox>
                     
-                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" ItemsSource="{ Binding MainPanelControlVm.PriorityList}" 
-                              SelectedItem="{Binding MainPanelControlVm.SelectedPriority, Mode=TwoWay}" IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}">
+                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" 
+                              ItemsSource="{ Binding MainPanelControlVm.PriorityList}" 
+                              SelectedItem="{Binding MainPanelControlVm.SelectedPriority, Mode=TwoWay}" 
+                              IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}"
+                              materialDesign:HintAssist.Hint="{x:Static properties:Resources.PriorityLabel}">
                     </ComboBox>
 
                     <Button Grid.Row="2" Grid.Column="0"

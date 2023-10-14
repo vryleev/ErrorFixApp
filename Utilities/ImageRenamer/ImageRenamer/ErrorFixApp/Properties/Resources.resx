@@ -207,4 +207,16 @@
   <data name="MaxId" xml:space="preserve">
     <value>MaxID</value>
   </data>
+  <data name="PriorityLabel" xml:space="preserve">
+    <value>Приоритет</value>
+  </data>
+  <data name="ErrorNumber" xml:space="preserve">
+    <value>Номер ошибки</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Состояние</value>
+  </data>
+  <data name="DbListLabel" xml:space="preserve">
+    <value>Список БД</value>
+  </data>
 </root>

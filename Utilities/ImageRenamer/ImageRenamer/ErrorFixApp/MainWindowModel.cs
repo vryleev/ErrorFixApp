@@ -72,12 +72,6 @@ namespace ErrorFixApp
             }
         }
 
-       
-
-        
-
-       
-
         private ICommand _editImageCommand;
 
         public ICommand EditImageCommand
@@ -101,9 +95,7 @@ namespace ErrorFixApp
             {
                 _isEditorOpened = true;
                 var editorWindow = new MainEditorWindow();
-
                 editorWindow.Closing += EditorWindowOnClosing;
-
                 double layerWidth =  MainPanelControlVm.Error.ImageV.Width;
                 double layerHeight =  MainPanelControlVm.Error.ImageV.Height;
 
