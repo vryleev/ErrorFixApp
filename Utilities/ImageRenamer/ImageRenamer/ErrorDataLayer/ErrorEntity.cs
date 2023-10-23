@@ -22,5 +22,7 @@
         public string ErrorType { get; set; }
         
         public string Priority { get; set; }
+        
+        
     }
 }

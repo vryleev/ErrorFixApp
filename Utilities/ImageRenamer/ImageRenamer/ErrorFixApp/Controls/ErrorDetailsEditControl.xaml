@@ -1,0 +1,126 @@
+﻿<UserControl x:Class="ErrorFixApp.Controls.ErrorDetailsEditControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:ErrorFixApp.Controls"
+             xmlns:properties="clr-namespace:ErrorFixApp.Properties"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.DataContext>
+        <local:ErrorDetailsEditControlModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/materialdesigntheme.listview.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PasswordBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+            <Style TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+            <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Visibility="{Binding IsVisible}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="30*" />
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="30*" />
+            <ColumnDefinition Width="7*" />
+            <ColumnDefinition Width="20*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBox Grid.Column="0" Grid.Row="0"
+                 SpellCheck.IsEnabled="True" Language="ru-ru"
+                 MinHeight="100"
+                 HorizontalAlignment="Stretch"
+                 VerticalContentAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.IDLabel}"
+                 Text="{Binding Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+        <TextBox Grid.Column="1" Grid.Row="0"
+                 SpellCheck.IsEnabled="True" Language="ru-ru"
+                 TextWrapping="Wrap"
+                 MinHeight="100"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Visible"
+                 VerticalAlignment="Stretch"
+                 HorizontalAlignment="Stretch"
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.CommentLabel}"
+                 Text="{Binding Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+        <TextBox Grid.Column="2" Grid.Row="0"
+                 SpellCheck.IsEnabled="True" Language="ru-ru"
+                 TextWrapping="Wrap"
+                 MinHeight="100"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Visible"
+                 VerticalAlignment="Stretch"
+                 HorizontalAlignment="Stretch"
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.DateLabel}"
+                 Text="{Binding Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+        <TextBox Grid.Column="3" Grid.Row="0"
+                 SpellCheck.IsEnabled="True" Language="ru-ru"
+                 TextWrapping="Wrap"
+                 MinHeight="100"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Visible"
+                 VerticalAlignment="Stretch"
+                 HorizontalAlignment="Stretch"
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.PositionLabel}"
+                 Text="{Binding Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+        <TextBox Grid.Column="4" Grid.Row="0"
+                 SpellCheck.IsEnabled="True" Language="ru-ru"
+                 TextWrapping="Wrap"
+                 MinHeight="100"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Visible"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteLabel}"
+                 Text="{Binding Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+        <Grid Grid.Row="0" Grid.Column="5" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50*" />
+                <RowDefinition Height="50*" />
+
+
+            </Grid.RowDefinitions>
+
+            <ComboBox Name="ErrorTypeCombo" Grid.Column="0" Grid.Row="0"
+                      ItemsSource="{ Binding ErrorTypeList}"
+                      SelectedItem="{Binding Error.ErrorType, Mode=TwoWay}"
+                      materialDesign:HintAssist.Hint="{x:Static properties:Resources.ErrorType}">
+            </ComboBox>
+
+            <ComboBox Name="PriorityCombo" Grid.Column="0" Grid.Row="1"
+                      ItemsSource="{ Binding PriorityList}"
+                      SelectedItem="{Binding Error.Priority, Mode=TwoWay}"
+                      materialDesign:HintAssist.Hint="{x:Static properties:Resources.PriorityLabel}">
+            </ComboBox>
+        </Grid>
+    </Grid>
+</UserControl>

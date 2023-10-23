@@ -219,4 +219,10 @@
   <data name="DbListLabel" xml:space="preserve">
     <value>Список БД</value>
   </data>
+  <data name="CurrentDb" xml:space="preserve">
+    <value>Текущая БД для сохранения</value>
+  </data>
+  <data name="SelectedDb" xml:space="preserve">
+    <value>Выбранная БД</value>
+  </data>
 </root>

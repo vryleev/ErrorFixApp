@@ -9,8 +9,8 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ErrorDataLayer;
 using ErrorFixApp.Properties;
+using ErrorFixApp.Controls;
 using PhotoEditor;
-
 
 namespace ErrorFixApp
 {
@@ -19,9 +19,11 @@ namespace ErrorFixApp
         public MainWindowModel()
         {
             MainPanelControlVm = new MainPanelControlModel();
+            AddErrorPanelControlVm = new AddErrorPanelControlModel();
+            ViewErrorsControlVm = new ViewErrorsControlModel();
         }
         private RenderTargetBitmap _rtb;
-        private bool _isEditorOpened = false;
+        private bool _isEditorOpened;
 
         public string ApplicationName
         {
@@ -30,12 +32,12 @@ namespace ErrorFixApp
                 if (ConfigurationManager.AppSettings["WorkingType"] == "Local")
                 {
                     return
-                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}";
+                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationParams.User}/ {Resources.WorkingType}: {ConfigurationParams.WorkingType}";
                 }
                 else
                 {
                     return
-                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationManager.AppSettings["User"]}/ {Resources.WorkingType}: {ConfigurationManager.AppSettings["WorkingType"]}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
+                        $"Logos Error Fix App/ {Resources.User}: {ConfigurationParams.User}/ {Resources.WorkingType}: {ConfigurationParams.WorkingType}/ Host: {ConfigurationManager.AppSettings["RemoteUrl"]}";
                 }
             }
         }
@@ -47,6 +49,28 @@ namespace ErrorFixApp
             set
             {
                 _mainPanelControlVm = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        private AddErrorPanelControlModel _addErrorPanelControlVm;
+        public AddErrorPanelControlModel AddErrorPanelControlVm
+        {
+            get => _addErrorPanelControlVm;
+            set
+            {
+                _addErrorPanelControlVm = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        private ViewErrorsControlModel _viewErrorsControlVm;
+        public ViewErrorsControlModel ViewErrorsControlVm
+        {
+            get => _viewErrorsControlVm;
+            set
+            {
+                _viewErrorsControlVm = value;
                 OnPropertyChanged();
             }
         }

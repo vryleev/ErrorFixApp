@@ -6,9 +6,11 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:ErrorFixApp"
         xmlns:properties="clr-namespace:ErrorFixApp.Properties"
+        xmlns:controls="clr-namespace:ErrorFixApp.Controls"
         mc:Ignorable="d"
         Title="{Binding ApplicationName}" Height="780" Width="820"
-        WindowState="{Binding MainPanelControlVm.WState}"
+        Icon="/Resource/add_task_FILL0_wght400_GRAD0_opsz24.png"
+        WindowState="{Binding AddErrorPanelControlVm.WState}"
         Closing="MainWindow_OnClosing">
     <Window.DataContext>
         <local:MainWindowModel />
@@ -36,132 +38,37 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
-   
+
     <Grid>
         <StackPanel>
-            <Grid>
-               <local:MainPanelControl DataContext="{Binding MainPanelControlVm}" Visibility="{Binding ScreenShotButtonVisibility}"/> 
-            </Grid>
-            <Grid Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding MainPanelControlVm.Error.BImageV}">
-                    <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Visual" />
-                    </Image.InputBindings>
-                </Image>
-                <Image Grid.Column="1" Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}" HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch" MaxHeight="600" Source="{Binding MainPanelControlVm.Error.BImageM}">
-                    <Image.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding EditImageCommand,  Mode=OneTime}" CommandParameter="Map" />
-                    </Image.InputBindings>
-                </Image>
-            </Grid>
-            <Grid Visibility="{Binding MainPanelControlVm.Error.ImageVisibility}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="30*"/>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="30*"/>
-                    <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="20*"/>
-                </Grid.ColumnDefinitions>
-                
-                <TextBox Grid.Column="0" Grid.Row="0"
-                         SpellCheck.IsEnabled="True" Language="ru-ru"
-                         MinHeight="200"
-                         HorizontalAlignment="Stretch"
-                         VerticalContentAlignment="Stretch"
-                         VerticalAlignment="Stretch"
-                         materialDesign:HintAssist.Hint="{x:Static properties:Resources.IDLabel}"
-                         Text="{Binding MainPanelControlVm.Error.Id, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                
-                    <TextBox Grid.Column="1" Grid.Row="0"
-                             SpellCheck.IsEnabled="True" Language="ru-ru"
-                             TextWrapping="Wrap"
-                             MinHeight="200"
-                             AcceptsReturn="True"
-                             VerticalScrollBarVisibility="Visible"
-                             VerticalAlignment="Stretch"
-                             HorizontalAlignment="Stretch"
-                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.CommentLabel}"
-                             Text="{Binding MainPanelControlVm.Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+            <TabControl>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock>Добавление ошибок</TextBlock>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <Grid>
+                            <controls:AddErrorPanelControl DataContext="{Binding AddErrorPanelControlVm}" />
+                        </Grid>
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock>Просмотр ошибок</TextBlock>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <Grid>
+                            <controls:ViewErrorsControl DataContext="{Binding ViewErrorsControlVm}"/>
+                        </Grid>
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock>Экспорт ошибок</TextBlock>
+                    </TabItem.Header>
+                </TabItem>
+            </TabControl>
 
-                <TextBox Grid.Column="2" Grid.Row="0"
-                         SpellCheck.IsEnabled="True" Language="ru-ru"
-                         TextWrapping="Wrap"
-                         MinHeight="200"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Visible"
-                         VerticalAlignment="Stretch"
-                         HorizontalAlignment="Stretch"
-                         materialDesign:HintAssist.Hint="{x:Static properties:Resources.DateLabel}"
-                         Text="{Binding MainPanelControlVm.Error.TimeStamp, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-               
-                    <TextBox Grid.Column="3" Grid.Row="0"
-                             SpellCheck.IsEnabled="True" Language="ru-ru"
-                             TextWrapping="Wrap"
-                             MinHeight="200"
-                             AcceptsReturn="True"
-                             VerticalScrollBarVisibility="Visible"
-                             VerticalAlignment="Stretch"
-                             HorizontalAlignment="Stretch"
-                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.PositionLabel}"
-                             Text="{Binding MainPanelControlVm.Error.Position, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-               
-                <TextBox Grid.Column="4" Grid.Row="0"
-                             SpellCheck.IsEnabled="True" Language="ru-ru"
-                             TextWrapping="Wrap"
-                             MinHeight="200"
-                             AcceptsReturn="True"
-                             VerticalScrollBarVisibility="Visible"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"
-                             materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteLabel}"
-                             Text="{Binding MainPanelControlVm.Error.RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-               
-                <Grid Grid.Row="0" Grid.Column="5" VerticalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="20*" />
-                        <RowDefinition Height="20*" />
-                        <RowDefinition Height="30*" />
-                        <RowDefinition Height="30*" />
-                        
-                    </Grid.RowDefinitions>
-                  
-                    <ComboBox Name ="ErrorTypeCombo" Grid.Column="0" Grid.Row="0" 
-                              ItemsSource="{ Binding MainPanelControlVm.ErrorTypeList}" 
-                              SelectedItem="{Binding MainPanelControlVm.SelectedErrorType, Mode=TwoWay}" 
-                              IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}" 
-                              materialDesign:HintAssist.Hint="{x:Static properties:Resources.ErrorType}">
-                    </ComboBox>
-                    
-                    <ComboBox Name ="PriorityCombo" Grid.Column="0" Grid.Row="1" 
-                              ItemsSource="{ Binding MainPanelControlVm.PriorityList}" 
-                              SelectedItem="{Binding MainPanelControlVm.SelectedPriority, Mode=TwoWay}" 
-                              IsEnabled="{Binding  MainPanelControlVm.IsComboEnabled}"
-                              materialDesign:HintAssist.Hint="{x:Static properties:Resources.PriorityLabel}">
-                    </ComboBox>
-
-                    <Button Grid.Row="2" Grid.Column="0"
-                            Content="{x:Static properties:Resources.SaveToDb}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            Visibility="{Binding  MainPanelControlVm.AddButtonVisibility}"
-                            Command="{Binding Path=MainPanelControlVm.SaveCommand}" />
-                    <Button Grid.Row="3" Grid.Column="0" Content="{x:Static properties:Resources.CancelSave}"
-                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                            Visibility="{Binding  MainPanelControlVm.Error.ImageVisibility}"
-                            Command="{Binding Path=MainPanelControlVm.CancelCommand}" />
-                   
-                </Grid>
-            </Grid>
         </StackPanel>
     </Grid>
 </Window>

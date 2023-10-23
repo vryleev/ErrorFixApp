@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ErrorDataLayer;
 using ErrorFixApp.Properties;
 
 namespace ErrorFixApp
@@ -14,6 +16,8 @@ namespace ErrorFixApp
         private string _position = Resources.PositionNotSet;
         private string _user = String.Empty;
         private string _timestamp = Resources.TimeStampNotSet;
+        private string _errorType = "base";
+        private string _priority = "Normal";
         private string _routeName = Resources.SetupRoute;
         private int _id = -1;
         
@@ -117,7 +121,26 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+
+        public string ErrorType
+        {
+            get =>  _errorType;
+            set
+            {
+                _errorType = value;
+                OnPropertyChanged();
+            }
+        }
         
+        public string Priority
+        {
+            get =>  _priority;
+            set
+            {
+                _priority = value;
+                OnPropertyChanged();
+            }
+        }
         
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -125,6 +148,21 @@ namespace ErrorFixApp
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+        
+        public void UpdateErrorEntity(ErrorEntity ee)
+        {
+            ee.Comment = Comment;
+            ee.Position = Position;
+            ee.RouteName = RouteName;
+            ee.Id = Id;
+            ee.TimeStamp = TimeStamp;
+            ee.User = ConfigurationParams.User;
+            ee.ErrorType = ErrorType;
+            ee.Priority = Priority;
+
+            ee.ImageV = ImageUtils.ImageToByte(ImageV, ImageFormat.Jpeg);
+            ee.ImageM = ImageUtils.ImageToByte(ImageM, ImageFormat.Jpeg);
         }
         
         

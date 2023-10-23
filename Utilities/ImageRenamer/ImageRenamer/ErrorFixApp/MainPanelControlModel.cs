@@ -52,7 +52,7 @@ namespace ErrorFixApp
         
       
         
-        private ObservableCollection<string> _dbList = new ObservableCollection<string>();
+        
         
         private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
@@ -110,6 +110,8 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+        
+        private ObservableCollection<string> _dbList = new ObservableCollection<string>();
         
         public ObservableCollection<string> DbList
         {
@@ -591,7 +593,7 @@ namespace ErrorFixApp
             _errorEntity.RouteName = Error.RouteName;
             _errorEntity.Id = Error.Id;
             _errorEntity.TimeStamp = Error.TimeStamp;
-            _errorEntity.User = ConfigurationManager.AppSettings["User"];
+            _errorEntity.User = ConfigurationParams.User;
             _errorEntity.ErrorType = SelectedErrorType;
             _errorEntity.Priority = SelectedPriority;
 

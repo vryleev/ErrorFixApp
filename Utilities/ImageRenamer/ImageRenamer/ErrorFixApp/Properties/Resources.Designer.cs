@@ -132,6 +132,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Текущая БД для сохранения.
+        /// </summary>
+        public static string CurrentDb {
+            get {
+                return ResourceManager.GetString("CurrentDb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Дата.
         /// </summary>
         public static string DateLabel {
@@ -308,6 +317,15 @@ namespace ErrorFixApp.Properties {
         public static string SaveToDb {
             get {
                 return ResourceManager.GetString("SaveToDb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Выбранная БД.
+        /// </summary>
+        public static string SelectedDb {
+            get {
+                return ResourceManager.GetString("SelectedDb", resourceCulture);
             }
         }
         
