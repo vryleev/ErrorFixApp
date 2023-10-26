@@ -165,6 +165,37 @@ namespace ErrorFixApp
             ee.ImageM = ImageUtils.ImageToByte(ImageM, ImageFormat.Jpeg);
         }
         
+        public bool UpdateErrorDetails(ErrorEntity ee)
+        {
+            bool res = false;
+            if (ee != null && ee.Id > 0)
+            {
+                Position = ee.Position;
+                User = ee.User;
+                Comment = ee.Comment;
+                Id = ee.Id;
+                RouteName = ee.RouteName;
+                TimeStamp = ee.TimeStamp;
+                ImageV = ImageUtils.ByteToImage(ee.ImageV);
+                ImageM = ImageUtils.ByteToImage(ee.ImageM);
+                BImageV = ImageUtils.BitmapToImageSource(new Bitmap( ImageV));
+                BImageM = ImageUtils.BitmapToImageSource(new Bitmap( ImageM));
+                ImageVisibility = Visibility.Visible;
+
+                Priority = ee.Priority;
+                ErrorType = ee.ErrorType;
+                
+                res = true;
+            }
+            else
+            {
+                Id = 0;
+                ImageVisibility = Visibility.Collapsed;
+            }
+
+            return res;
+        }
+        
         
     }
 }

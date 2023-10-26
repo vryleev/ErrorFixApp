@@ -116,6 +116,7 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
+        <Compile Include="BaseObservableObject.cs" />
         <Compile Include="ConfigurationParams.cs" />
         <Compile Include="Controls\AddErrorPanelControl.xaml.cs">
           <DependentUpon>AddErrorPanelControl.xaml</DependentUpon>
@@ -125,6 +126,10 @@
           <DependentUpon>ErrorDetailsEditControl.xaml</DependentUpon>
         </Compile>
         <Compile Include="Controls\ErrorDetailsEditControlModel.cs" />
+        <Compile Include="Controls\ExportControl.xaml.cs">
+          <DependentUpon>ExportControl.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Controls\ExportControlModel.cs" />
         <Compile Include="Controls\ImageEditControl.xaml.cs">
           <DependentUpon>ImageEditControl.xaml</DependentUpon>
         </Compile>
@@ -139,11 +144,13 @@
           <DependentUpon>MainPanelControl.xaml</DependentUpon>
         </Compile>
         <Compile Include="MainPanelControlModel.cs" />
+        <Compile Include="MenuItemObject.cs" />
         <Compile Include="RelayCommand.cs" />
         <Compile Include="SphericalMercator.cs" />
         <Compile Include="WebApiManager.cs" />
         <Page Include="Controls\AddErrorPanelControl.xaml" />
         <Page Include="Controls\ErrorDetailsEditControl.xaml" />
+        <Page Include="Controls\ExportControl.xaml" />
         <Page Include="Controls\ImageEditControl.xaml" />
         <Page Include="Controls\ViewErrorsControl.xaml" />
         <Page Include="MainPanelControl.xaml" />

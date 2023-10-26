@@ -64,7 +64,23 @@
                  VerticalAlignment="Stretch"
                  HorizontalAlignment="Stretch"
                  materialDesign:HintAssist.Hint="{x:Static properties:Resources.CommentLabel}"
-                 Text="{Binding Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                 Text="{Binding Error.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+            <TextBox.ContextMenu>
+                <ContextMenu Name="tbMenu" ItemsSource="{Binding ErrorPatterns}">
+                    <ContextMenu.ItemContainerStyle>
+                    
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Command" Value="{Binding Command}"/>
+                                <Setter Property="Header" Value="{Binding Content}"/>
+                                <!-- <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}, Path=DataContext}"/> -->
+                                <Setter Property="CommandParameter" Value="{Binding Path= Content}"/>                                
+                            </Style>
+                    
+                    
+                    </ContextMenu.ItemContainerStyle>
+                </ContextMenu>
+            </TextBox.ContextMenu>
+        </TextBox>
 
         <TextBox Grid.Column="2" Grid.Row="0"
                  SpellCheck.IsEnabled="True" Language="ru-ru"

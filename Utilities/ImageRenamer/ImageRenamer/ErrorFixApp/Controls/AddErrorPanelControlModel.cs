@@ -21,14 +21,13 @@ namespace ErrorFixApp.Controls
     {
         public AddErrorPanelControlModel()
         {
-            _sqLiteManager = new SqLiteManager();
+            _sqLiteManager = new SqLiteManager(ConfigurationParams.User);
             _webApiManager = new WebApiManager();
             _imageEditControlVm = new ImageEditControlModel();
             _errorEditControlVm.Error = _errorDetail;
             _imageEditControlVm.IsVisible = Visibility.Hidden;
             _errorEditControlVm.IsVisible = Visibility.Hidden;
             GetDbToSave();
-
         }
         
         private readonly SqLiteManager _sqLiteManager;
@@ -109,14 +108,26 @@ namespace ErrorFixApp.Controls
             }
         }
         
-        private Visibility _screenShotButtonVisibility = Visibility.Visible;
+        private Visibility _addButtonVisibility = Visibility.Visible;
         
-        public Visibility ScreenShotButtonVisibility
+        public Visibility AddButtonVisibility
         {
-            get => _screenShotButtonVisibility;
+            get => _addButtonVisibility;
             set
             {
-                _screenShotButtonVisibility = value;
+                _addButtonVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        private Visibility _saveButtonVisibility = Visibility.Hidden;
+        
+        public Visibility SaveButtonVisibility
+        {
+            get => _saveButtonVisibility;
+            set
+            {
+                _saveButtonVisibility = value;
                 OnPropertyChanged();
             }
         }
@@ -134,12 +145,12 @@ namespace ErrorFixApp.Controls
         }
         
 
-        private RelayCommand _fixCommand;
-        public RelayCommand FixCommand
+        private ICommand _fixCommand;
+        public ICommand FixCommand
         {
             get
             {
-                return _fixCommand ?? (_fixCommand = new RelayCommand(
+                return _fixCommand ?? (_fixCommand = new RelayCommand<object>(
                     param => this.FixObject(),
                     param => true
                 ));
@@ -166,7 +177,7 @@ namespace ErrorFixApp.Controls
             WState = WindowState.Minimized;
             Error.ImageVisibility = Visibility.Visible;
             Error.TimeStamp = DateTime.Now.ToString("ddMMyyyy-hhmmss", CultureInfo.InvariantCulture);
-            ScreenShotButtonVisibility = Visibility.Collapsed;
+            AddButtonVisibility = Visibility.Collapsed;
 
             if (File.Exists(ConfigurationParams.PositionFilePath))
             {
@@ -222,9 +233,11 @@ namespace ErrorFixApp.Controls
             Error.ImageM = _imageEditControlVm.ImageM;
 
             WState = WindowState.Maximized;
-            IsSaveButtonEnable = true;
+            AddButtonVisibility = Visibility.Hidden;
+            SaveButtonVisibility = Visibility.Visible;
             _errorEditControlVm.IsVisible = Visibility.Visible;
             _imageEditControlVm.IsVisible = Visibility.Visible;
+            
             //IsComboEnabled = true;
         }
         
@@ -234,7 +247,7 @@ namespace ErrorFixApp.Controls
         {
             get
             {
-                return _saveCommand ?? (_saveCommand = new RelayCommand(
+                return _saveCommand ?? (_saveCommand = new RelayCommand<object>(
                     param => this.SaveObject(),
                     param =>true
                 ));
@@ -263,6 +276,8 @@ namespace ErrorFixApp.Controls
                 IsSaveButtonEnable = false;
                 _errorEditControlVm.IsVisible = Visibility.Hidden;
                 _imageEditControlVm.IsVisible = Visibility.Hidden;
+                AddButtonVisibility = Visibility.Visible;
+                SaveButtonVisibility = Visibility.Hidden;
                 Error.Comment = Resources.AddComment;
                 
             }
@@ -287,11 +302,16 @@ namespace ErrorFixApp.Controls
         {
             get
             {
-                return _cancelCommand ?? (_cancelCommand = new RelayCommand(
+                return _cancelCommand ?? (_cancelCommand = new RelayCommand<object>(
                     param => this.CancelObject(),
                     param => true
                 ));
             }
+        }
+        
+        public void Update()
+        {
+           
         }
         
         private void CancelObject()
@@ -300,6 +320,9 @@ namespace ErrorFixApp.Controls
             IsSaveButtonEnable = false;
             _errorEditControlVm.IsVisible = Visibility.Hidden;
             _imageEditControlVm.IsVisible = Visibility.Hidden;
+            AddButtonVisibility = Visibility.Visible;
+            SaveButtonVisibility = Visibility.Hidden;
+            
             Error.Comment = Resources.AddComment;
             Error.ImageM?.Dispose();
             Error.ImageV?.Dispose();

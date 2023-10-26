@@ -21,9 +21,30 @@ namespace ErrorFixApp
             MainPanelControlVm = new MainPanelControlModel();
             AddErrorPanelControlVm = new AddErrorPanelControlModel();
             ViewErrorsControlVm = new ViewErrorsControlModel();
+            ExportControlVm = new ExportControlModel();
         }
         private RenderTargetBitmap _rtb;
         private bool _isEditorOpened;
+
+        private int _selectedTabIndex;
+
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                _selectedTabIndex = value;
+                if (_selectedTabIndex == 0)
+                {
+                    AddErrorPanelControlVm.Update();
+                }
+                if (_selectedTabIndex == 1)
+                {
+                    ViewErrorsControlVm.Update();
+                }
+                OnPropertyChanged();
+            }
+        }
 
         public string ApplicationName
         {
@@ -74,6 +95,18 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
+        
+        
+        private ExportControlModel _exportControlVm;
+        public ExportControlModel ExportControlVm
+        {
+            get => _exportControlVm;
+            set
+            {
+                _exportControlVm = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -89,7 +122,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _closingCommand ?? (_closingCommand = new RelayCommand(
+                return _closingCommand ?? (_closingCommand = new RelayCommand<object>(
                     param => this.ClosingDb(),
                     param => true
                 ));
@@ -102,7 +135,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _editImageCommand ?? (_editImageCommand = new RelayCommand(
+                return _editImageCommand ?? (_editImageCommand = new RelayCommand<object>(
                     param => this.EditImage(Convert.ToString(param)),
                     param => true
                 ));

@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ErrorFixApp.Controls
 {
@@ -7,6 +8,8 @@ namespace ErrorFixApp.Controls
         public ErrorDetailsEditControl()
         {
             InitializeComponent();
+            
         }
+
     }
 }

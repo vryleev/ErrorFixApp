@@ -17,10 +17,12 @@ namespace ErrorDataLayer
     {
         public static readonly string BaseDir = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\RouteErrors";
         public static bool IsCheckQueue = true;
+        private readonly string _user = "Release";
+        private string _baseName;
 
-        private string _baseName = $"{BaseDir}\\{DateTime.Today.Date:dd_MM_yy}_RouteErrors.db3";
+        private static string BaseNameToAdd;
 
-        static readonly string BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:dd_MM_yy}_RouteErrors.db3";
+        
 
         private readonly ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
 
@@ -29,8 +31,16 @@ namespace ErrorDataLayer
                  MinimumLevel.Debug().
                  WriteTo.Console().
                  WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day).CreateLogger();  
-        public SqLiteManager()
+        public SqLiteManager(string userName)
         {
+            if (userName != String.Empty)
+            {
+                _user = userName;
+            }
+            
+            _baseName = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
+            BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
+
             Log.Information("SqLiteManage constructor");
             if (!Directory.Exists(BaseDir))
             {
@@ -79,7 +89,7 @@ namespace ErrorDataLayer
 
         public string GetDbToAdd()
         {
-            return $"{DateTime.Today.Date:dd_MM_yy}_RouteErrors";
+            return $"{DateTime.Today.Date:yy-MM-dd}-{_user}";
         }
 
         public void SetBaseName(string baseName)

@@ -26,6 +26,7 @@ namespace ErrorFixApp.Controls
             get => _bitmapImageV;
             set
             {
+                _bitmapImageV?.StreamSource.Dispose();
                 _bitmapImageV = value;
                 OnPropertyChanged();
             }
@@ -36,7 +37,7 @@ namespace ErrorFixApp.Controls
         {
             get => _bitmapImageM;
             set
-            {
+            {   _bitmapImageM?.StreamSource.Dispose();
                 _bitmapImageM = value;
                 OnPropertyChanged();
             }
@@ -61,7 +62,7 @@ namespace ErrorFixApp.Controls
         {
             get
             {
-                return _editImageCommand ?? (_editImageCommand = new RelayCommand(
+                return _editImageCommand ?? (_editImageCommand = new RelayCommand<object>(
                     param => this.EditImage(Convert.ToString(param)),
                     param => true
                 ));
@@ -70,28 +71,35 @@ namespace ErrorFixApp.Controls
         
         private void EditImage(string pictureType)
         {
-            if (!_isEditorOpened)
+            try
             {
-                _isEditorOpened = true;
-                var editorWindow = new MainEditorWindow();
-                editorWindow.Closing += EditorWindowOnClosing;
-                double layerWidth =  ImageV.Width;
-                double layerHeight =  ImageV.Height;
+                if (!_isEditorOpened)
+                {
+                    _isEditorOpened = true;
+                    var editorWindow = new MainEditorWindow();
+                    editorWindow.Closing += EditorWindowOnClosing;
+                    double layerWidth = ImageV.Width;
+                    double layerHeight = ImageV.Height;
 
-                GlobalState.NewLayerHeight = layerHeight;
-                GlobalState.NewLayerWidth = layerWidth;
-                GlobalState.CurrentLayerIndex = 0;
-                GlobalState.LayersCount = 1;
-                GlobalState.CurrentTool = GlobalState.Instruments.Brush;
+                    GlobalState.NewLayerHeight = layerHeight;
+                    GlobalState.NewLayerWidth = layerWidth;
+                    GlobalState.CurrentLayerIndex = 0;
+                    GlobalState.LayersCount = 1;
+                    GlobalState.CurrentTool = GlobalState.Instruments.Brush;
 
-                MainEditorWindow.WindowTrigger = 4;
-                MainEditorWindow.PictureType = pictureType;
-                MainEditorWindow.Picture = pictureType == "Visual"
-                    ?  ImageV.ToStream(ImageFormat.Bmp)
-                    :  ImageM.ToStream(ImageFormat.Bmp);
+                    MainEditorWindow.WindowTrigger = 4;
+                    MainEditorWindow.PictureType = pictureType;
+                    MainEditorWindow.Picture = pictureType == "Visual"
+                        ? ImageV.ToStream(ImageFormat.Bmp)
+                        : ImageM.ToStream(ImageFormat.Bmp);
 
-                MainEditorWindow.EnableBlur(editorWindow);
-                MainEditorWindow.ShowMainWindow();
+                    MainEditorWindow.EnableBlur(editorWindow);
+                    MainEditorWindow.ShowMainWindow();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{ex.Message}");
             }
         }
         

@@ -9,9 +9,9 @@ namespace ErrorFixApp
 {
     public static class ConfigurationParams
     {
-        private static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
-        private static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
-        private static readonly string FileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
+        public static readonly string TrainerPath = ConfigurationManager.AppSettings.Get("TrainerPath");
+        public static readonly string SceneGeneratorPath = ConfigurationManager.AppSettings.Get("SceneGeneratorPath");
+        public static readonly string FileNamePos = ConfigurationManager.AppSettings.Get("FileNamePos");
 
         public static readonly string PositionFilePath = $"{TrainerPath}/{FileNamePos}";
         public static readonly string PositionFilePathSetup = $"{TrainerPath}/{FileNamePos}_setup";

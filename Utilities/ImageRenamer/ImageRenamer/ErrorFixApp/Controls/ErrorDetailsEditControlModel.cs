@@ -1,9 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
+using System.Data.Entity;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using ErrorFixApp.Properties;
 
 namespace ErrorFixApp.Controls
@@ -13,9 +16,27 @@ namespace ErrorFixApp.Controls
         public ErrorDetailsEditControlModel()
         {
             GetComboBoxLists();
+            var errorPatterns = ConfigurationManager.AppSettings.Get("PatternErrors").Split(',').ToList();
+            ErrorPatterns = new ObservableCollection<MenuItemObject>();
+            foreach (var ep in errorPatterns)
+            {
+                ErrorPatterns.Add(new MenuItemObject {Command = new RelayCommand<object>(MenuClicked), Content = ep});
+            }
+            
+            
         }
 
         private ErrorDetail _errorDetail = new ErrorDetail();
+        
+        private void MenuClicked(object o)
+        {
+            
+            string error = o as string;
+            if (error != null)
+            {
+                Error.Comment = error;
+            }
+        }
 
        
         
@@ -37,6 +58,18 @@ namespace ErrorFixApp.Controls
             set
             {
                 _isVisible = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        private ObservableCollection<MenuItemObject> _errorPatterns;
+        
+        public ObservableCollection<MenuItemObject> ErrorPatterns
+        {
+            get => _errorPatterns;
+            set
+            {
+                _errorPatterns = value;
                 OnPropertyChanged();
             }
         }

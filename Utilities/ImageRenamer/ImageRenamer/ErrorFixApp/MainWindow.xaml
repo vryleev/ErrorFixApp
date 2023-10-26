@@ -41,7 +41,7 @@
 
     <Grid>
         <StackPanel>
-            <TabControl>
+            <TabControl SelectedIndex="{Binding SelectedTabIndex}">
                 <TabItem>
                     <TabItem.Header>
                         <TextBlock>Добавление ошибок</TextBlock>
@@ -66,6 +66,11 @@
                     <TabItem.Header>
                         <TextBlock>Экспорт ошибок</TextBlock>
                     </TabItem.Header>
+                    <TabItem.Content>
+                        <Grid>
+                            <controls:ExportControl DataContext="{Binding ExportControlVm}"/>
+                        </Grid>
+                    </TabItem.Content>
                 </TabItem>
             </TabControl>
 

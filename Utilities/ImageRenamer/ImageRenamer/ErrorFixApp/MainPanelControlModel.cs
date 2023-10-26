@@ -27,7 +27,7 @@ namespace ErrorFixApp
     {
         public MainPanelControlModel()
         {
-            _sqLiteManager = new SqLiteManager();
+            _sqLiteManager = new SqLiteManager(ConfigurationParams.User);
             _webApiManager = new WebApiManager();
             GetDbList();
             GetErrorTypeList();
@@ -268,7 +268,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _fixCommand ?? (_fixCommand = new RelayCommand(
+                return _fixCommand ?? (_fixCommand = new RelayCommand<object>(
                     param => this.FixObject(),
                     param => true
                 ));
@@ -358,7 +358,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _deleteCommand ?? (_deleteCommand = new RelayCommand(
+                return _deleteCommand ?? (_deleteCommand = new RelayCommand<object>(
                     param => this.DeleteObject(),
                     param => true
                 ));
@@ -403,7 +403,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _loadCommand ?? (_loadCommand = new RelayCommand(
+                return _loadCommand ?? (_loadCommand = new RelayCommand<object>(
                     param => this.LoadObject(),
                     param => true
                 ));
@@ -491,7 +491,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _saveCommand ?? (_saveCommand = new RelayCommand(
+                return _saveCommand ?? (_saveCommand = new RelayCommand<object>(
                     param => this.SaveObject(),
                     param =>true
                 ));
@@ -504,7 +504,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _cancelCommand ?? (_cancelCommand = new RelayCommand(
+                return _cancelCommand ?? (_cancelCommand = new RelayCommand<object>(
                     param => this.CancelObject(),
                     param => true
                 ));
@@ -517,7 +517,7 @@ namespace ErrorFixApp
         {
             get
             {
-                return _selectXlsFileCommand ?? (_selectXlsFileCommand = new RelayCommand(
+                return _selectXlsFileCommand ?? (_selectXlsFileCommand = new RelayCommand<object>(
                     param => this.ExportToXlsxFileTask(),
                     param => true
                 ));

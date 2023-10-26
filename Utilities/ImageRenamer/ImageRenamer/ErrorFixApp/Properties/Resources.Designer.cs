@@ -96,7 +96,16 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Выбрать БД.
+        ///   Looks up a localized string similar to Проверка параметров.
+        /// </summary>
+        public static string CheckParams {
+            get {
+                return ResourceManager.GetString("CheckParams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Выберите БД.
         /// </summary>
         public static string ChooseDb {
             get {
@@ -150,6 +159,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Информация по БД.
+        /// </summary>
+        public static string DbInfo {
+            get {
+                return ResourceManager.GetString("DbInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Список БД.
         /// </summary>
         public static string DbListLabel {
@@ -164,6 +182,15 @@ namespace ErrorFixApp.Properties {
         public static string DeleteCaption {
             get {
                 return ResourceManager.GetString("DeleteCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Удалить.
+        /// </summary>
+        public static string DeleteError {
+            get {
+                return ResourceManager.GetString("DeleteError", resourceCulture);
             }
         }
         
@@ -204,6 +231,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Директория для экспорта.
+        /// </summary>
+        public static string ExportPath {
+            get {
+                return ResourceManager.GetString("ExportPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Экспорт в Xlsx.
         /// </summary>
         public static string ExportToXlsx {
@@ -222,7 +258,7 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Id должен быть больше -1.
+        ///   Looks up a localized string similar to Id должен быть больше 0.
         /// </summary>
         public static string IdMessage {
             get {

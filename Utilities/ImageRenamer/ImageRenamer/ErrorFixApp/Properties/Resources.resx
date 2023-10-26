@@ -133,7 +133,7 @@
     <value>Необходимо добавить комментарий</value>
   </data>
   <data name="IdMessage" xml:space="preserve">
-    <value>Id должен быть больше -1</value>
+    <value>Id должен быть больше 0</value>
   </data>
   <data name="PositionNotSet" xml:space="preserve">
     <value>Позиция не задана</value>
@@ -145,7 +145,7 @@
     <value>Добавить ошибку в БД</value>
   </data>
   <data name="ChooseDb" xml:space="preserve">
-    <value>Выбрать БД</value>
+    <value>Выберите БД</value>
   </data>
   <data name="ViewError" xml:space="preserve">
     <value>Просмотр ошибки</value>
@@ -224,5 +224,17 @@
   </data>
   <data name="SelectedDb" xml:space="preserve">
     <value>Выбранная БД</value>
+  </data>
+  <data name="DbInfo" xml:space="preserve">
+    <value>Информация по БД</value>
+  </data>
+  <data name="DeleteError" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="ExportPath" xml:space="preserve">
+    <value>Директория для экспорта</value>
+  </data>
+  <data name="CheckParams" xml:space="preserve">
+    <value>Проверка параметров</value>
   </data>
 </root>

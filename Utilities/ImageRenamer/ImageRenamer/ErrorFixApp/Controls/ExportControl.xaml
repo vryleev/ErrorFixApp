@@ -1,15 +1,15 @@
-﻿<UserControl x:Class="ErrorFixApp.Controls.AddErrorPanelControl"
+﻿<UserControl x:Class="ErrorFixApp.Controls.ExportControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ErrorFixApp.Controls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:properties="clr-namespace:ErrorFixApp.Properties"
-             xmlns:local="clr-namespace:ErrorFixApp.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.DataContext>
-        <local:AddErrorPanelControlModel/>
+        <local:ExportControlModel />
     </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
@@ -24,6 +24,8 @@
                     Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 <ResourceDictionary
                     Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/materialdesigntheme.label.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
                 <Setter Property="Margin" Value="0 10 0 0" />
@@ -36,59 +38,43 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <UserControl.InputBindings>
-        <KeyBinding Modifiers="Control"
-                    Key="N"
-                    Command="{Binding FixCommand}" />
-    </UserControl.InputBindings>
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40*"/>
-                <ColumnDefinition Width="20*" />
-                <ColumnDefinition Width="20*" />
-                <ColumnDefinition Width="20*"/>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4"
+        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
-                 TextDecorations="Underline"
                  AcceptsReturn="True"
                  IsEnabled="False"
-                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.CurrentDb}"
-                 Text="{Binding DataBaseToSave, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-        <TextBox Grid.Column="0" Grid.Row="1"
-            SpellCheck.IsEnabled="True" Language="ru-ru"
-            TextWrapping="Wrap"
-            AcceptsReturn="True"
-            materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteLabel}"
-            Text="{Binding RouteName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-        <Button Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
-                Content="{x:Static properties:Resources.AddErrorToDb}"  
+                 materialDesign:HintAssist.Hint="{x:Static properties:Resources.ExportPath}"
+                 Text="{Binding ExportPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+        <Calendar Grid.Row="1" Grid.Column="0" Name="cldSample" SelectionMode="MultipleRange" />
+        <Button Content="{x:Static properties:Resources.ExportToXlsx}" Grid.Column="1" Grid.Row="2"
                 HorizontalAlignment="Stretch" 
-                VerticalAlignment="Stretch" 
-                Visibility="{Binding AddButtonVisibility}"
-                Command="{Binding Path=FixCommand}"/>
-        <Button Grid.Row="1" Grid.Column="2"
-                Content="{x:Static properties:Resources.SaveToDb}"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Visibility="{Binding SaveButtonVisibility}"
-                Command="{Binding Path=SaveCommand}" />
-        <Button Grid.Row="1" Grid.Column="3" 
-                Content="{x:Static properties:Resources.CancelSave}"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Visibility="{Binding SaveButtonVisibility}"
-                Command="{Binding Path=CancelCommand}" />
-        <local:ImageEditControl Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
-                                DataContext="{Binding ImageEditControlVm}"/>
-        <local:ErrorDetailsEditControl Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
-                                DataContext="{Binding ErrorEditControlVm}"/>
+                Command="{Binding Path=ExportCommand}"
+                CommandParameter="{Binding ElementName=cldSample, Path=SelectedDates}"
+                />
+        <Button Content="{x:Static properties:Resources.CheckParams}" Grid.Column="0" Grid.Row="2"
+                HorizontalAlignment="Stretch" 
+                Command="{Binding Path=CheckCommand}"
+                CommandParameter="{Binding ElementName=cldSample, Path=SelectedDates}"
+        />
         
+        <ListBox Grid.Column="1" Grid.Row="1"
+                  ItemsSource="{Binding MessageCollection, Mode=TwoWay}" 
+                  MaxHeight="400"
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch" 
+                  IsSelected="False"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible">
+            
+        </ListBox>
     </Grid>
 </UserControl>
