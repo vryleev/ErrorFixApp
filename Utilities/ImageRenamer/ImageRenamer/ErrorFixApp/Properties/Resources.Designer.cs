@@ -402,6 +402,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Обновить.
+        /// </summary>
+        public static string UpdateError {
+            get {
+                return ResourceManager.GetString("UpdateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Пользователь.
         /// </summary>
         public static string User {

@@ -31,7 +31,19 @@ namespace ErrorFixApp.Controls
           
         }
         
+        private bool _errorLoaded = false;
+        public bool ErrorLoaded
+        {
+            get => _errorLoaded;
+            set
+            {
+                _errorLoaded = value;
+                OnPropertyChanged();
+            }
+        }
+        
         private ImageEditControlModel _imageEditControlVm;
+       
 
         public ImageEditControlModel ImageEditControlVm
         {
@@ -161,6 +173,7 @@ namespace ErrorFixApp.Controls
         {
             _errorEditControlVm.IsVisible = Visibility.Hidden;
             _imageEditControlVm.IsVisible = Visibility.Hidden;
+            ErrorLoaded = false;
             if (ErrorId <= 0)
             {
                 MessageBox.Show(Resources.IdMessage);
@@ -187,6 +200,9 @@ namespace ErrorFixApp.Controls
                 {
                     _imageEditControlVm.BImageV = Error.BImageV;
                     _imageEditControlVm.BImageM = Error.BImageM;
+                    _imageEditControlVm.ImageM = Error.ImageM;
+                    _imageEditControlVm.ImageV = Error.ImageV;
+                    ErrorLoaded = true;
 
                     if (Directory.Exists(ConfigurationParams.TrainerPath))
                     {
@@ -203,10 +219,48 @@ namespace ErrorFixApp.Controls
                 }
                 else
                 {
+                    ErrorLoaded = false;
                     MessageBox.Show("Ошибки не существует");
                 }
 
 
+            }
+        }
+        
+         private ICommand _updateCommand;
+
+        public ICommand UpdateCommand
+        {
+            get
+            {
+                return _updateCommand ?? (_updateCommand = new RelayCommand<object>(
+                    param => this.UpdateObject(),
+                    param => true
+                ));
+            }
+        }
+        
+        
+        private async void UpdateObject()
+        {
+            if (ErrorId <= 0)
+            {
+                MessageBox.Show(Resources.IdMessage);
+            }
+
+            if (SelectedDb != String.Empty && ErrorId > 0)
+            {
+                if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
+                {
+                    Error.ImageM = _imageEditControlVm.ImageM;
+                    Error.ImageV = _imageEditControlVm.ImageV;
+                    Error.UpdateErrorEntity(_errorEntity);
+                    _sqLiteManager.UpdateErrorInDb(_errorEntity);
+                }
+                else
+                {
+                    //ToDo _errorEntity = await _webApiManager.Update(_errorEntity, SelectedDb);
+                }
             }
         }
 

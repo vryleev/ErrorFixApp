@@ -15,28 +15,55 @@ namespace ErrorFixApp.Controls
     {
         public ErrorDetailsEditControlModel()
         {
-            GetComboBoxLists();
-            var errorPatterns = ConfigurationManager.AppSettings.Get("PatternErrors").Split(',').ToList();
+           
+            _errorPatternsFromAppSettings = ConfigurationManager.AppSettings.Get("PatternErrors").Split(',').ToList();
             ErrorPatterns = new ObservableCollection<MenuItemObject>();
-            foreach (var ep in errorPatterns)
-            {
-                ErrorPatterns.Add(new MenuItemObject {Command = new RelayCommand<object>(MenuClicked), Content = ep});
-            }
+            GetComboBoxLists();
+            // foreach (var ep in _errorPatternsFromAppSettings)
+            // {
+            //     ErrorPatterns.Add(new MenuItemObject {Command = new RelayCommand<object>(MenuClicked), Content = ep});
+            // }
             
             
         }
 
         private ErrorDetail _errorDetail = new ErrorDetail();
+
+        private readonly List<string> _errorPatternsFromAppSettings;
         
         private void MenuClicked(object o)
         {
-            
-            string error = o as string;
-            if (error != null)
+            if (o is string error)
             {
                 Error.Comment = error;
             }
         }
+
+        private string _selectedErrorType;
+
+        public string SelectedErrorType
+        {
+            get => _selectedErrorType;
+            set
+            {
+                _selectedErrorType = value;
+                if (ErrorPatterns != null)
+                {
+                    ErrorPatterns.Clear();
+                    foreach (var ep in _errorPatternsFromAppSettings)
+                    {
+                        if (ep.Contains(value))
+                        {
+                            ErrorPatterns.Add(new MenuItemObject
+                                { Command = new RelayCommand<object>(MenuClicked), Content = ep });
+                        }
+                    }
+                }
+
+                OnPropertyChanged();
+            }
+        }
+        
 
        
         
@@ -102,6 +129,7 @@ namespace ErrorFixApp.Controls
         {
             ErrorTypeList = new ObservableCollection<string>(ConfigurationParams.GetErrorTypeList());
             Error.ErrorType = ErrorTypeList.First();
+            SelectedErrorType = Error.ErrorType;
             
             PriorityList = new ObservableCollection<string>(ConfigurationParams.GetPriorityList());
             Error.Priority = PriorityList.First();

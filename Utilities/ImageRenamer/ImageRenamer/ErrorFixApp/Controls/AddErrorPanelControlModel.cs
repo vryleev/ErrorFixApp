@@ -27,6 +27,7 @@ namespace ErrorFixApp.Controls
             _errorEditControlVm.Error = _errorDetail;
             _imageEditControlVm.IsVisible = Visibility.Hidden;
             _errorEditControlVm.IsVisible = Visibility.Hidden;
+            RouteName = Resources.SetupRoute;
             GetDbToSave();
         }
         
@@ -159,6 +160,12 @@ namespace ErrorFixApp.Controls
 
         private void FixObject()
         {
+            if (RouteName == null)
+            {
+                MessageBox.Show(Resources.SetupRouteMessage);
+                return;
+            }
+            
             if (RouteName.Contains(Resources.SetupRoute))
             {
                 MessageBox.Show(Resources.SetupRouteMessage);

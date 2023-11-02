@@ -129,6 +129,7 @@
             <ComboBox Name="ErrorTypeCombo" Grid.Column="0" Grid.Row="0"
                       ItemsSource="{ Binding ErrorTypeList}"
                       SelectedItem="{Binding Error.ErrorType, Mode=TwoWay}"
+                      SelectedValue="{Binding SelectedErrorType, Mode=TwoWay}"
                       materialDesign:HintAssist.Hint="{x:Static properties:Resources.ErrorType}">
             </ComboBox>
 

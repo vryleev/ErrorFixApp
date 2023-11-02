@@ -22,9 +22,13 @@ namespace ErrorDataLayer
 
         private static string BaseNameToAdd;
 
+        private Task _addTask = null;
+        private Task _updateTask = null;
+
         
 
         private readonly ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
+        private readonly ConcurrentQueue<ErrorEntity> _queueToUpdate = new ConcurrentQueue<ErrorEntity>();
 
         private readonly Logger _log =
              new LoggerConfiguration().
@@ -49,7 +53,10 @@ namespace ErrorDataLayer
 
             //CreateDb();
 
-            Task.Factory.StartNew(CheckQueue);
+            _addTask = Task.Factory.StartNew(CheckQueueToAdd);
+            _updateTask = Task.Factory.StartNew(CheckQueueToUpdate);
+            
+           
         }
 
         private static void CreateDb()
@@ -113,8 +120,13 @@ namespace ErrorDataLayer
             CreateDb();
             _queueToAdd.Enqueue(error);
         }
+        
+        public void UpdateErrorInDb(ErrorEntity error)
+        {
+            _queueToUpdate.Enqueue(error);
+        }
 
-        private void CheckQueue()
+        private void CheckQueueToAdd()
         {
             while (IsCheckQueue)
             {
@@ -122,6 +134,20 @@ namespace ErrorDataLayer
                 {
                     _log.Debug($"Queue count = {_queueToAdd.Count}");
                     SaveToDb(error);
+                }
+                Thread.Sleep(100);
+                
+            }
+        }
+        
+        private void CheckQueueToUpdate()
+        {
+            while (IsCheckQueue)
+            {
+                while (_queueToUpdate.TryDequeue(out var error))
+                {
+                    _log.Debug($"Queue count = {_queueToAdd.Count}");
+                    UpdateEntity(error);
                 }
                 Thread.Sleep(100);
                 
@@ -161,6 +187,50 @@ namespace ErrorDataLayer
                         try
                         {
                            command.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            UpdateDbStructure(ex.Message, Path.GetFileNameWithoutExtension(BaseNameToAdd));
+                        }
+                    }
+                }
+            }
+        }
+        
+        private void UpdateEntity(ErrorEntity error, string baseName = null)
+        {
+            SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText =
+                            $"update [RouteErrors] " +
+                            $"set imagev = @0, imagem=@1, comment='{error.Comment}', " +
+                            $"position='{error.Position}',timestamp='{error.TimeStamp}',routeName='{error.RouteName}', "+
+                            $"username='{error.User}',errorType='{error.ErrorType}',priority='{error.Priority}' " +
+                            $"where id='{error.Id}'";
+                        SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
+                        {
+                            Value = error.ImageV
+                        };
+                        command.Parameters.Add(param0);
+
+                        SQLiteParameter param1 = new SQLiteParameter("@1", DbType.Binary)
+                        {
+                            Value = error.ImageM
+                        };
+                        command.Parameters.Add(param1);
+
+                        command.CommandType = CommandType.Text;
+                        try
+                        {
+                            command.ExecuteNonQuery();
                         }
                         catch (Exception ex)
                         {
@@ -490,6 +560,12 @@ namespace ErrorDataLayer
             {
                 connection.ConnectionString = "Data Source = " + $"{BaseDir}\\{baseName}.db3";
             }
+        }
+
+        public void StopTasks()
+        {
+            _addTask.Dispose();
+            _updateTask.Dispose();
         }
     }
 }

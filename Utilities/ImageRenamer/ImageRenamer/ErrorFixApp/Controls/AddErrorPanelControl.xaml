@@ -85,9 +85,9 @@
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Visibility="{Binding SaveButtonVisibility}"
                 Command="{Binding Path=CancelCommand}" />
-        <local:ImageEditControl Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
+        <local:ImageEditControl Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
                                 DataContext="{Binding ImageEditControlVm}"/>
-        <local:ErrorDetailsEditControl Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
+        <local:ErrorDetailsEditControl Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
                                 DataContext="{Binding ErrorEditControlVm}"/>
         
     </Grid>

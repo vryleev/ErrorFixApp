@@ -144,6 +144,7 @@ namespace ErrorFixApp
         public void ClosingDb()
         {
             SqLiteManager.IsCheckQueue = false;
+            
         }
 
         private void EditImage(string pictureType)

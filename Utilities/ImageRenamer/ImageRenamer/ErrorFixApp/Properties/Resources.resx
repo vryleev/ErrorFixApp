@@ -237,4 +237,7 @@
   <data name="CheckParams" xml:space="preserve">
     <value>Проверка параметров</value>
   </data>
+  <data name="UpdateError" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
 </root>

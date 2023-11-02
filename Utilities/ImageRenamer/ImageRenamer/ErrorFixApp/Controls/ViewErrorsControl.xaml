@@ -52,13 +52,14 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30*"/>
-            <ColumnDefinition Width="35*" />
-            <ColumnDefinition Width="35*" />
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="25*" />
             
         </Grid.ColumnDefinitions>
         
-        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3"
+        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
@@ -75,7 +76,7 @@
                   ScrollViewer.VerticalScrollBarVisibility="Visible">
             
         </ComboBox>
-        <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
+        <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
@@ -93,11 +94,13 @@
             Text="{Binding ErrorId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
         <Button Content="{x:Static properties:Resources.ViewError}" Grid.Row="2" Grid.Column="1" 
                HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}"/>
-        <Button Content="{x:Static properties:Resources.DeleteError}" Grid.Row="2" Grid.Column="2" 
+        <Button Content="{x:Static properties:Resources.UpdateError}" Grid.Row="2" Grid.Column="2" IsEnabled="{Binding ErrorLoaded}" 
+                HorizontalAlignment="Stretch" Command="{Binding Path=UpdateCommand}"/>
+        <Button Content="{x:Static properties:Resources.DeleteError}" Grid.Row="2" Grid.Column="3" 
                 HorizontalAlignment="Stretch" Command="{Binding Path=DeleteCommand}"/>
-        <local:ImageEditControl Grid.Row="4" Grid.ColumnSpan="3" Grid.Column="0" Visibility="{Binding IsVisible}"
-                                DataContext="{Binding ImageEditControlVm}" IsEnabled="False"/>
-        <local:ErrorDetailsEditControl Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" Visibility="{Binding IsVisible}"
-                                       DataContext="{Binding ErrorEditControlVm}" IsEnabled="False"/>
+        <local:ImageEditControl Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
+                                DataContext="{Binding ImageEditControlVm}" IsEnabled="True"/>
+        <local:ErrorDetailsEditControl Grid.Row="4" Grid.ColumnSpan="4" Grid.Column="0" Visibility="{Binding IsVisible}"
+                                       DataContext="{Binding ErrorEditControlVm}" IsEnabled="True"/>
     </Grid>
 </UserControl>
