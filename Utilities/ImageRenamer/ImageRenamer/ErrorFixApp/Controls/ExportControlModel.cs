@@ -23,7 +23,7 @@ namespace ErrorFixApp.Controls
     {
         public ExportControlModel()
         {
-            _sqLiteManager = new SqLiteManager(ConfigurationParams.User);
+            //_sqLiteManager = new SqLiteManager(ConfigurationParams.User);
             _webApiManager = new WebApiManager();
             ExportPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Export";
             if (!Directory.Exists(ExportPath))
@@ -34,7 +34,7 @@ namespace ErrorFixApp.Controls
         
        
         
-        private readonly SqLiteManager _sqLiteManager;
+        //private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
 
         private string _exportPath;
@@ -79,7 +79,7 @@ namespace ErrorFixApp.Controls
             {
                 dateList.Add($"{d:yy-MM-dd}");
             }
-            List<string> availableDb = _sqLiteManager.GetAvailableDb();
+            List<string> availableDb = SqLiteManager.GetAvailableDb();
             foreach (var db in availableDb)
             {
                 string dbDate = "";
@@ -129,7 +129,7 @@ namespace ErrorFixApp.Controls
             int i = 0;
             foreach (var db in _dbListToExport)
             {
-                var errorCount = _sqLiteManager.GetErrorCount(db);
+                var errorCount = SqLiteManager.GetErrorCount(db);
                 MessageCollection.Add($"{i}. БД: {db}, Кол-во записей: {errorCount}");
                 i++;
             }
@@ -159,8 +159,8 @@ namespace ErrorFixApp.Controls
             int i = 0;
             foreach (var db in _dbListToExport)
             {
-               var errorCount = _sqLiteManager.GetErrorCount(db);
-               var exportDate = _sqLiteManager.GetLastExportDate(db);
+               var errorCount = SqLiteManager.GetErrorCount(db);
+               var exportDate = SqLiteManager.GetLastExportDate(db);
                MessageCollection.Add($"{i}. БД: {db}, Кол-во записей: {errorCount}, Дата экспорта: {exportDate}");
                i++;
             }
@@ -186,8 +186,8 @@ namespace ErrorFixApp.Controls
                         List<ErrorEntity> errors = new List<ErrorEntity>();
                         if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                         {
-                            errors = _sqLiteManager.LoadErrors(db);
-                            _sqLiteManager.AddExportDateToDb(db);
+                            errors = SqLiteManager.LoadErrors(db);
+                            SqLiteManager.AddExportDateToDb(db);
                         }
                         //else
                         //{

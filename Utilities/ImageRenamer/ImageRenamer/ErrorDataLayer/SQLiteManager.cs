@@ -7,7 +7,6 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
@@ -15,39 +14,34 @@ using Serilog.Core;
 
 namespace ErrorDataLayer
 {
-    public class SqLiteManager
+    public static class SqLiteManager
     {
         public static readonly string BaseDir = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\RouteErrors";
         public static bool IsCheckQueue = true;
-        private readonly string _user = "Release";
-        private string _baseName;
+        public static string User = "Release";
+        private static string _baseName;
 
-        private static string _baseNameToAdd;
+        private static readonly string BaseNameToAdd;
 
-        private readonly Task _addTask;
-        private readonly Task _updateTask;
+        private static readonly Task AddTask;
+        private static readonly Task UpdateTask;
 
         
 
-        private readonly ConcurrentQueue<object> _queueToAdd = new ConcurrentQueue<object>();
-        private readonly ConcurrentQueue<ErrorEntity> _queueToUpdate = new ConcurrentQueue<ErrorEntity>();
+        private static readonly ConcurrentQueue<object> QueueToAdd = new ConcurrentQueue<object>();
+        private static readonly ConcurrentQueue<ErrorEntity> QueueToUpdate = new ConcurrentQueue<ErrorEntity>();
 
-        private readonly Logger _log =
+        private static readonly Logger Log =
              new LoggerConfiguration().
                  MinimumLevel.Debug().
                  WriteTo.Console().
                  WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day).CreateLogger();  
-        public SqLiteManager(string userName)
+        static SqLiteManager()
         {
-            if (userName != String.Empty)
-            {
-                _user = userName;
-            }
-            
-            _baseName = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
-            _baseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
+            _baseName = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{User}.db3";
+            BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{User}.db3";
 
-            Log.Information("SqLiteManage constructor");
+            Serilog.Log.Information("SqLiteManage constructor");
             if (!Directory.Exists(BaseDir))
             {
                 Directory.CreateDirectory(BaseDir);
@@ -55,23 +49,23 @@ namespace ErrorDataLayer
 
             //CreateDb();
 
-            _addTask = Task.Factory.StartNew(CheckQueueToAdd);
-            _updateTask = Task.Factory.StartNew(CheckQueueToUpdate);
+            AddTask = Task.Factory.StartNew(CheckQueueToAdd);
+            UpdateTask = Task.Factory.StartNew(CheckQueueToUpdate);
             
            
         }
 
         private static void CreateDb()
         {
-            if (!File.Exists(_baseNameToAdd))
+            if (!File.Exists(BaseNameToAdd))
             {
-                SQLiteConnection.CreateFile(_baseNameToAdd);
+                SQLiteConnection.CreateFile(BaseNameToAdd);
                 SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
                 using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
                 {
                     if (connection != null)
                     {
-                        connection.ConnectionString = "Data Source = " + _baseNameToAdd;
+                        connection.ConnectionString = "Data Source = " + BaseNameToAdd;
                         connection.Open();
 
                         using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -106,19 +100,19 @@ namespace ErrorDataLayer
             }
         }
 
-        public string GetDbToAdd()
+        public static string GetDbToAdd()
         {
-            return $"{DateTime.Today.Date:yy-MM-dd}-{_user}";
+            return $"{DateTime.Today.Date:yy-MM-dd}-{User}";
         }
 
-        public void SetBaseName(string baseName)
+        public static void SetBaseName(string baseName)
         {
             _baseName = $"{BaseDir}\\{baseName}.db3";
             CheckDb();
            
         }
 
-        public List<String> GetAvailableDb()
+        public static List<String> GetAvailableDb()
         {
             List<String> dbList = new List<string>();
             var files = Directory.GetFiles(BaseDir, "*.db3");
@@ -129,28 +123,28 @@ namespace ErrorDataLayer
             return dbList;
         }
         
-        public void AddErrorToDb(ErrorEntity error)
+        public static void AddErrorToDb(ErrorEntity error)
         {
             CreateDb();
-            _queueToAdd.Enqueue(error);
+            QueueToAdd.Enqueue(error);
         }
-        public void AddExportDateToDb(string baseName)
+        public static void AddExportDateToDb(string baseName)
         {
-           _queueToAdd.Enqueue(baseName);
+           QueueToAdd.Enqueue(baseName);
         }
         
-        public void UpdateErrorInDb(ErrorEntity error)
+        public static void UpdateErrorInDb(ErrorEntity error)
         {
-            _queueToUpdate.Enqueue(error);
+            QueueToUpdate.Enqueue(error);
         }
 
-        private void CheckQueueToAdd()
+        private static void CheckQueueToAdd()
         {
             while (IsCheckQueue)
             {
-                while (_queueToAdd.TryDequeue(out var obj))
+                while (QueueToAdd.TryDequeue(out var obj))
                 {
-                    _log.Debug($"Queue count = {_queueToAdd.Count}");
+                    Log.Debug($"Queue count = {QueueToAdd.Count}");
                     if (obj is ErrorEntity e)
                     {
                         SaveErrorToDb(e);
@@ -166,13 +160,13 @@ namespace ErrorDataLayer
             }
         }
         
-        private void CheckQueueToUpdate()
+        private static void CheckQueueToUpdate()
         {
             while (IsCheckQueue)
             {
-                while (_queueToUpdate.TryDequeue(out var error))
+                while (QueueToUpdate.TryDequeue(out var error))
                 {
-                    _log.Debug($"Queue count = {_queueToAdd.Count}");
+                    Log.Debug($"Queue count = {QueueToAdd.Count}");
                     UpdateEntity(error);
                 }
                 Thread.Sleep(100);
@@ -180,14 +174,14 @@ namespace ErrorDataLayer
             }
         }
 
-        private void SaveErrorToDb(ErrorEntity error)
+        private static void SaveErrorToDb(ErrorEntity error)
         {
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
             {
                 if (connection != null)
                 {
-                    connection.ConnectionString = "Data Source = " + _baseNameToAdd;
+                    connection.ConnectionString = "Data Source = " + BaseNameToAdd;
                     connection.Open();
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -216,13 +210,13 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                            _log.Error($"{ex.Message}");
+                            Log.Error($"{ex.Message}");
                         }
                     }
                 }
             }
         }
-        private void SaveExportDateToDb(string baseName = null)
+        private static void SaveExportDateToDb(string baseName = null)
         {
             CheckDb(baseName);
             string datetime = GetDbToAdd();
@@ -248,14 +242,14 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                            _log.Error($"{ex.Message}");
+                            Log.Error($"{ex.Message}");
                         }
                     }
                 }
             }
         }
         
-        private void UpdateEntity(ErrorEntity error, string baseName = null)
+        private static void UpdateEntity(ErrorEntity error, string baseName = null)
         {
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
@@ -292,14 +286,14 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                            _log.Error($"{ex.Message}");
+                            Log.Error($"{ex.Message}");
                         }
                     }
                 }
             }
         }
 
-        public int DeleteErrorFromDb(int id, string baseName = null)
+        public static int DeleteErrorFromDb(int id, string baseName = null)
         {
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
@@ -321,7 +315,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                           _log.Error($"{ex.Message}");
+                           Log.Error($"{ex.Message}");
                             return 0;
                         }
                     }
@@ -331,7 +325,7 @@ namespace ErrorDataLayer
             return 1;
         }
 
-        public int GetErrorCount(string baseName = null)
+        public static int GetErrorCount(string baseName = null)
         {
             int res = -1;
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -354,7 +348,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception exc1)
                         {
-                            _log.Error(exc1.Message);
+                            Log.Error(exc1.Message);
                         }
                     }
                 }
@@ -362,7 +356,7 @@ namespace ErrorDataLayer
             return res;
         }
         
-        public int GetMaxId(string baseName = null)
+        public static int GetMaxId(string baseName = null)
         {
             int res = -1;
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -385,7 +379,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception exc1)
                         {
-                            _log.Error(exc1.Message);
+                            Log.Error(exc1.Message);
                         }
                     }
                 }
@@ -393,7 +387,7 @@ namespace ErrorDataLayer
             return res;
         }
 
-        public ErrorEntity LoadError(int id, string baseName = null)
+        public static ErrorEntity LoadError(int id, string baseName = null)
         {
             ErrorEntity error = new ErrorEntity();
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -453,12 +447,12 @@ namespace ErrorDataLayer
                             }
                             catch (Exception exc)
                             {
-                                _log.Error(exc.Message);
+                                Log.Error(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            _log.Error(ex.Message);
+                            Log.Error(ex.Message);
                             
                         }
                     }
@@ -468,7 +462,7 @@ namespace ErrorDataLayer
             return error;
         }
 
-        private void CheckDb(string baseName = null)
+        private static void CheckDb(string baseName = null)
         {
            
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -485,7 +479,7 @@ namespace ErrorDataLayer
             }
         }
 
-        private void CheckRouteTableColumns(SQLiteConnection connection)
+        private static void CheckRouteTableColumns(SQLiteConnection connection)
         {
             List<string> columns = new List<string>();
             using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -502,7 +496,7 @@ namespace ErrorDataLayer
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex.Message);
+                    Log.Error(ex.Message);
                 }
             }
 
@@ -537,7 +531,7 @@ namespace ErrorDataLayer
             }
         }
         
-        private void CheckExportTableExisting(SQLiteConnection connection)
+        private static void CheckExportTableExisting(SQLiteConnection connection)
         {
             List<string> tables = new List<string>();
             using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -554,7 +548,7 @@ namespace ErrorDataLayer
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex.Message);
+                    Log.Error(ex.Message);
                 }
             }
 
@@ -575,7 +569,7 @@ namespace ErrorDataLayer
 
         
 
-        public List<ErrorEntity> LoadErrors(string baseName = null)
+        public static List<ErrorEntity> LoadErrors(string baseName = null)
         {
             List<ErrorEntity> errors = new List<ErrorEntity>();
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -638,12 +632,12 @@ namespace ErrorDataLayer
                             }
                             catch (Exception exc)
                             {
-                                _log.Error(exc.Message);
+                                Log.Error(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            _log.Error(ex.Message);
+                            Log.Error(ex.Message);
                         }
                     }
 
@@ -654,7 +648,7 @@ namespace ErrorDataLayer
             return errors;
         }
         
-        public string GetLastExportDate(string baseName = null)
+        public static string GetLastExportDate(string baseName = null)
         {
             List<string> exportDates = new List<string>();
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
@@ -682,12 +676,12 @@ namespace ErrorDataLayer
                             }
                             catch (Exception exc)
                             {
-                                _log.Error(exc.Message);
+                                Log.Error(exc.Message);
                             }
                         }
                         catch (Exception ex)
                         {
-                            _log.Error(ex.Message);
+                            Log.Error(ex.Message);
                         }
                     }
 
@@ -698,7 +692,7 @@ namespace ErrorDataLayer
             return exportDates.LastOrDefault();
         }
 
-        private void SetConnectionString(string baseName, SQLiteConnection connection)
+        private static void SetConnectionString(string baseName, SQLiteConnection connection)
         {
             if (baseName == null)
             {
@@ -711,10 +705,10 @@ namespace ErrorDataLayer
             
         }
 
-        public void StopTasks()
+        public static void StopTasks()
         {
-            _addTask.Dispose();
-            _updateTask.Dispose();
+            AddTask.Dispose();
+            UpdateTask.Dispose();
         }
     }
 }

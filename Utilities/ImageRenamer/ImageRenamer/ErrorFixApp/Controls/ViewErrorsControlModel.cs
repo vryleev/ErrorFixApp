@@ -19,7 +19,7 @@ namespace ErrorFixApp.Controls
         
         public ViewErrorsControlModel()
         {
-            _sqLiteManager = new SqLiteManager(ConfigurationParams.User);
+            //_sqLiteManager = new SqLiteManager(ConfigurationParams.User);
             _webApiManager = new WebApiManager();
             
             _imageEditControlVm = new ImageEditControlModel();
@@ -68,7 +68,7 @@ namespace ErrorFixApp.Controls
             }
         }
         
-        private readonly SqLiteManager _sqLiteManager;
+        //private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
         
         private ErrorEntity _errorEntity = new ErrorEntity();
@@ -102,12 +102,12 @@ namespace ErrorFixApp.Controls
         {
             if (ConfigurationParams.WorkingType == "Local")
             {
-                _sqLiteManager.SetBaseName(SelectedDb);
+                SqLiteManager.SetBaseName(SelectedDb);
                 _imageEditControlVm.IsVisible = Visibility.Hidden;
                 _errorEditControlVm.IsVisible = Visibility.Hidden;
                 ErrorId = -1;
                 DbInfo =
-                    $"{Resources.TotalErrors}: {_sqLiteManager.GetErrorCount()}, {Resources.MaxId}: {_sqLiteManager.GetMaxId()}";
+                    $"{Resources.TotalErrors}: {SqLiteManager.GetErrorCount()}, {Resources.MaxId}: {SqLiteManager.GetMaxId()}";
             }
             else
             {
@@ -189,7 +189,7 @@ namespace ErrorFixApp.Controls
 
                 if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                 {
-                    _errorEntity = _sqLiteManager.LoadError(ErrorId);
+                    _errorEntity = SqLiteManager.LoadError(ErrorId);
                 }
                 else
                 {
@@ -255,7 +255,7 @@ namespace ErrorFixApp.Controls
                     Error.ImageM = _imageEditControlVm.ImageM;
                     Error.ImageV = _imageEditControlVm.ImageV;
                     Error.UpdateErrorEntity(_errorEntity);
-                    _sqLiteManager.UpdateErrorInDb(_errorEntity);
+                    SqLiteManager.UpdateErrorInDb(_errorEntity);
                 }
                 else
                 {
@@ -269,7 +269,7 @@ namespace ErrorFixApp.Controls
             List<string> dbList;
             if (ConfigurationParams.WorkingType == "Local")
             {
-                dbList = _sqLiteManager.GetAvailableDb();
+                dbList = SqLiteManager.GetAvailableDb();
             }
             else
             {
@@ -316,7 +316,7 @@ namespace ErrorFixApp.Controls
                 {
                     if (ConfigurationParams.WorkingType == "Local")
                     {
-                        _sqLiteManager.DeleteErrorFromDb(Error.Id);
+                        SqLiteManager.DeleteErrorFromDb(Error.Id);
                     }
                     else
                     {

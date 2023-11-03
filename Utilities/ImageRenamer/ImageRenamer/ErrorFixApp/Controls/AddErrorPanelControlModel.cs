@@ -21,7 +21,7 @@ namespace ErrorFixApp.Controls
     {
         public AddErrorPanelControlModel()
         {
-            _sqLiteManager = new SqLiteManager(ConfigurationParams.User);
+            //_sqLiteManager = new SqLiteManager(ConfigurationParams.User);
             _webApiManager = new WebApiManager();
             _imageEditControlVm = new ImageEditControlModel();
             _errorEditControlVm.Error = _errorDetail;
@@ -31,7 +31,7 @@ namespace ErrorFixApp.Controls
             GetDbToSave();
         }
         
-        private readonly SqLiteManager _sqLiteManager;
+        //private readonly SqLiteManager _sqLiteManager;
         private readonly WebApiManager _webApiManager;
         private ImageEditControlModel _imageEditControlVm;
 
@@ -274,7 +274,7 @@ namespace ErrorFixApp.Controls
                 Error.UpdateErrorEntity(_errorEntity);
                 if (ConfigurationParams.WorkingType == "Local")
                 {
-                    _sqLiteManager.AddErrorToDb(_errorEntity);
+                    SqLiteManager.AddErrorToDb(_errorEntity);
                 }
                 else
                 {
@@ -296,7 +296,7 @@ namespace ErrorFixApp.Controls
         {
             if (ConfigurationParams.WorkingType == "Local")
             {
-                DataBaseToSave = _sqLiteManager.GetDbToAdd();
+                DataBaseToSave = SqLiteManager.GetDbToAdd();
             }
             else
             {
