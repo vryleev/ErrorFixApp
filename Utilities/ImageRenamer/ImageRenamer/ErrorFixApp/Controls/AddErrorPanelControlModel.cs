@@ -269,6 +269,8 @@ namespace ErrorFixApp.Controls
             }
             else
             {
+                Error.ImageM = _imageEditControlVm.ImageM;
+                Error.ImageV = _imageEditControlVm.ImageV;
                 Error.UpdateErrorEntity(_errorEntity);
                 if (ConfigurationParams.WorkingType == "Local")
                 {

@@ -357,6 +357,8 @@ namespace ErrorFixApp.Controls
                 _totalErrorsCount++;
                 i++;
             }
+            worksheetPart.Worksheet.Save();
+            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
