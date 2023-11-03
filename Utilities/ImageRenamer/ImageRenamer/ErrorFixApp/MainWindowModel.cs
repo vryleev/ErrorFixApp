@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Configuration;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using ErrorDataLayer;
 using ErrorFixApp.Properties;
 using ErrorFixApp.Controls;
@@ -15,6 +14,7 @@ namespace ErrorFixApp
             AddErrorPanelControlVm = new AddErrorPanelControlModel();
             ViewErrorsControlVm = new ViewErrorsControlModel();
             ExportControlVm = new ExportControlModel();
+            SqLiteManager.User = ConfigurationParams.User;
         } 
         
         
@@ -97,22 +97,11 @@ namespace ErrorFixApp
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
 
-        private ICommand _closingCommand;
-
-        public ICommand ClosingCommand
-        {
-            get
-            {
-                return _closingCommand ?? (_closingCommand = new RelayCommand<object>(
-                    param => this.ClosingDb(),
-                    param => true
-                ));
-            }
-        }
-
+       
         public void ClosingDb()
         {
             SqLiteManager.IsCheckQueue = false;
+            SqLiteManager.StopTasks();
             
         }
 

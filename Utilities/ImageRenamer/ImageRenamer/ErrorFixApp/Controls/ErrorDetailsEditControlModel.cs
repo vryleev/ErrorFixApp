@@ -2,12 +2,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data.Entity;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
-using ErrorFixApp.Properties;
 
 namespace ErrorFixApp.Controls
 {
@@ -94,7 +91,7 @@ namespace ErrorFixApp.Controls
         public ObservableCollection<MenuItemObject> ErrorPatterns
         {
             get => _errorPatterns;
-            set
+            private set
             {
                 _errorPatterns = value;
                 OnPropertyChanged();
@@ -106,7 +103,7 @@ namespace ErrorFixApp.Controls
         public ObservableCollection<string> ErrorTypeList
         {
             get => _errorTypeList;
-            set
+            private set
             {
                 _errorTypeList = value;
                 OnPropertyChanged();
@@ -118,7 +115,7 @@ namespace ErrorFixApp.Controls
         public ObservableCollection<string> PriorityList
         {
             get => _priorityList;
-            set
+            private set
             {
                 _priorityList = value;
                 OnPropertyChanged();

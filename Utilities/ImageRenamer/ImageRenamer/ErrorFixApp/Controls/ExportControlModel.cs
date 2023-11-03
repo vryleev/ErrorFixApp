@@ -7,11 +7,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using DocumentFormat.OpenXml.Packaging;
 using ErrorDataLayer;
 using ErrorFixApp.Properties;
@@ -24,7 +25,7 @@ namespace ErrorFixApp.Controls
         public ExportControlModel()
         {
             //_sqLiteManager = new SqLiteManager(ConfigurationParams.User);
-            _webApiManager = new WebApiManager();
+            //_webApiManager = new WebApiManager();
             ExportPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Export";
             if (!Directory.Exists(ExportPath))
             {
@@ -35,7 +36,7 @@ namespace ErrorFixApp.Controls
        
         
         //private readonly SqLiteManager _sqLiteManager;
-        private readonly WebApiManager _webApiManager;
+        //private readonly WebApiManager _webApiManager;
 
         private string _exportPath;
         public string ExportPath
@@ -48,7 +49,8 @@ namespace ErrorFixApp.Controls
                 OnPropertyChanged();
             }
         }
-
+        
+       
         private ObservableCollection<string> _messageCollection = new ObservableCollection<string>();
 
         public ObservableCollection<string> MessageCollection
@@ -57,15 +59,15 @@ namespace ErrorFixApp.Controls
             set
             {
                 _messageCollection = value;
-              
-                OnPropertyChanged();
+                
+                OnPropertyChanged("MessageCollection");
             }
         }
 
         private readonly List<string> _dbListToExport = new List<string>();
-        private int _totalErrorsCount = 0;
+        private int _totalErrorsCount;
         
-        private List<ErrorEntity> _errorListToExport = new List<ErrorEntity>();
+        
         
        
         
@@ -171,8 +173,9 @@ namespace ErrorFixApp.Controls
         
         private void ExportToXlsxFileTask()
         {
+            Task.Factory.StartNew(ExportToXlsxFile);
             //Task.Factory.StartNew(ExportToXlsxFile);
-            ExportToXlsxFile();
+            //ExportToXlsxFile();
         }
 
         private void ExportToXlsxFile()
@@ -183,6 +186,8 @@ namespace ErrorFixApp.Controls
                 {
                     foreach (var db in _dbListToExport)
                     {
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection.Add($"Обработка БД: {db}")));
+                      
                         List<ErrorEntity> errors = new List<ErrorEntity>();
                         if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                         {
@@ -224,7 +229,8 @@ namespace ErrorFixApp.Controls
                                 var dirToExport = $"{ExportPath}\\{route}";
                                 if (CheckDirectoryToExport(dirToExport))
                                 {
-                                    MessageCollection.Add($"Создана директория: {route}");
+                                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection.Add($"Создана директория: {route}")));
+                                    
                                 }
                                 
                                 var exportDbPath =
@@ -235,7 +241,8 @@ namespace ErrorFixApp.Controls
                             }
                         }
                         errors.Clear();
-                        MessageCollection.Add($"Всего добавлено: {_totalErrorsCount} ошибок");
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection.Add($"Всего добавлено: {_totalErrorsCount} ошибок")));
+                        
                         
                         
                     }
@@ -249,6 +256,8 @@ namespace ErrorFixApp.Controls
             {
                 MessageBox.Show(ex.Message);
             }
+
+           
         }
 
         private bool CheckDirectoryToExport(string dirToExport)
@@ -281,7 +290,7 @@ namespace ErrorFixApp.Controls
                     {
                         File.Delete(xlsToExport);
                     }
-                    MessageCollection.Add($"Создан файл:{Path.GetFileNameWithoutExtension(xlsToExport)}");
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection.Add($"Создан файл:{Path.GetFileNameWithoutExtension(xlsToExport)}")));
                     SpreadsheetDocument document = ExcelTools.OpenDocument(xlsToExport, "Sheet1",
                         out var workbookPart,
                         out var worksheetPart);
@@ -319,15 +328,13 @@ namespace ErrorFixApp.Controls
                 string positionToXls = error.Position;
 
                 MPoint pos = new MPoint();
-                double x = 0.0;
-                double y = 0.0;
-                
+
                 if (positionParams.Length == 8)
                 {
                     //positionToXls = $"{positionParams[3]};{positionParams[4]};{positionParams[5]}";
                     positionToXls = $"{positionParams[3]};{positionParams[4]};20";
-                    if (Double.TryParse(positionParams[3], out x) &&
-                        Double.TryParse(positionParams[4], out y))
+                    if (Double.TryParse(positionParams[3], out var x) &&
+                        Double.TryParse(positionParams[4], out var y))
                     {
                         pos = SphericalMercator.FromUnigineToLonLat(x, y);
                     }
@@ -346,12 +353,14 @@ namespace ErrorFixApp.Controls
 
                 if (i == 1)
                 {
-                    MessageCollection.Add($"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}");
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection.Add($"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}")));
+                   
                 }
                 else
                 {
-                    MessageCollection[MessageCollection.Count - 1] =
-                        $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}";
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>   MessageCollection[MessageCollection.Count - 1] =
+                        $"{route} - {Resources.AddedErrors} {i} из {routeErrors.Count}"));
+                    ;
                 }
 
                 _totalErrorsCount++;

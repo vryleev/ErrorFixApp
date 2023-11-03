@@ -31,7 +31,7 @@ namespace ErrorFixApp.Controls
           
         }
         
-        private bool _errorLoaded = false;
+        private bool _errorLoaded;
         public bool ErrorLoaded
         {
             get => _errorLoaded;
@@ -144,17 +144,9 @@ namespace ErrorFixApp.Controls
         
         private ErrorDetail _errorDetail = new ErrorDetail();
 
-        private ErrorDetail Error
-        {
-            get => _errorDetail;
-            set
-            {
-                _errorDetail = value;
-                OnPropertyChanged();
-            }
-        }
-        
-        
+        private ErrorDetail Error => _errorDetail;
+
+
         private ICommand _loadCommand;
 
         public ICommand LoadCommand
@@ -241,7 +233,7 @@ namespace ErrorFixApp.Controls
         }
         
         
-        private async void UpdateObject()
+        private void UpdateObject()
         {
             if (ErrorId <= 0)
             {

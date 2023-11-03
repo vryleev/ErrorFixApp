@@ -16,7 +16,7 @@ namespace ErrorDataLayer
 {
     public static class SqLiteManager
     {
-        public static readonly string BaseDir = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\RouteErrors";
+        private static readonly string BaseDir = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\RouteErrors";
         public static bool IsCheckQueue = true;
         public static string User = "Release";
         private static string _baseName;
@@ -25,6 +25,10 @@ namespace ErrorDataLayer
 
         private static readonly Task AddTask;
         private static readonly Task UpdateTask;
+
+        private static readonly CancellationTokenSource CancelTokenSource = new CancellationTokenSource();
+        private static CancellationToken _token = CancelTokenSource.Token;
+       
 
         
 
@@ -49,8 +53,8 @@ namespace ErrorDataLayer
 
             //CreateDb();
 
-            AddTask = Task.Factory.StartNew(CheckQueueToAdd);
-            UpdateTask = Task.Factory.StartNew(CheckQueueToUpdate);
+            AddTask = Task.Factory.StartNew(CheckQueueToAdd,_token);
+            UpdateTask = Task.Factory.StartNew(CheckQueueToUpdate,_token);
             
            
         }
@@ -707,8 +711,11 @@ namespace ErrorDataLayer
 
         public static void StopTasks()
         {
-            AddTask.Dispose();
-            UpdateTask.Dispose();
+            CancelTokenSource.Cancel();
+            CancelTokenSource.Dispose();
+            
+            //AddTask.Dispose();
+            //UpdateTask.Dispose();
         }
     }
 }
