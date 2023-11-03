@@ -160,7 +160,8 @@ namespace ErrorFixApp.Controls
             foreach (var db in _dbListToExport)
             {
                var errorCount = _sqLiteManager.GetErrorCount(db);
-               MessageCollection.Add($"{i}. БД: {db}, Кол-во записей: {errorCount}");
+               var exportDate = _sqLiteManager.GetLastExportDate(db);
+               MessageCollection.Add($"{i}. БД: {db}, Кол-во записей: {errorCount}, Дата экспорта: {exportDate}");
                i++;
             }
             //ToDo for web api
@@ -186,6 +187,7 @@ namespace ErrorFixApp.Controls
                         if (ConfigurationManager.AppSettings.Get("WorkingType") == "Local")
                         {
                             errors = _sqLiteManager.LoadErrors(db);
+                            _sqLiteManager.AddExportDateToDb(db);
                         }
                         //else
                         //{

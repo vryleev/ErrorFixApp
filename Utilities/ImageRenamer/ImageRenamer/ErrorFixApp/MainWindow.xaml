@@ -72,6 +72,7 @@
                         </Grid>
                     </TabItem.Content>
                 </TabItem>
+                
             </TabControl>
 
         </StackPanel>

@@ -5,7 +5,9 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
@@ -20,14 +22,14 @@ namespace ErrorDataLayer
         private readonly string _user = "Release";
         private string _baseName;
 
-        private static string BaseNameToAdd;
+        private static string _baseNameToAdd;
 
-        private Task _addTask = null;
-        private Task _updateTask = null;
+        private readonly Task _addTask;
+        private readonly Task _updateTask;
 
         
 
-        private readonly ConcurrentQueue<ErrorEntity> _queueToAdd = new ConcurrentQueue<ErrorEntity>();
+        private readonly ConcurrentQueue<object> _queueToAdd = new ConcurrentQueue<object>();
         private readonly ConcurrentQueue<ErrorEntity> _queueToUpdate = new ConcurrentQueue<ErrorEntity>();
 
         private readonly Logger _log =
@@ -43,7 +45,7 @@ namespace ErrorDataLayer
             }
             
             _baseName = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
-            BaseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
+            _baseNameToAdd = $"{BaseDir}\\{DateTime.Today.Date:yy-MM-dd}-{_user}.db3";
 
             Log.Information("SqLiteManage constructor");
             if (!Directory.Exists(BaseDir))
@@ -61,15 +63,15 @@ namespace ErrorDataLayer
 
         private static void CreateDb()
         {
-            if (!File.Exists(BaseNameToAdd))
+            if (!File.Exists(_baseNameToAdd))
             {
-                SQLiteConnection.CreateFile(BaseNameToAdd);
+                SQLiteConnection.CreateFile(_baseNameToAdd);
                 SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
                 using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
                 {
                     if (connection != null)
                     {
-                        connection.ConnectionString = "Data Source = " + BaseNameToAdd;
+                        connection.ConnectionString = "Data Source = " + _baseNameToAdd;
                         connection.Open();
 
                         using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -89,6 +91,16 @@ namespace ErrorDataLayer
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
                         }
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = @"CREATE TABLE [ExportDates] (
+                            [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            [exportDate] TEXT NULL,
+                            [user] TEXT NULL
+                            );";
+                            command.CommandType = CommandType.Text;
+                            command.ExecuteNonQuery();
+                        }
                     }
                 }
             }
@@ -102,6 +114,8 @@ namespace ErrorDataLayer
         public void SetBaseName(string baseName)
         {
             _baseName = $"{BaseDir}\\{baseName}.db3";
+            CheckDb();
+           
         }
 
         public List<String> GetAvailableDb()
@@ -120,6 +134,10 @@ namespace ErrorDataLayer
             CreateDb();
             _queueToAdd.Enqueue(error);
         }
+        public void AddExportDateToDb(string baseName)
+        {
+           _queueToAdd.Enqueue(baseName);
+        }
         
         public void UpdateErrorInDb(ErrorEntity error)
         {
@@ -130,10 +148,18 @@ namespace ErrorDataLayer
         {
             while (IsCheckQueue)
             {
-                while (_queueToAdd.TryDequeue(out var error))
+                while (_queueToAdd.TryDequeue(out var obj))
                 {
                     _log.Debug($"Queue count = {_queueToAdd.Count}");
-                    SaveToDb(error);
+                    if (obj is ErrorEntity e)
+                    {
+                        SaveErrorToDb(e);
+                    }
+
+                    if (obj is string str)
+                    {
+                        SaveExportDateToDb(str);
+                    }
                 }
                 Thread.Sleep(100);
                 
@@ -154,14 +180,14 @@ namespace ErrorDataLayer
             }
         }
 
-        private void SaveToDb(ErrorEntity error)
+        private void SaveErrorToDb(ErrorEntity error)
         {
             SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
             {
                 if (connection != null)
                 {
-                    connection.ConnectionString = "Data Source = " + BaseNameToAdd;
+                    connection.ConnectionString = "Data Source = " + _baseNameToAdd;
                     connection.Open();
 
                     using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -190,7 +216,39 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                            UpdateDbStructure(ex.Message, Path.GetFileNameWithoutExtension(BaseNameToAdd));
+                            _log.Error($"{ex.Message}");
+                        }
+                    }
+                }
+            }
+        }
+        private void SaveExportDateToDb(string baseName = null)
+        {
+            CheckDb(baseName);
+            string datetime = GetDbToAdd();
+            SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText =
+                            $"INSERT INTO [ExportDates] " +
+                            $"(exportDate) " +
+                            $"VALUES ('{datetime}');";
+                      
+                        command.CommandType = CommandType.Text;
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error($"{ex.Message}");
                         }
                     }
                 }
@@ -234,7 +292,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
-                            UpdateDbStructure(ex.Message, Path.GetFileNameWithoutExtension(BaseNameToAdd));
+                            _log.Error($"{ex.Message}");
                         }
                     }
                 }
@@ -263,6 +321,7 @@ namespace ErrorDataLayer
                         }
                         catch (Exception ex)
                         {
+                           _log.Error($"{ex.Message}");
                             return 0;
                         }
                     }
@@ -400,7 +459,7 @@ namespace ErrorDataLayer
                         catch (Exception ex)
                         {
                             _log.Error(ex.Message);
-                            UpdateDbStructure(ex.Message, baseName);
+                            
                         }
                     }
                 }
@@ -409,66 +468,112 @@ namespace ErrorDataLayer
             return error;
         }
 
-        private void UpdateDbStructure(string exMessage, string baseName)
+        private void CheckDb(string baseName = null)
         {
-            if (exMessage.ToLower().Contains("username"))
+           
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
             {
-                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
-                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+                if (connection != null)
                 {
-                    if (connection != null)
-                    {
-                        SetConnectionString(baseName, connection);
-                        connection.Open();
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
 
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
-                        {
-                            command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [username]  TEXT NULL;";
-                            command.CommandType = CommandType.Text;
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                }
-            }
-            if (exMessage.ToLower().Contains("errortype"))
-            {
-                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
-                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
-                {
-                    if (connection != null)
-                    {
-                        SetConnectionString(baseName, connection);
-                        connection.Open();
-
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
-                        {
-                            command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [errortype]  TEXT NULL;";
-                            command.CommandType = CommandType.Text;
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                }
-            }
-            if (exMessage.ToLower().Contains("priority"))
-            {
-                SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
-                using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
-                {
-                    if (connection != null)
-                    {
-                        SetConnectionString(baseName, connection);
-                        connection.Open();
-
-                        using (SQLiteCommand command = new SQLiteCommand(connection))
-                        {
-                            command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [priority]  TEXT NULL;";
-                            command.CommandType = CommandType.Text;
-                            command.ExecuteNonQuery();
-                        }
-                    }
+                    CheckRouteTableColumns(connection);
+                    CheckExportTableExisting(connection);
                 }
             }
         }
+
+        private void CheckRouteTableColumns(SQLiteConnection connection)
+        {
+            List<string> columns = new List<string>();
+            using (SQLiteCommand command = new SQLiteCommand(connection))
+            {
+                command.CommandText =
+                    $"PRAGMA table_info([RouteErrors])";
+                try
+                {
+                    IDataReader rdr = command.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        columns.Add((String)rdr[1]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex.Message);
+                }
+            }
+
+            if (columns.Find(x => x.Contains("username")) == null)
+            {
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [username]  TEXT NULL;";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            if (columns.Find(x => x.Contains("errortype")) == null)
+            {
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [errortype]  TEXT NULL;";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            if (columns.Find(x => x.Contains("priority")) == null)
+            {
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [priority]  TEXT NULL;";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+        
+        private void CheckExportTableExisting(SQLiteConnection connection)
+        {
+            List<string> tables = new List<string>();
+            using (SQLiteCommand command = new SQLiteCommand(connection))
+            {
+                command.CommandText =
+                    $"PRAGMA table_list";
+                try
+                {
+                    IDataReader rdr = command.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        tables.Add((String)rdr[1]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Error(ex.Message);
+                }
+            }
+
+            if (tables.Find(x => x.Contains("ExportDates")) == null)
+            {
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"CREATE TABLE [ExportDates] (
+                            [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            [exportDate] TEXT NULL,
+                            [user] TEXT NULL
+                            );";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        
 
         public List<ErrorEntity> LoadErrors(string baseName = null)
         {
@@ -539,7 +644,6 @@ namespace ErrorDataLayer
                         catch (Exception ex)
                         {
                             _log.Error(ex.Message);
-                            UpdateDbStructure(ex.Message, baseName);
                         }
                     }
 
@@ -548,6 +652,50 @@ namespace ErrorDataLayer
             }
 
             return errors;
+        }
+        
+        public string GetLastExportDate(string baseName = null)
+        {
+            List<string> exportDates = new List<string>();
+            SQLiteFactory factory = (SQLiteFactory) DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText =
+                            $"select exportDate " +
+                            $"from ExportDates";
+                        try
+                        {
+                            IDataReader rdr = command.ExecuteReader();
+                            try
+                            {
+                                while (rdr.Read())
+                                {
+                                    exportDates.Add((String) rdr[0]);
+                                }
+                            }
+                            catch (Exception exc)
+                            {
+                                _log.Error(exc.Message);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.Error(ex.Message);
+                        }
+                    }
+
+                    connection.Close();
+                }
+            }
+
+            return exportDates.LastOrDefault();
         }
 
         private void SetConnectionString(string baseName, SQLiteConnection connection)
@@ -560,6 +708,7 @@ namespace ErrorDataLayer
             {
                 connection.ConnectionString = "Data Source = " + $"{BaseDir}\\{baseName}.db3";
             }
+            
         }
 
         public void StopTasks()
