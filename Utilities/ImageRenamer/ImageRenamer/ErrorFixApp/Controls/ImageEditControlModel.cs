@@ -94,6 +94,7 @@ namespace ErrorFixApp.Controls
                         : ImageM.ToStream(ImageFormat.Bmp);
 
                     MainEditorWindow.EnableBlur(editorWindow);
+                    //editorWindow.ShowDialog();
                     MainEditorWindow.ShowMainWindow();
                 }
             }

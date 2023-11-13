@@ -1025,8 +1025,17 @@ namespace PhotoEditor
         {
             if (!MainWindowState.IsOpen)
             {
-                ((MainEditorWindow)Application.Current.Windows[1]).WindowActions();
-                ((MainEditorWindow)Application.Current.Windows[1]).Show();
+                foreach (var window in Application.Current.Windows)
+                {
+                    if (window is MainEditorWindow mew)
+                    {
+                        mew.WindowActions();
+                        mew.Show();
+                        break;
+                    }
+                }
+                //((MainEditorWindow)Application.Current.Windows[1]).WindowActions();
+                //((MainEditorWindow)Application.Current.Windows[1]).Show();
                 
                 
             }
