@@ -81,6 +81,47 @@ namespace ErrorFixApp.Controls
             {
                 _selectedDb = value;
                 UpdateErrorCount();
+                UpdateErrorIdList();
+                ErrorComboBoxFocused = true;
+                OnPropertyChanged();
+            }
+        }
+        
+        
+        private bool _errorComboBoxFocused;
+        public bool ErrorComboBoxFocused
+        {
+            get => _errorComboBoxFocused;
+            set
+            {
+                _errorComboBoxFocused = value;
+                OnPropertyChanged();
+            }
+        }
+            
+            
+        private string _selectedError;
+        public string SelectedError
+        {
+            get => _selectedError;
+            set
+            {
+                _selectedError = value;
+                if (_selectedError != null && !_selectedError.Contains("БД"))
+                {
+                    LoadObject();
+                }
+                OnPropertyChanged();
+            }
+        }
+        
+        private int _selectedErrorIndex;
+        public int SelectedErrorIndex
+        {
+            get => _selectedErrorIndex;
+            set
+            {
+                _selectedErrorIndex = value;
                 OnPropertyChanged();
             }
         }
@@ -116,6 +157,18 @@ namespace ErrorFixApp.Controls
                 DbInfo = $"{Resources.TotalErrors}: {errorCount}";
             }
            
+        }
+        
+        private ObservableCollection<string> _errorIdList = new ObservableCollection<string>();
+        
+        public ObservableCollection<string> ErrorIdList
+        {
+            get => _errorIdList;
+            private set
+            {
+                _errorIdList = value;
+                OnPropertyChanged();
+            }
         }
         
         private ObservableCollection<string> _dbList = new ObservableCollection<string>();
@@ -166,11 +219,17 @@ namespace ErrorFixApp.Controls
             _errorEditControlVm.IsVisible = Visibility.Hidden;
             _imageEditControlVm.IsVisible = Visibility.Hidden;
             ErrorLoaded = false;
+            ErrorId = 0;
+            
+            if (Int32.TryParse(SelectedError.Split('-').First(), out var res))
+            {
+                ErrorId = res;
+            }
             if (ErrorId <= 0)
             {
                 MessageBox.Show(Resources.IdMessage);
             }
-
+            
             if (SelectedDb != String.Empty && ErrorId > 0)
             {
                 Error.ImageM?.Dispose();
@@ -276,6 +335,31 @@ namespace ErrorFixApp.Controls
             DbList = new ObservableCollection<string>(dbList);
             SelectedDb = DbList.First();
         }
+        
+        private async void UpdateErrorIdList()
+        {
+            List<string> errorList = new List<string>();
+            if (ConfigurationParams.WorkingType == "Local")
+            {
+                var errorEntityList = SqLiteManager.LoadErrors();
+                foreach (var ee in errorEntityList)
+                {
+                    errorList.Add($"{ee.Id}-{ee.RouteName}-{ee.Comment}");
+                }
+            }
+            else
+            {
+                //errorList = await _webApiManager.GetAvailableDb();
+            }
+
+            if (errorList.Count == 0)
+            {
+                errorList.Add(Resources.NoDb);
+            }
+            ErrorIdList.Clear();
+            ErrorIdList = new ObservableCollection<string>(errorList);
+            SelectedError = ErrorIdList.First();
+        }
 
         public void Update()
         {
@@ -286,18 +370,7 @@ namespace ErrorFixApp.Controls
         }
         
         
-        private ICommand _deleteCommand;
-
-        public ICommand DeleteCommand
-        {
-            get
-            {
-                return _deleteCommand ?? (_deleteCommand = new RelayCommand<object>(
-                    param => this.DeleteObject(),
-                    param => true
-                ));
-            }
-        }
+       
         private async void DeleteObject()
         {
             if (Error.Id > 0)

@@ -42,6 +42,7 @@
         <KeyBinding Modifiers="Control"
                     Key="D"
                     Command="{Binding DeleteCommand}" />
+
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -76,6 +77,16 @@
                   ScrollViewer.VerticalScrollBarVisibility="Visible">
             
         </ComboBox>
+        <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                  ItemsSource="{Binding ErrorIdList}" 
+                   
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch" 
+                  SelectedItem="{Binding SelectedError, Mode=TwoWay}"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  local:FocusExtension.IsFocused="{Binding ErrorComboBoxFocused}">
+            
+        </ComboBox>
         <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
@@ -83,17 +94,7 @@
                  IsEnabled="False"
                  materialDesign:HintAssist.Hint="{x:Static properties:Resources.DbInfo}"
                  Text="{Binding DbInfo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-        
-      
-        <TextBox
-            SpellCheck.IsEnabled="True" Language="ru-ru" Grid.Row="2" Grid.Column="0"
-            Height="50"
-            TextWrapping="Wrap"
-            AcceptsReturn="True"
-            materialDesign:HintAssist.Hint="{x:Static properties:Resources.ErrorNumber}"
-            Text="{Binding ErrorId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-        <Button Content="{x:Static properties:Resources.ViewError}" Grid.Row="2" Grid.Column="1" 
-               HorizontalAlignment="Stretch" Command="{Binding Path=LoadCommand}"/>
+       
         <Button Content="{x:Static properties:Resources.UpdateError}" Grid.Row="2" Grid.Column="2" IsEnabled="{Binding ErrorLoaded}" 
                 HorizontalAlignment="Stretch" Command="{Binding Path=UpdateCommand}"/>
         <Button Content="{x:Static properties:Resources.DeleteError}" Grid.Row="2" Grid.Column="3" 

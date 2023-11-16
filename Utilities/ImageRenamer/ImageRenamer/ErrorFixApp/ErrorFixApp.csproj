@@ -130,6 +130,7 @@
           <DependentUpon>ExportControl.xaml</DependentUpon>
         </Compile>
         <Compile Include="Controls\ExportControlModel.cs" />
+        <Compile Include="Controls\FocusExtension.cs" />
         <Compile Include="Controls\ImageEditControl.xaml.cs">
           <DependentUpon>ImageEditControl.xaml</DependentUpon>
         </Compile>
