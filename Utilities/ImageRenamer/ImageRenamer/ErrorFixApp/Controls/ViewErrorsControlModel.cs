@@ -200,14 +200,14 @@ namespace ErrorFixApp.Controls
         private ErrorDetail Error => _errorDetail;
 
 
-        private ICommand _loadCommand;
+        private ICommand _deleteCommand;
 
-        public ICommand LoadCommand
+        public ICommand DeleteCommand
         {
             get
             {
-                return _loadCommand ?? (_loadCommand = new RelayCommand<object>(
-                    param => this.LoadObject(),
+                return _deleteCommand ?? (_deleteCommand = new RelayCommand<object>(
+                    param => this.DeleteObject(),
                     param => true
                 ));
             }
@@ -393,6 +393,7 @@ namespace ErrorFixApp.Controls
                     _errorEditControlVm.IsVisible = Visibility.Hidden;
                     _imageEditControlVm.IsVisible = Visibility.Hidden;
                     UpdateErrorCount();
+                    UpdateErrorIdList();
 
                 }
 
