@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "Xc3JoOMokH0701CzKp/VMsmaUZ8CzviD2fLgJ7lo04BsrM5040O2LnfVZF1BVtF3ub/+ZcQHqN1VDhEgYkcm3g==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\user\\Source\\Repos\\ErrorFixApp\\Utilities\\ImageRenamer\\ImageRenamer\\ImageRenamer\\ImageRenamer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\netvips\\2.2.0\\netvips.2.2.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.17\\microsoft.netcore.app.host.win-x64.5.0.17.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,17 @@
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\ErrorDataLayer.dll.config
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\ErrorDataLayer.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\ErrorDataLayer.pdb
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\EntityFramework.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\Serilog.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\Serilog.Sinks.Console.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\Serilog.Sinks.File.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\Serilog.Sinks.File.pdb
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\System.Data.SQLite.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\System.Data.SQLite.EF6.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\bin\Debug\System.Data.SQLite.Linq.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\obj\Debug\ErrorDataLayer.csproj.AssemblyReference.cache
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\obj\Debug\ErrorDataLayer.csproj.CoreCompileInputs.cache
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\obj\Debug\ErrorDataLayer.csproj.CopyComplete
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\obj\Debug\ErrorDataLayer.dll
+C:\Users\user\Source\Repos\ErrorFixApp\Utilities\ImageRenamer\ImageRenamer\ErrorDataLayer\obj\Debug\ErrorDataLayer.pdb
