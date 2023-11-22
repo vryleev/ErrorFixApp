@@ -121,7 +121,19 @@ namespace ErrorFixApp.Controls
                 OnPropertyChanged();
             }
         }
-        
+
+        private ObservableCollection<string> _statusList;
+
+        public ObservableCollection<string> StatusList
+        {
+            get => _statusList;
+            set
+            {
+                _statusList = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void GetComboBoxLists()
         {
             ErrorTypeList = new ObservableCollection<string>(ConfigurationParams.GetErrorTypeList());
@@ -130,6 +142,9 @@ namespace ErrorFixApp.Controls
             
             PriorityList = new ObservableCollection<string>(ConfigurationParams.GetPriorityList());
             Error.Priority = PriorityList.First();
+
+            StatusList = new ObservableCollection<string>(ConfigurationParams.GetStatusList()); //WIP
+            Error.Status = StatusList.First();
         }
         
         

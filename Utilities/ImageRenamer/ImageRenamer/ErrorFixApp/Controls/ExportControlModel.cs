@@ -350,6 +350,7 @@ namespace ErrorFixApp.Controls
                 ExcelTools.InsertText(workbookPart, worksheetPart, $"{pos.Y},{pos.X}", "J", i);
                 ExcelTools.InsertText(workbookPart, worksheetPart, error.ErrorType, "K", i);
                 ExcelTools.InsertText(workbookPart, worksheetPart, error.Priority, "L", i);
+                ExcelTools.InsertText(workbookPart, worksheetPart, error.Status, "M", i);
 
                 if (i == 1)
                 {

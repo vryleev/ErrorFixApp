@@ -84,7 +84,8 @@ namespace ErrorDataLayer
                             [routeName] TEXT NOT NULL,
                             [username]  TEXT NULL,
                             [errortype] TEXT NULL,
-                            [priority] TEXT NULL
+                            [priority] TEXT NULL,
+                            [status] TEXT NULL
                             );";
                             command.CommandType = CommandType.Text;
                             command.ExecuteNonQuery();
@@ -194,7 +195,7 @@ namespace ErrorDataLayer
                             $"INSERT INTO [RouteErrors] " +
                             $"(imagev, imagem, comment, position, timestamp, routeName, username, errorType, priority) " +
                             $"VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}'," +
-                            $"'{error.User}', '{error.ErrorType}', '{error.Priority}');";
+                            $"'{error.User}', '{error.ErrorType}', '{error.Priority}', '{error.Status}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
                             Value = error.ImageV
@@ -269,7 +270,7 @@ namespace ErrorDataLayer
                             $"update [RouteErrors] " +
                             $"set imagev = @0, imagem=@1, comment='{error.Comment}', " +
                             $"position='{error.Position}',timestamp='{error.TimeStamp}',routeName='{error.RouteName}', "+
-                            $"username='{error.User}',errorType='{error.ErrorType}',priority='{error.Priority}' " +
+                            $"username='{error.User}',errorType='{error.ErrorType}',priority='{error.Priority}', status='{error.Status}' " +
                             $"where id='{error.Id}'";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
                         {
@@ -405,7 +406,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority " +
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority, status " +
                             $"from [RouteErrors] where id = '{id}'";
                         try
                         {
@@ -445,8 +446,16 @@ namespace ErrorDataLayer
                                     {
                                         error.Priority = (String) rdr[9];
                                     }
-                                    
-                                    
+                                    if (rdr[10] is DBNull) //WIP
+                                    {
+                                        error.Status = "NotFixed";
+                                    }
+                                    else
+                                    {
+                                        error.Status = (String)rdr[10];
+                                    }
+
+
                                 }
                             }
                             catch (Exception exc)
@@ -533,6 +542,16 @@ namespace ErrorDataLayer
                     command.ExecuteNonQuery();
                 }
             }
+
+            if (columns.Find(x => x.Contains("status")) == null) //WIP
+            {
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"ALTER TABLE [RouteErrors] ADD COLUMN [status] TEXT NULL;";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
         }
         
         private static void CheckExportTableExisting(SQLiteConnection connection)
@@ -587,7 +606,7 @@ namespace ErrorDataLayer
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
                         command.CommandText =
-                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority " +
+                            $"Select imagev, imagem, comment, position, timestamp, routeName, id, username, errortype, priority, status " +
                             $"from RouteErrors";
                         try
                         {
@@ -630,7 +649,15 @@ namespace ErrorDataLayer
                                     {
                                         error.Priority = (String) rdr[9];
                                     }
-                                    
+                                    if (rdr[10] is DBNull) //WIP
+                                    {
+                                        error.Status = "NotFixed";
+                                    }
+                                    else
+                                    {
+                                        error.Status = (String)rdr[10];
+                                    }
+
                                     errors.Add(error);
                                 }
                             }
@@ -651,7 +678,55 @@ namespace ErrorDataLayer
 
             return errors;
         }
-        
+
+        public static List<ErrorEntity> LoadFields(string baseName = null)
+        {
+            List<ErrorEntity> fields = new List<ErrorEntity>();
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = $"SELECT id, routeName, comment FROM RouteErrors";
+                        try
+                        {
+                            IDataReader rdr = command.ExecuteReader();
+                            try
+                            {
+                                while (rdr.Read())
+                                {
+                                    ErrorEntity field = new ErrorEntity
+                                    {
+                                        Id = Convert.ToInt32(rdr[0]),
+                                        RouteName = (String)rdr[1],
+                                        Comment = (String)rdr[2],
+
+                                    };
+
+                                    fields.Add(field);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex.Message);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.Message);
+                        }
+
+                    }
+                    connection.Close();
+                }
+            }
+            return fields;
+        }
+
         public static string GetLastExportDate(string baseName = null)
         {
             List<string> exportDates = new List<string>();

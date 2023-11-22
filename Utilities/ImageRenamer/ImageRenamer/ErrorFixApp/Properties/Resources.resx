@@ -210,6 +210,9 @@
   <data name="PriorityLabel" xml:space="preserve">
     <value>Приоритет</value>
   </data>
+  <data name="Status" xml:space="preserve">
+	<value>Статус ошибки</value> 
+  </data>
   <data name="ErrorNumber" xml:space="preserve">
     <value>Номер ошибки</value>
   </data>
