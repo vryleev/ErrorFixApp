@@ -120,8 +120,9 @@
                 <ColumnDefinition Width="100*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50*" />
-                <RowDefinition Height="50*" />
+                <RowDefinition Height="33*" />
+                <RowDefinition Height="33*" />
+                <RowDefinition Height="33*" />
 
 
             </Grid.RowDefinitions>
@@ -137,6 +138,12 @@
                       ItemsSource="{ Binding PriorityList}"
                       SelectedItem="{Binding Error.Priority, Mode=TwoWay}"
                       materialDesign:HintAssist.Hint="{x:Static properties:Resources.PriorityLabel}">
+            </ComboBox>
+            <ComboBox Name="StatusCombo" Grid.Column="0" Grid.Row="2"
+                      ItemsSource="{ Binding StatusList}"
+                      SelectedItem="{Binding Error.Status, Mode=TwoWay}"
+                      materialDesign:HintAssist.Hint="{x:Static properties:Resources.Status}">
+
             </ComboBox>
         </Grid>
     </Grid>

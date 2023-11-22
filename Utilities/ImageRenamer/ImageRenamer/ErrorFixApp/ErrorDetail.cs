@@ -19,6 +19,7 @@ namespace ErrorFixApp
         private string _errorType = "base";
         private string _priority = "Normal";
         private string _routeName = Resources.SetupRoute;
+        private string _status = "NotFixed"; //WIP
         private int _id = -1;
         
         private BitmapImage _bitmapImageV = new BitmapImage();
@@ -141,7 +142,17 @@ namespace ErrorFixApp
                 OnPropertyChanged();
             }
         }
-        
+
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName]string prop = "")
@@ -160,6 +171,7 @@ namespace ErrorFixApp
             ee.User = ConfigurationParams.User;
             ee.ErrorType = ErrorType;
             ee.Priority = Priority;
+            ee.Status = Status;
 
             ee.ImageV = ImageUtils.ImageToByte(ImageV, ImageFormat.Jpeg);
             ee.ImageM = ImageUtils.ImageToByte(ImageM, ImageFormat.Jpeg);
@@ -184,7 +196,8 @@ namespace ErrorFixApp
 
                 Priority = ee.Priority;
                 ErrorType = ee.ErrorType;
-                
+                Status = ee.Status;
+
                 res = true;
             }
             else

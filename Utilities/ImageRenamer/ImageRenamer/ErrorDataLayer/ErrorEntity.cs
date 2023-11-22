@@ -20,9 +20,9 @@
         public string User { get; set; }
         
         public string ErrorType { get; set; }
-        
+      
         public string Priority { get; set; }
-        
-        
+
+        public string Status { get; set; }
     }
 }

@@ -341,7 +341,7 @@ namespace ErrorFixApp.Controls
             List<string> errorList = new List<string>();
             if (ConfigurationParams.WorkingType == "Local")
             {
-                var errorEntityList = SqLiteManager.LoadErrors();
+                var errorEntityList = SqLiteManager.LoadFields();
                 foreach (var ee in errorEntityList)
                 {
                     errorList.Add($"{ee.Id}-{ee.RouteName}-{ee.Comment}");
@@ -349,7 +349,7 @@ namespace ErrorFixApp.Controls
             }
             else
             {
-                //errorList = await _webApiManager.GetAvailableDb();
+                errorList = await _webApiManager.GetAvailableDb();
             }
 
             if (errorList.Count == 0)

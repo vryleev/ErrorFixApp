@@ -58,5 +58,10 @@ namespace ErrorFixApp
         {
             return ConfigurationManager.AppSettings.Get("Priority").Split(',').ToList();
         }
+
+        public static List<string> GetStatusList()
+        {
+            return ConfigurationManager.AppSettings.Get("Status").Split(',').ToList(); //WIP
+        }
     }
 }
