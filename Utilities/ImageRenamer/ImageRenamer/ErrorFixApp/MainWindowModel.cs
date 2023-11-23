@@ -14,6 +14,7 @@ namespace ErrorFixApp
             AddErrorPanelControlVm = new AddErrorPanelControlModel();
             ViewErrorsControlVm = new ViewErrorsControlModel();
             ExportControlVm = new ExportControlModel();
+            StatisticsControlVm = new StatisticsControlModel();
             SqLiteManager.User = ConfigurationParams.User;
         } 
         
@@ -89,6 +90,18 @@ namespace ErrorFixApp
             }
         }
 
+        private StatisticsControlModel _statisticsControlVm;
+
+        public StatisticsControlModel StatisticsControlVm
+        {
+            get => _statisticsControlVm;
+            private set
+            {
+                _statisticsControlVm = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string prop = "")
@@ -101,9 +114,7 @@ namespace ErrorFixApp
         public void ClosingDb()
         {
             SqLiteManager.IsCheckQueue = false;
-            SqLiteManager.StopTasks();
-            
+            SqLiteManager.StopTasks();   
         }
-
     }
 }

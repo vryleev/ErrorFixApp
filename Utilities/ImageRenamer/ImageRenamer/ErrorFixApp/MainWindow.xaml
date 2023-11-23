@@ -72,7 +72,16 @@
                         </Grid>
                     </TabItem.Content>
                 </TabItem>
-                
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock>Статистика ошибок</TextBlock>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <Grid>
+                            <controls:StatisticsControl DataContext="{Binding StatisticsControlVm}"/>
+                        </Grid>
+                    </TabItem.Content>
+                </TabItem>
             </TabControl>
 
         </StackPanel>

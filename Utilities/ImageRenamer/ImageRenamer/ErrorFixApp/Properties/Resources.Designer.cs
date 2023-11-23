@@ -250,6 +250,15 @@ namespace ErrorFixApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Исправленных ошибок.
+        /// </summary>
+        public static string FixedErrors {
+            get {
+                return ResourceManager.GetString("FixedErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ID.
         /// </summary>
         public static string IDLabel {
@@ -336,6 +345,24 @@ namespace ErrorFixApp.Properties {
         public static string PriorityLabel {
             get {
                 return ResourceManager.GetString("PriorityLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Всего ошибок на маршруте.
+        /// </summary>
+        public static string RouteErrors {
+            get {
+                return ResourceManager.GetString("RouteErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Информация по маршруту.
+        /// </summary>
+        public static string RouteInfo {
+            get {
+                return ResourceManager.GetString("RouteInfo", resourceCulture);
             }
         }
         

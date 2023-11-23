@@ -360,7 +360,38 @@ namespace ErrorDataLayer
             }
             return res;
         }
-        
+
+        public static int GetRouteErrorsCount(string routeName, string baseName = null)
+        {
+            int res = -1;
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        try
+                        {
+                            command.CommandType = CommandType.Text;
+                            command.CommandText = $"SELECT count(*) FROM [RouteErrors] WHERE routeName = '{routeName}'";
+                            object count = command.ExecuteScalar();
+                            return Convert.ToInt32(count);
+                        }
+                        catch (Exception exc1)
+                        {
+                            Log.Error(exc1.Message);
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
         public static int GetMaxId(string baseName = null)
         {
             int res = -1;
@@ -412,6 +443,8 @@ namespace ErrorDataLayer
                         {
                             IDataReader rdr = command.ExecuteReader();
                             try
+
+
                             {
                                 while (rdr.Read())
                                 {
@@ -725,6 +758,84 @@ namespace ErrorDataLayer
                 }
             }
             return fields;
+        }
+
+        public static List<ErrorEntity> RouteNames(string baseName = null)
+        {
+            List<ErrorEntity> routeNames = new List<ErrorEntity>();
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+                    connection.Open();
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = $"SELECT routeName, MIN(rowid) AS first_appearance_id FROM RouteErrors GROUP BY routeName";
+                        try
+                        {
+                            IDataReader rdr = command.ExecuteReader();
+                            try
+                            {
+                                while (rdr.Read())
+                                {
+                                    ErrorEntity routeName = new ErrorEntity
+                                    {
+                                        RouteName = (String)rdr[0],
+                                        Id = Convert.ToInt32(rdr[1]),
+                                    };
+
+                                    routeNames.Add(routeName);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex.Message);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.Message);
+                        }
+
+                    }
+                    connection.Close();
+                }
+            }
+            return routeNames;
+        }
+
+        public static int GetStatusCount(string routeName, string baseName = null)
+        {
+            int statusCount = 0;
+
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        try
+                        {
+                            command.CommandType = CommandType.Text;
+                            command.CommandText = $"SELECT COUNT(*) AS fixedCount FROM RouteErrors WHERE routeName = '{routeName}' AND status = 'Fixed'";
+                            object count = command.ExecuteScalar();
+                            return Convert.ToInt32(count);
+                        }
+                        catch (Exception exc1)
+                        {
+                            Log.Error(exc1.Message);
+                        }
+                    }
+                }
+            }
+            return statusCount;
         }
 
         public static string GetLastExportDate(string baseName = null)
