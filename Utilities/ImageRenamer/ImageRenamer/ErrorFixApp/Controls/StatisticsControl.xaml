@@ -36,13 +36,11 @@
             <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
                 <Setter Property="Margin" Value="0 10 0 0" />
             </Style>
+            <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource MaterialDesignCardsListBox}">
+                <Setter Property="Margin" Value="0 10 0 0" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <UserControl.InputBindings>
-        <KeyBinding Modifiers="Control"
-             Key="D"
-             Command="{Binding DeleteCommand}" />
-    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
@@ -57,7 +55,7 @@
             <ColumnDefinition Width="25*" />
             <ColumnDefinition Width="25*" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4"
+        <TextBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="1"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
@@ -72,20 +70,40 @@
                   SelectedItem="{Binding SelectedDb, Mode=TwoWay}"
                   ScrollViewer.VerticalScrollBarVisibility="Visible">
         </ComboBox>
-        <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"
+        <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"
+                  ItemsSource="{Binding DbErrorsList}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  />
+        <TextBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3"
                  SpellCheck.IsEnabled="True" Language="ru-ru"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
                  IsEnabled="False"
                  materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteInfo}"
                  Text="{Binding RouteInfo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-        <ComboBox Grid.Column="0" Grid.Row="2"
-                  ItemsSource="{Binding RouteNameList}" 
-                  IsReadOnly="True"
-                  HorizontalAlignment="Stretch" 
-                  VerticalAlignment="Stretch" 
-                  SelectedItem="{Binding SelectedRouteName, Mode=TwoWay}"
-                  ScrollViewer.VerticalScrollBarVisibility="Visible">
+        
+        <ComboBox Grid.Column="0" Grid.Row="3"
+          ItemsSource="{Binding AllRouteNamesList}" 
+          HorizontalAlignment="Stretch" 
+          VerticalAlignment="Stretch" 
+          SelectedItem="{Binding SelectedRouteName, Mode=TwoWay}"
+          ScrollViewer.VerticalScrollBarVisibility="Visible">
         </ComboBox>
+        <TextBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"
+         SpellCheck.IsEnabled="True" Language="ru-ru"
+         TextWrapping="Wrap"
+         AcceptsReturn="True"
+         IsEnabled="False"
+         materialDesign:HintAssist.Hint="{x:Static properties:Resources.RouteInfo}"
+         Text="{Binding RouteInfo, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+        <ComboBox Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="3"
+         ItemsSource="{Binding AllRouteErrorsList}" 
+         HorizontalAlignment="Stretch" 
+         VerticalAlignment="Stretch" 
+         ScrollViewer.VerticalScrollBarVisibility="Visible">
+        </ComboBox>
+        
     </Grid>
 </UserControl>

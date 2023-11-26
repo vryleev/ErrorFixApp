@@ -18,6 +18,7 @@ namespace ErrorFixApp.Controls
             _webApiManager = new WebApiManager();
 
             GetDbList();
+            GetAllRouteNames();
         }
 
         private readonly WebApiManager _webApiManager;
@@ -30,8 +31,8 @@ namespace ErrorFixApp.Controls
             set
             {
                 _selectedDb = value;
+                GetDbErrorsList();
                 GetRouteNameList();
-                
                 OnPropertyChanged();
             }
         }
@@ -46,8 +47,10 @@ namespace ErrorFixApp.Controls
                 if (_selectedRouteName != value)
                 {
                     _selectedRouteName = value;
+                    
                     UpdateStatusInfo();
                     OnPropertyChanged(nameof(SelectedRouteName));
+                    GetAllRouteErrors();
                 }
                 
             }
@@ -93,6 +96,54 @@ namespace ErrorFixApp.Controls
             }
         }
 
+        private ObservableCollection<string> _allRouteNamesList = new ObservableCollection<string>();
+
+        public ObservableCollection<string> AllRouteNamesList
+        {
+            get => _allRouteNamesList;
+            private set
+            {
+                _allRouteNamesList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<string> _allRouteErrorsList = new ObservableCollection<string>();
+
+        public ObservableCollection<string> AllRouteErrorsList
+        {
+            get => _allRouteErrorsList;
+            private set
+            {
+                _allRouteErrorsList = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<string> _allRouteInfo = new ObservableCollection<string>();
+
+        public ObservableCollection<string> AllRouteInfo
+        {
+            get { return _allRouteInfo; }
+            private set
+            {
+                _allRouteInfo = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<string> _dbErrorsList = new ObservableCollection<string>();
+
+        public ObservableCollection<string> DbErrorsList
+        {
+            get => _dbErrorsList;
+            private set
+            {
+                _dbErrorsList = value;
+                OnPropertyChanged();
+            }
+        }
+
         private async void GetDbList()
         {
             List<string> dbList;
@@ -114,6 +165,19 @@ namespace ErrorFixApp.Controls
             SelectedDb = DbList.First();
         }
 
+        private void GetDbErrorsList()
+        {
+            List<ErrorEntity> list = SqLiteManager.LoadErrors(_selectedDb);
+            if (list != null)
+            {
+                DbErrorsList.Clear();
+                foreach (var error in list)
+                {
+                    DbErrorsList.Add($"{error.RouteName} - {error.Comment} - {error.Status}");
+                }
+            }
+        }
+
         private void GetRouteNameList()
         {
             List<ErrorEntity> list = SqLiteManager.RouteNames(_selectedDb);
@@ -127,6 +191,41 @@ namespace ErrorFixApp.Controls
             }
         }
 
+        private void GetAllRouteNames()
+        {
+            if (ConfigurationParams.WorkingType == "Local")
+            {
+                GetDbList();
+                foreach (var db in DbList)
+                {
+                    var allEntityList = SqLiteManager.RouteNames(db);
+                    foreach (var routeName in allEntityList)
+                    {
+                        AllRouteNamesList.Add(routeName.RouteName);
+                    }
+
+                }
+            }
+        }
+
+        private void GetAllRouteErrors()
+        {
+            if (ConfigurationParams.WorkingType == "Local")
+            {
+                AllRouteErrorsList.Clear();
+                GetDbList();
+                foreach (var db in DbList)
+                {
+                    
+                    List<ErrorEntity> allEntityList = SqLiteManager.GetAllRouteErrors(SelectedRouteName,db);
+                    foreach (var error in allEntityList)
+                    {
+                        AllRouteErrorsList.Add($"{error.Comment} - {error.Status}");
+                    }
+                }
+            }
+        }
+
         private void UpdateStatusInfo()
         {
             if (ConfigurationParams.WorkingType == "Local")
@@ -135,6 +234,19 @@ namespace ErrorFixApp.Controls
 
                 RouteInfo =
                     $"{Resources.FixedErrors}: {SqLiteManager.GetStatusCount(SelectedRouteName)}, {Resources.RouteErrors}: {SqLiteManager.GetRouteErrorsCount(SelectedRouteName)}";
+            }
+        }
+
+        private void UpdateRouteInfo()
+        {
+            if (ConfigurationParams.WorkingType == "Local")
+            {
+                GetDbList();
+
+                foreach ( var db in DbList)
+                {
+                    RouteInfo = $"{Resources.FixedErrors}: {SqLiteManager.GetStatusCount(SelectedRouteName)}, {Resources.RouteErrors}: {SqLiteManager.GetErrorCount(SelectedRouteName)}";
+                }
             }
         }
 

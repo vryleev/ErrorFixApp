@@ -193,7 +193,7 @@ namespace ErrorDataLayer
                     {
                         command.CommandText =
                             $"INSERT INTO [RouteErrors] " +
-                            $"(imagev, imagem, comment, position, timestamp, routeName, username, errorType, priority) " +
+                            $"(imagev, imagem, comment, position, timestamp, routeName, username, errorType, priority, status) " +
                             $"VALUES (@0,@1,'{error.Comment}','{error.Position}','{error.TimeStamp}','{error.RouteName}'," +
                             $"'{error.User}', '{error.ErrorType}', '{error.Priority}', '{error.Status}');";
                         SQLiteParameter param0 = new SQLiteParameter("@0", DbType.Binary)
@@ -326,7 +326,6 @@ namespace ErrorDataLayer
                     }
                 }
             }
-
             return 1;
         }
 
@@ -487,8 +486,6 @@ namespace ErrorDataLayer
                                     {
                                         error.Status = (String)rdr[10];
                                     }
-
-
                                 }
                             }
                             catch (Exception exc)
@@ -504,7 +501,6 @@ namespace ErrorDataLayer
                     }
                 }
             }
-
             return error;
         }
 
@@ -623,7 +619,59 @@ namespace ErrorDataLayer
             }
         }
 
-        
+        public static List<ErrorEntity> GetAllRouteErrors(string routeName, string baseName = null)
+        {
+            List<ErrorEntity> errors = new List<ErrorEntity>();
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                if (connection != null)
+                {
+                    SetConnectionString(baseName, connection);
+
+                    connection.Open();
+
+                    using (SQLiteCommand command = new SQLiteCommand(connection))
+                    {
+                        command.CommandText = $"SELECT comment, status FROM RouteErrors WHERE routeName = '{routeName}'";
+                        try
+                        {
+                            IDataReader rdr = command.ExecuteReader();
+                            try
+                            {
+                                while (rdr.Read())
+                                {
+                                    ErrorEntity error = new ErrorEntity
+                                    {
+                                        Comment = (String)rdr[0],
+
+                                    };
+                                    if (rdr[1] is DBNull) 
+                                    {
+                                        error.Status = "NotFixed";
+                                    }
+                                    else
+                                    {
+                                        error.Status = (String)rdr[1];
+                                    }
+                                    errors.Add(error);
+                                }
+                            }
+                            catch (Exception exc)
+                            {
+                                Log.Error(exc.Message);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.Message);
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return errors;
+        }
 
         public static List<ErrorEntity> LoadErrors(string baseName = null)
         {
@@ -704,11 +752,9 @@ namespace ErrorDataLayer
                             Log.Error(ex.Message);
                         }
                     }
-
                     connection.Close();
                 }
             }
-
             return errors;
         }
 
@@ -772,7 +818,7 @@ namespace ErrorDataLayer
                     connection.Open();
                     using (SQLiteCommand command = new SQLiteCommand(connection))
                     {
-                        command.CommandText = $"SELECT routeName, MIN(rowid) AS first_appearance_id FROM RouteErrors GROUP BY routeName";
+                        command.CommandText = $"SELECT routeName, MIN(rowid) AS first_appearance_id FROM [RouteErrors] GROUP BY routeName";
                         try
                         {
                             IDataReader rdr = command.ExecuteReader();
@@ -798,7 +844,6 @@ namespace ErrorDataLayer
                         {
                             Log.Error(ex.Message);
                         }
-
                     }
                     connection.Close();
                 }
@@ -874,11 +919,9 @@ namespace ErrorDataLayer
                             Log.Error(ex.Message);
                         }
                     }
-
                     connection.Close();
                 }
             }
-
             return exportDates.LastOrDefault();
         }
 
@@ -892,7 +935,6 @@ namespace ErrorDataLayer
             {
                 connection.ConnectionString = "Data Source = " + $"{BaseDir}\\{baseName}.db3";
             }
-            
         }
 
         public static void StopTasks()
