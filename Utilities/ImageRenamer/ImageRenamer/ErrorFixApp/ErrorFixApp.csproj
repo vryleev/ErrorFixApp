@@ -135,6 +135,10 @@
       <DependentUpon>ImageEditControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ImageEditControlModel.cs" />
+    <Compile Include="Controls\StatisticsControl.xaml.cs">
+      <DependentUpon>StatisticsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StatisticsControlModel.cs" />
     <Compile Include="Controls\ViewErrorsControl.xaml.cs">
       <DependentUpon>ViewErrorsControl.xaml</DependentUpon>
     </Compile>
@@ -149,6 +153,10 @@
     <Page Include="Controls\ErrorDetailsEditControl.xaml" />
     <Page Include="Controls\ExportControl.xaml" />
     <Page Include="Controls\ImageEditControl.xaml" />
+    <Page Include="Controls\StatisticsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ViewErrorsControl.xaml" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

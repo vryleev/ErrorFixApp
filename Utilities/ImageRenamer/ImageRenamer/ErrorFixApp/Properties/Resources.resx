@@ -129,6 +129,12 @@
   <data name="TotalErrors" xml:space="preserve">
     <value>Всего ошибок</value>
   </data>
+  <data name="FixedErrors" xml:space="preserve">
+	<value>Исправленных ошибок</value>
+  </data>
+	<data name="RouteErrors" xml:space="preserve">
+	<value>Всего ошибок на маршруте</value>
+  </data>
   <data name="CommentMessage" xml:space="preserve">
     <value>Необходимо добавить комментарий</value>
   </data>
@@ -231,7 +237,10 @@
   <data name="DbInfo" xml:space="preserve">
     <value>Информация по БД</value>
   </data>
-  <data name="DeleteError" xml:space="preserve">
+  <data name="RouteInfo" xml:space="preserve">
+	<value>Информация по маршруту</value>
+   </data>
+	<data name="DeleteError" xml:space="preserve">
     <value>Удалить</value>
   </data>
   <data name="ExportPath" xml:space="preserve">

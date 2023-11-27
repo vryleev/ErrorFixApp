@@ -278,7 +278,7 @@ namespace ErrorFixApp.Controls
             }
         }
         
-         private ICommand _updateCommand;
+        private ICommand _updateCommand;
 
         public ICommand UpdateCommand
         {
@@ -290,7 +290,6 @@ namespace ErrorFixApp.Controls
                 ));
             }
         }
-        
         
         private void UpdateObject()
         {
@@ -369,8 +368,6 @@ namespace ErrorFixApp.Controls
             ErrorId = -1;
         }
         
-        
-       
         private async void DeleteObject()
         {
             if (Error.Id > 0)
